@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Creator Control Center V2 | GameIndex Beta 0.99</title>
+  <script src="/js/theme-bootstrap.js"></script>
+  <link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/beta096.css">
+<link rel="stylesheet" href="/css/gameindex-0986.css?v=0991"><link rel="stylesheet" href="/css/gameindex-0991.css?v=0991"></head>
+<body><div id="siteShell"></div>
+<main class="b96-main">
+  <section class="b96-hero"><p class="b96-kicker">Creator only · immutable identity · audited access</p><h1>Creator Control Center V2</h1><p>A lista completa abre automaticamente. Papel de staff e plano da conta continuam separados, versionados e auditados.</p></section>
+  <div id="creatorMessage" class="b96-message" role="status" aria-live="polite"></div>
+  <section id="creatorStats" class="b96-stats"></section>
+  <section class="b96-card full">
+    <div class="b96-item-head"><div><p class="b96-kicker">Identity & access</p><h2>Contas</h2></div><button id="refreshUsers" class="b96-button secondary" type="button">Atualizar</button></div>
+    <form id="creatorFilters" class="b96-toolbar">
+      <label>Nome ou @username<input id="creatorQuery" placeholder="Todos os usuários"></label>
+      <label>Papel<select id="creatorRole"><option value="">Todos</option><option>CREATOR</option><option>DEV</option><option>TESTER</option><option value="NONE">SEM STAFF</option></select></label>
+      <label>Plano<select id="creatorPlan"><option value="">Todos</option><option>PRO</option><option>FREE</option></select></label>
+      <label>Status<select id="creatorStatus"><option value="">Todos</option><option value="ACTIVE">Ativo</option><option value="STAFF_SUSPENDED">Staff suspenso</option></select></label>
+      <label>Ordenar<select id="creatorSort"><option value="createdAt">Criação</option><option value="lastActive">Última atividade</option><option value="username">@username</option><option value="displayName">Nome</option><option value="role">Papel</option><option value="plan">Plano</option></select></label>
+      <label>Direção<select id="creatorDirection"><option value="desc">Decrescente</option><option value="asc">Crescente</option></select></label>
+      <button class="b96-button" type="submit">Aplicar filtros</button>
+    </form>
+    <div id="creatorResults" class="b96-table-wrap" aria-busy="true"></div>
+    <nav class="b96-pagination" aria-label="Paginação"><button id="creatorPrev" class="b96-button secondary" type="button">Anterior</button><span id="creatorPage">Página 1</span><button id="creatorNext" class="b96-button secondary" type="button">Próxima</button></nav>
+  </section>
+  <section class="b96-card full"><p class="b96-kicker">Append-only audit</p><h2>Auditoria recente</h2><div id="creatorAudit" class="b96-table-wrap"></div></section>
+</main>
+<dialog id="accessDialog" class="b96-dialog" aria-labelledby="dialogTitle">
+  <div class="b96-modal"><form id="accessForm" method="dialog">
+    <header><p class="b96-kicker">Mudança auditada</p><h2 id="dialogTitle">Confirmar acesso</h2><p id="dialogDescription" class="b96-muted"></p></header>
+    <label id="dialogValueLabel">Novo valor<select id="dialogValue"></select></label>
+    <label>Motivo obrigatório<textarea id="dialogReason" minlength="3" maxlength="500" required placeholder="Explique por que esta alteração é necessária."></textarea></label>
+    <p class="b96-muted">A ação exige sua sessão Creator, verifica a revisão atual e encerra sessões sensíveis quando necessário.</p>
+    <footer><button id="dialogCancel" class="b96-button secondary" value="cancel" type="button">Cancelar</button><button id="dialogConfirm" class="b96-button" value="confirm" type="submit">Confirmar</button></footer>
+  </form></div>
+</dialog>
+<script src="/js/shell-0986.js?v=0991" defer></script><script src="/js/gameindex-0991.js?v=0991" defer></script><script src="/js/creator-control.js"></script>
+</body></html>

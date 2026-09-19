@@ -1,0 +1,5 @@
+import { localize } from "./common.mjs";
+export function createComparison(plan){
+  const items=plan.knowledge.slice(0,6).map(k=>({title:k.title,summary:k.summary,confidence:k.confidence,canonStatus:k.canonStatus,knowledgeIds:[k.id]}));
+  return {title:`${plan.topic} — ${localize(plan,{pt:"Comparação",en:"Comparison",es:"Comparación"})}`,intro:localize(plan,{pt:"Comparação baseada no conhecimento atualmente disponível no GameIndex.",en:"Comparison based on knowledge currently available in GameIndex.",es:"Comparación basada en el conocimiento actualmente disponible en GameIndex."}),items,sections:[],note:localize(plan,{pt:"O GameIndex só indica uma opção como melhor quando existem critérios e evidências suficientes para sustentar essa conclusão.",en:"GameIndex only labels one option as best when the available criteria and evidence support that conclusion.",es:"GameIndex solo indica una opción como mejor cuando existen criterios y evidencias suficientes para respaldar esa conclusión."})};
+}

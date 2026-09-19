@@ -1,0 +1,13 @@
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';
+const root=process.cwd(),read=p=>fs.readFileSync(path.join(root,p),'utf8');
+for(const file of ['src/config/performance-config.mjs','src/music/youtube-music-service.mjs','src/api/hotfix-performance-music-routes.mjs','public/js/hotfix-0985-perf-runtime.js','public/js/music-manager.js','public/music-manager.html'])assert.ok(fs.existsSync(path.join(root,file)),file+' missing');
+const server=read('server.mjs'),shell=read('public/js/shell.js'),admin=read('public/admin.html'),repo=read('src/database/repositories/game-repository.mjs');
+assert.match(server,/paginatedPublicGames/);assert.match(server,/registerHotfixPerformanceMusicRoutes/);assert.match(server,/\["\/music-manager","\/music-manager\.html"\]/);
+assert.match(repo,/listGamesPage/);assert.match(repo,/LIMIT \? OFFSET \?/);
+assert.match(shell,/__GI_YT_MUSIC__/);assert.match(shell,/youtube-nocookie\.com/);assert.match(shell,/gameIndexSoundToggle/);assert.match(shell,/musicManagerMenuLink/);
+assert.match(admin,/Music Manager/);assert.doesNotMatch(shell,/giMuteButton/);
+assert.ok(!fs.existsSync(path.join(root,'public/js/audio-hf4.js')),'obsolete audio-hf4 runtime should be removed');
+assert.ok(!fs.existsSync(path.join(root,'public/audio/hf4')),'obsolete bundled HF4 tracks should be removed');
+for(const f of fs.readdirSync(path.join(root,'public')).filter(x=>x.endsWith('.html')))assert.doesNotMatch(read('public/'+f),/audio-hf4\.js/,f+' still loads old Music Director');
+assert.match(read('src/music/youtube-music-service.mjs'),/INVALID_YOUTUBE_URL/);assert.match(read('public/music-manager.html'),/Game Index Music Manager/);
+console.log('Game Index 0.985 Performance + YouTube Music Manager FULL contract OK');

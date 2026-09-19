@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 960" role="img" aria-labelledby="title desc">
+  <title id="title">GameIndex game cover fallback</title>
+  <desc id="desc">Dark blue GameIndex placeholder used when no verified game cover is available.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07111f"/><stop offset="1" stop-color="#102e55"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#45a7ff" stop-opacity=".5"/><stop offset="1" stop-color="#45a7ff" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="720" height="960" rx="36" fill="url(#bg)"/>
+  <circle cx="360" cy="430" r="300" fill="url(#glow)"/>
+  <rect x="205" y="300" width="310" height="310" rx="72" fill="#0d1d33" stroke="#55b4ff" stroke-width="8"/>
+  <path d="M289 425h142m-71-71v142" stroke="#e7f5ff" stroke-width="24" stroke-linecap="round"/>
+  <circle cx="450" cy="392" r="14" fill="#55b4ff"/><circle cx="482" cy="432" r="14" fill="#55b4ff"/>
+  <text x="360" y="710" text-anchor="middle" fill="#f4f9ff" font-family="Arial,sans-serif" font-size="64" font-weight="700">GAMEINDEX</text>
+  <text x="360" y="765" text-anchor="middle" fill="#8ac8ff" font-family="Arial,sans-serif" font-size="24" letter-spacing="8">COVER PENDING</text>
+</svg>

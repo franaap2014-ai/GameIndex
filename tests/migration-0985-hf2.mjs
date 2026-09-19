@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+const root=mkdtempSync(path.join(os.tmpdir(),'gameindex-0985-hf2-migration-'));
+const dbPath=path.join(root,'hf2.sqlite');
+const cwd=new URL('..',import.meta.url).pathname;
+const seed=`process.env.GAMEINDEX_TARGET_SCHEMA='25';process.env.GAMEINDEX_DB=${JSON.stringify(dbPath)};process.env.GAMEINDEX_DATA_DIR=${JSON.stringify(root)};const c=await import('./src/database/connection.mjs');c.migrateDatabase();const {upsertGame}=await import('./src/database/repositories/game-repository.mjs');const g=upsertGame({name:'HF2 Migration Fixture',slug:'hf2-migration-fixture',status:'PUBLISHED'});const now=new Date().toISOString();c.db.exec("CREATE TABLE legacy_hf2_sentinel(id TEXT PRIMARY KEY,value TEXT NOT NULL) STRICT");c.db.prepare("INSERT INTO legacy_hf2_sentinel(id,value) VALUES('keep','legacy-history-preserved')").run();c.db.prepare("INSERT INTO ie3_assets(id,game_id,entity_id,image_role,state,current_revision,browser_status,repair_count,max_repairs,last_reason_code,last_candidate_at,last_ready_at,created_at,updated_at) VALUES(?, ?, NULL, 'COVER','SAME_ORIGIN_PUBLIC_MEDIA',0,'NOT_TESTED',0,4,'MIGRATED_FROM_0.98','','',?,?)").run('ie3-legacy-promoted',g.id,now,now);console.log(c.schemaVersion());`;
+const child=spawnSync(process.execPath,['--input-type=module','-e',seed],{cwd,encoding:'utf8'});
+assert.equal(child.status,0,child.stderr);assert.match(child.stdout,/25/);
+process.env.GAMEINDEX_DB=dbPath;process.env.GAMEINDEX_DATA_DIR=root;process.env.GAMEINDEX_TARGET_SCHEMA='26';delete process.env.OPENAI_API_KEY;
+const {db,migrateDatabase,schemaVersion}=await import('../src/database/connection.mjs');
+assert.equal(migrateDatabase(),26);assert.equal(schemaVersion(),26);
+assert.equal(db.prepare(`SELECT value FROM legacy_hf2_sentinel WHERE id='keep'`).get().value,'legacy-history-preserved');
+assert.equal(db.prepare(`SELECT COUNT(*) count FROM ie3_assets WHERE last_reason_code='MIGRATED_FROM_0.98'`).get().count,0);
+const meta=Object.fromEntries(db.prepare(`SELECT key,value FROM meta WHERE key IN ('beta_0985_hf2','legacy_image_runtime','current_image_runtime','semantic_ai_runtime','deterministic_core_runtime','audio_runtime')`).all().map(r=>[r.key,r.value]));
+assert.equal(meta.beta_0985_hf2,'1');assert.equal(meta.legacy_image_runtime,'DISABLED_ROLLBACK_ONLY');assert.equal(meta.current_image_runtime,'IMAGE_ENGINE_3_NATIVE');assert.equal(meta.semantic_ai_runtime,'DEXTER_OLLAMA_OPTIONAL');assert.equal(meta.deterministic_core_runtime,'GI_CORE_8.5_SCRIPTS');assert.equal(meta.audio_runtime,'GAMEINDEX_WEB_AUDIO_1');
+assert.equal(db.prepare(`PRAGMA integrity_check`).get()?.integrity_check,'ok');assert.equal(db.prepare(`PRAGMA foreign_key_check`).all().length,0);assert.equal(process.env.OPENAI_API_KEY,undefined);
+console.log('HF2 migration OK — 25→26 additive, legacy history preserved, migrated old visuals removed from IE3, runtime markers correct.');
+try{db.close()}catch{}rmSync(root,{recursive:true,force:true});

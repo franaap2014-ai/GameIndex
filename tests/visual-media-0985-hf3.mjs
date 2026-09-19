@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {readFileSync,readdirSync,existsSync,statSync} from 'node:fs';
+import path from 'node:path';
+const root=new URL('..',import.meta.url).pathname;const read=r=>readFileSync(path.join(root,r),'utf8');
+const css=read('public/css/rebirth-0985.css'),shell=read('public/js/shell.js'),bootstrap=read('public/js/theme-bootstrap.js'),runtime=read('src/runtime/deployment-runtime.mjs');
+assert.match(runtime,/PRODUCT_VERSION="0\.985\.3"/);assert.match(runtime,/Beta 0\.985 HF3/);assert.match(shell,/BETA 0\.985 HF3/);assert.doesNotMatch(shell,/shellMarkup095/);assert.equal((shell.match(/function shellMarkup\(/g)||[]).length,1);
+for(const theme of ['free-dark','free-light','pro-green','tester-blue','dev-red','dev-green','dev-blue','creator-tech'])assert.ok(bootstrap.includes(`"${theme}"`),`bootstrap missing ${theme}`);
+for(const theme of ['free-light','pro-green','tester-blue','dev-red','dev-green','dev-blue','creator-tech'])assert.ok(css.includes(`html[data-theme="${theme}"]`),`Rebirth missing ${theme}`);
+assert.match(css,/grid-template-columns:42px minmax\(218px,max-content\) minmax\(240px,1fr\) max-content/);assert.match(css,/\.brand\{height:44px/);assert.match(css,/\.brand-mark\{flex:0 0 36px/);assert.match(css,/\.brand-name\{display:flex/);
+const htmls=readdirSync(path.join(root,'public')).filter(f=>f.endsWith('.html'));for(const file of htmls){const h=read(`public/${file}`);assert.match(h,/\/css\/rebirth-0985\.css/,`${file}: Rebirth missing`);assert.match(h,/\/js\/audio-hf3\.js/,`${file}: HF3 audio missing`);assert.doesNotMatch(h,/audio-hf2\.js/,`${file}: stale HF2 audio`);}assert.equal(existsSync(path.join(root,'public/js/audio-hf2.js')),false);
+console.log(`HF3 visual/media contract OK — ${htmls.length} pages, 8 theme identities, deterministic desktop brand geometry.`);

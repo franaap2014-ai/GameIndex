@@ -1,0 +1,36 @@
+import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { db, json, nowIso, parseJson, transaction } from "../connection.mjs";
+import { createBug, getBug } from "./bug-tracker-repository.mjs";
+
+const CATEGORIES=new Set(["SITE_BUG","INCORRECT_INFORMATION","BROKEN_IMAGE","BROKEN_PAGE","LOGIN_ACCOUNT","ACCESSIBILITY","OTHER"]);
+const SECRET_PATTERN=/\b(password|senha|cookie|authorization|bearer|session|token|api[_ -]?key|sk-(?:proj-)?[\w-]+)\b/i;
+function text(value,max,{required=false}={}){const raw=String(value||"").normalize("NFKC");if(/<\s*script|javascript:|on\w+\s*=/i.test(raw))throw new Error("O relatório contém conteúdo executável não permitido.");const clean=raw.replace(/<[^>]*>/g," ").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g," ").replace(/\s+/g," ").trim().slice(0,max);if(SECRET_PATTERN.test(clean))throw new Error("Remova senhas, tokens, cookies ou outros dados privados do relatório.");if(required&&!clean)throw new Error("Preencha todos os campos obrigatórios.");return clean;}
+function hash(value){return createHash("sha256").update(value).digest("hex");}
+function rowExists(table,id){if(!id)return null;try{return db.prepare(`SELECT id FROM ${table} WHERE id=?`).get(id)?.id||null;}catch{return null;}}
+function bugCategory(category){return ({BROKEN_IMAGE:"IMAGE",ACCESSIBILITY:"UX",INCORRECT_INFORMATION:"DATA",LOGIN_ACCOUNT:"SECURITY",SITE_BUG:"GENERAL",BROKEN_PAGE:"UX",OTHER:"GENERAL"})[category]||"GENERAL";}
+function safePageUrl(value,origin){if(!value)return "";try{const url=new URL(String(value),origin);const allowed=new URL(origin);if(url.origin!==allowed.origin)throw new Error("A URL precisa pertencer ao GameIndex.");url.username="";url.password="";url.search="";url.hash="";return url.toString().slice(0,500);}catch(error){throw new Error(error.message.includes("GameIndex")?error.message:"URL de página inválida.");}}
+function publicStatus(bugStatus){return ({REPORTED:"RECEIVED",CONFIRMED:"CONFIRMED",INVESTIGATING:"IN_REVIEW",FIXING:"IN_REVIEW",TESTING:"VERIFYING",FIXED:"RESOLVED",VERIFIED:"RESOLVED",WONT_FIX:"CLOSED",DUPLICATE:"DUPLICATE"})[bugStatus]||"RECEIVED";}
+
+export function createPublicBugReport(input={}, {reporterUserId=null,origin="http://localhost",clientKey=""}={}){
+  const category=String(input.category||"OTHER").toUpperCase();if(!CATEGORIES.has(category))throw new Error("Categoria de relatório inválida.");if(input.consent!==true)throw new Error("Confirme que o relatório não contém senha ou dados privados.");
+  const title=text(input.title,140,{required:true}),description=text(input.description,3000,{required:true}),steps=text(input.steps,2000),expected=text(input.expectedResult,1200),actual=text(input.actualResult,1200),pageUrl=safePageUrl(input.pageUrl,origin);
+  const gameId=rowExists("games",text(input.gameId,120)),pageId=rowExists("pages",text(input.pageId,120)),pageVersionId=rowExists("page_versions",text(input.pageVersionId,120)),entityId=rowExists("entities",text(input.entityId,120));
+  const metadata={viewport:text(input.clientMetadata?.viewport,40),browserFamily:text(input.clientMetadata?.browserFamily,60)};
+  const fingerprint=hash([category,title.toLowerCase(),description.toLowerCase().replace(/\d+/g,"#"),pageUrl,gameId||"",pageId||""].join("|"));
+  const duplicate=db.prepare(`SELECT id,bug_id,public_code FROM public_bug_reports WHERE fingerprint=? AND created_at>? ORDER BY created_at DESC LIMIT 1`).get(fingerprint,new Date(Date.now()-7*86400000).toISOString());
+  const receiptToken=randomBytes(24).toString("base64url"),receiptHash=hash(receiptToken),id=randomUUID(),publicCode=`RPT-${randomBytes(4).toString("hex").toUpperCase()}`,now=nowIso();let bug;
+  transaction(()=>{
+    bug=duplicate?getBug(duplicate.bug_id):createBug({title:`[Público] ${title}`,description:[description,steps&&`Passos: ${steps}`,expected&&`Esperado: ${expected}`,actual&&`Obtido: ${actual}`].filter(Boolean).join("\n"),severity:category==="LOGIN_ACCOUNT"?"BUG":category==="ACCESSIBILITY"?"UX":"BUG",category:bugCategory(category),status:"REPORTED",versionFound:"0.95",targetVersion:"0.95",component:"PUBLIC_REPORT",gameId:gameId||"",entityId:entityId||"",databaseRecordRef:pageVersionId?`PAGE_VERSION:${pageVersionId}`:pageId?`PAGE:${pageId}`:"",verificationNotes:"Source: PUBLIC_REPORT. Evidence sanitized by schema 18."},reporterUserId);
+    db.prepare(`INSERT INTO public_bug_reports(id,public_code,receipt_hash,reporter_user_id,bug_id,category,title,description,steps,expected_result,actual_result,page_url,game_id,page_id,page_version_id,entity_id,client_metadata_json,fingerprint,duplicate_of_id,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).run(id,publicCode,receiptHash,reporterUserId,bug.id,category,title,description,steps,expected,actual,pageUrl,gameId,pageId,pageVersionId,entityId,json(metadata),fingerprint,duplicate?.id||null,duplicate?"DUPLICATE":"REPORTED",now,now);
+    if(category==="INCORRECT_INFORMATION"&&(pageId||pageVersionId))db.prepare(`INSERT INTO content_review_tasks(id,report_id,page_id,page_version_id,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?)`).run(randomUUID(),id,pageId,pageVersionId,"OPEN",now,now);
+  });
+  return {ok:true,report:{code:publicCode,status:duplicate?"DUPLICATE":"RECEIVED",receipt:receiptToken,duplicate:Boolean(duplicate),createdAt:now},message:"Relatório recebido com segurança. Guarde o comprovante para consultar o andamento."};
+}
+
+export function getPublicBugReportStatus(receipt,{reporterUserId=null}={}){
+  const receiptHash=hash(String(receipt||"")),row=db.prepare(`SELECT * FROM public_bug_reports WHERE receipt_hash=?`).get(receiptHash);if(!row)return null;if(row.reporter_user_id&&reporterUserId&&row.reporter_user_id!==reporterUserId)return null;const bug=getBug(row.bug_id);
+  return {code:row.public_code,category:row.category,status:publicStatus(bug?.status||row.status),duplicate:Boolean(row.duplicate_of_id),createdAt:row.created_at,updatedAt:bug?.updatedAt||row.updated_at,resolved:new Set(["FIXED","VERIFIED","WONT_FIX"]).has(bug?.status)};
+}
+
+export function publicReportMetrics(){const total=Number(db.prepare(`SELECT COUNT(*) count FROM public_bug_reports`).get()?.count||0),open=Number(db.prepare(`SELECT COUNT(*) count FROM public_bug_reports r JOIN bugs b ON b.id=r.bug_id WHERE b.status NOT IN ('VERIFIED','WONT_FIX','DUPLICATE')`).get()?.count||0),duplicates=Number(db.prepare(`SELECT COUNT(*) count FROM public_bug_reports WHERE duplicate_of_id IS NOT NULL`).get()?.count||0);return {total,open,duplicates};}
+

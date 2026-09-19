@@ -1,0 +1,49 @@
+GameIndex Beta 0.99 I6 — changed/new files over verified I5 FULL
+
+New files: 13
+Changed files: 24
+Deleted files: 0
+
+[NEW]
+BETA_0_99_I6_CHANGED_FILES.txt
+FULL_DEPLOY_README_BETA_0.99_I6.md
+MASTER_PROMPT_BETA_0.99_I6.md
+MIGRATION_REPORT_BETA_0.99_I6.md
+PACKAGE_VALIDATION_BETA_0.99_I6.md
+RELEASE_NOTES_BETA_0.99_I6.md
+TEST_REPORT_BETA_0.99_I6.md
+UPDATE_ONLY_README_0.99_I6.md
+src/api/beta099-i6-routes.mjs
+src/config/release-099i6.mjs
+src/database/migrations/039_beta_099_i6.sql
+src/universe/universe-builder-experience-099i6.mjs
+tests/beta099-i6-universe-builder-experience.mjs
+
+[CHANGED]
+README.md
+package-lock.json
+package.json
+public/admin.html
+public/css/final-foundation-099.css
+public/js/admin.js
+public/js/universe-builder.js
+public/js/universe-runtime-099.js
+public/universe-builder.html
+server.mjs
+src/api/beta099-routes.mjs
+src/database/connection.mjs
+src/database/repositories/admin-repository.mjs
+src/pages/page-builder.mjs
+src/runtime/deployment-runtime.mjs
+src/universe/universe-builder-099.mjs
+tests/beta09875-hf1-1-image-interaction-fix.mjs
+tests/beta09875-hf1-image-manager-ui.mjs
+tests/beta099-final-foundation.mjs
+tests/beta099-i1-foundation-correction.mjs
+tests/beta099-i2-intelligent-procedural-experience-engine.mjs
+tests/beta099-i3-game-sourced-visual-composition.mjs
+tests/beta099-i4-three-stage-universe-production-pipeline.mjs
+tests/beta099-i5-production-consolidation.mjs
+
+[DELETED]
+(none)

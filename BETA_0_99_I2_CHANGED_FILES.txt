@@ -1,0 +1,34 @@
+GameIndex Beta 0.99 I2 — files changed from provided Beta 0.99 I1
+
+Status: A=added, M=modified, D=deleted
+
+A  FULL_DEPLOY_README_BETA_0.99_I2.md
+A  MASTER_PROMPT_BETA_0.99_I2.md
+M  README.md
+A  RELEASE_NOTES_BETA_0.99_I2.md
+A  TEST_REPORT_BETA_0.99_I2.md
+A  UPDATE_ONLY_README_0.99_I2.md
+M  package-lock.json
+M  package.json
+M  public/css/final-foundation-099.css
+M  public/game.html
+M  public/js/universe-builder.js
+A  public/js/universe-interaction-engine-099i2.js
+M  public/js/universe-runtime-099.js
+A  public/js/visual-grounding-099i2.js
+M  public/universe-builder.html
+M  server.mjs
+M  src/api/beta0986-routes.mjs
+M  src/api/beta099-routes.mjs
+M  src/database/connection.mjs
+A  src/database/migrations/035_beta_099_i2.sql
+M  src/identity/experience-identity-service.mjs
+A  src/interactions/universe-interaction-service.mjs
+A  src/universe/creative-director-099i2.mjs
+M  src/universe/universe-builder-099.mjs
+M  src/universe/universe-structure-service.mjs
+M  tests/beta09875-hf1-1-image-interaction-fix.mjs
+M  tests/beta09875-hf1-image-manager-ui.mjs
+M  tests/beta099-final-foundation.mjs
+M  tests/beta099-i1-foundation-correction.mjs
+A  tests/beta099-i2-intelligent-procedural-experience-engine.mjs

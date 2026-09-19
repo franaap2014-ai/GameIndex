@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+data/backups/
+logs/
+public/uploads/avatars/*
+!public/uploads/avatars/.gitkeep
+.DS_Store

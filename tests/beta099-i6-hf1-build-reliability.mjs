@@ -1,0 +1,23 @@
+import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+const ROOT=new URL("../",import.meta.url).pathname;
+const text=p=>readFileSync(join(ROOT,p),"utf8");
+assert.match(text("src/config/release-099i6.mjs"),/(?:0\.99-I6-HF(?:1|2)|0\.991)/);
+assert.match(text("src/config/release-099i6.mjs"),/TARGET_SCHEMA=40/);
+assert.match(text("src/database/connection.mjs"),/040_beta_099_i6_hf1\.sql/);
+assert.match(text("src/database/migrations/040_beta_099_i6_hf1.sql"),/universe_build_job_state/);
+assert.match(text("src/database/migrations/040_beta_099_i6_hf1.sql"),/universe_build_job_stages/);
+const core=text("src/universe/universe-builder-099.mjs");
+for(const token of ["recoverInterruptedFoundationBuilds","resumeFoundationBuild","currentFoundationBuild","RESEARCH_INCOMPLETE","linkResearchToRevision","RESEARCH_CHECKPOINT_REUSED"])assert.match(core,new RegExp(token));
+const html=text("public/universe-builder.html"),js=text("public/js/universe-builder.js");
+for(const action of ["build","resume","preview","publish","enhance","identity-discover","interaction-discover","authorization-review","preview-refresh"])assert.match(html,new RegExp(`data-ub-action=\\"${action}\\"`));
+assert.match(js,/dispatchUniverseAction/);assert.match(js,/closest\('\[data-ub-action\]'\)/);assert.match(js,/recoverCurrentFoundationI6/);assert.match(js,/renderInteractionList/);assert.match(js,/renderVisualAssetsI3/);assert.match(js,/renderValidationI3/);
+assert.doesNotMatch(js,/No verified content in this section yet\./);
+// migration preserves existing DB and reaches schema 40
+const dir=mkdtempSync(join(tmpdir(),"gameindex-hf1-")),db=join(dir,"test.sqlite");
+const env={...process.env,GAMEINDEX_DB_PATH:db,GAMEINDEX_TARGET_SCHEMA:"39"};let r=spawnSync(process.execPath,["--input-type=module","-e",`import {initializeDatabase} from './src/database/seed.mjs';import {db} from './src/database/connection.mjs';initializeDatabase();db.exec(\"CREATE TABLE IF NOT EXISTS hf1_probe(v TEXT);DELETE FROM hf1_probe;INSERT INTO hf1_probe VALUES('kept')\");console.log('ok')`],{cwd:ROOT,env,encoding:"utf8"});assert.equal(r.status,0,r.stderr);
+r=spawnSync(process.execPath,["--input-type=module","-e",`import {initializeDatabase} from './src/database/seed.mjs';import {db,schemaVersion} from './src/database/connection.mjs';initializeDatabase();console.log(JSON.stringify({schema:schemaVersion(),probe:db.prepare('SELECT v FROM hf1_probe').get()?.v,state:!!db.prepare(\"SELECT 1 FROM sqlite_master WHERE type='table' AND name='universe_build_job_state'\").get()}))`],{cwd:ROOT,env:{...process.env,GAMEINDEX_DB_PATH:db,GAMEINDEX_TARGET_SCHEMA:"40"},encoding:"utf8"});assert.equal(r.status,0,r.stderr);const out=JSON.parse(r.stdout.trim().split(/\n/).at(-1));assert.equal(out.schema,40);assert.equal(out.probe,'kept');assert.equal(out.state,true);rmSync(dir,{recursive:true,force:true});
+console.log(JSON.stringify({ok:true,release:"0.99-I6-HF1",publicVersion:"0.99",schema:40,persistentJobs:true,resume:true,buttonDispatcher:true,previewValidity:true,revisionConsistency:true},null,2));

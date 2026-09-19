@@ -1,0 +1,41 @@
+GameIndex Beta 0.99 I6 HF1
+
+New files: 10
+Modified files: 19
+Removed files: 0
+
+[NEW]
+BETA_0_99_I6_HF1_CHANGED_FILES.txt
+FULL_DEPLOY_README_BETA_0.99_I6_HF1.md
+MASTER_PROMPT_BETA_0.99_I6_HF1.md
+MIGRATION_REPORT_BETA_0.99_I6_HF1.md
+PACKAGE_VALIDATION_BETA_0.99_I6_HF1.md
+RELEASE_NOTES_BETA_0.99_I6_HF1.md
+TEST_REPORT_BETA_0.99_I6_HF1.md
+UPDATE_ONLY_README_0.99_I6_HF1.md
+src/database/migrations/040_beta_099_i6_hf1.sql
+tests/beta099-i6-hf1-build-reliability.mjs
+
+[MODIFIED]
+package-lock.json
+package.json
+public/js/universe-builder.js
+public/universe-builder.html
+server.mjs
+src/api/beta099-routes.mjs
+src/config/release-099i6.mjs
+src/database/connection.mjs
+src/universe/universe-builder-099.mjs
+src/universe/universe-builder-experience-099i6.mjs
+tests/beta09875-hf1-1-image-interaction-fix.mjs
+tests/beta09875-hf1-image-manager-ui.mjs
+tests/beta099-final-foundation.mjs
+tests/beta099-i1-foundation-correction.mjs
+tests/beta099-i2-intelligent-procedural-experience-engine.mjs
+tests/beta099-i3-game-sourced-visual-composition.mjs
+tests/beta099-i4-three-stage-universe-production-pipeline.mjs
+tests/beta099-i5-production-consolidation.mjs
+tests/beta099-i6-universe-builder-experience.mjs
+
+[REMOVED]
+(none)
