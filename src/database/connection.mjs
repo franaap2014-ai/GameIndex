@@ -43,11 +43,12 @@ export function productionStorageSafety(){
   const remote=neonRemotePersistenceConfigured();
   const render=isRenderEnvironment();
   const explicitLocal=storageOrigin.startsWith("EXPLICIT");
-  const renderDiskOptIn=render&&explicitLocal&&String(process.env.GAMEINDEX_RENDER_PERSISTENT_DISK||"").toLowerCase()==="true";
-  const localPersistent=storageOrigin==="AZURE_HOME"||(!render&&explicitLocal)||renderDiskOptIn;
-  const persistent=remote||localPersistent;
-  const reason=!production||persistent?(remote?"NEON_REMOTE_PERSISTENCE":renderDiskOptIn?"RENDER_PERSISTENT_DISK":"PERSISTENT_OR_LOCAL_DEV"):"EPHEMERAL_PRODUCTION_STORAGE";
-  return {production,persistent,remote,render,renderDiskOptIn,safe:!production||persistent,origin:storageOrigin,provider:remote?"NEON_REMOTE_SQLITE_SNAPSHOT":"LOCAL_SQLITE",reason};
+  // Render local storage is always treated as ephemeral in the Free deployment path.
+  // A GAMEINDEX_DB/GAMEINDEX_DATA_DIR value must never satisfy production persistence on Render.
+  const localPersistent=!render&&(storageOrigin==="AZURE_HOME"||explicitLocal);
+  const persistent=render?remote:(remote||localPersistent);
+  const reason=!production||persistent?(remote?"NEON_REMOTE_PERSISTENCE":"PERSISTENT_OR_LOCAL_DEV"):"EPHEMERAL_PRODUCTION_STORAGE";
+  return {production,persistent,remote,render,safe:!production||persistent,origin:storageOrigin,provider:remote?"NEON_REMOTE_SQLITE_SNAPSHOT":"LOCAL_SQLITE",reason};
 }
 
 const startupStorageSafety=productionStorageSafety();
