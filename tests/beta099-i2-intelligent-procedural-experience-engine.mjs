@@ -14,9 +14,9 @@ function lastJson(output){const lines=String(output).trim().split('\n').filter(B
 run(['tests/beta099-i1-foundation-correction.mjs']);
 
 const pkg=JSON.parse(read('package.json'));
-assert.ok(['0.99.2','0.99.3','0.99.4','0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0'].includes(pkg.version));
-assert.ok(['gameindex-beta-099-i2-intelligent-procedural-experience-engine','gameindex-beta-099-i3-game-sourced-visual-composition','gameindex-beta-099-i4-three-stage-universe-production-pipeline','gameindex-beta-099-i5-production-consolidation','gameindex-beta-099-i6-universe-builder-experience','gameindex-beta-099-i6-hf1-build-reliability','gameindex-beta-099-i6-hf2-launch-visual-rebrand','gameindex-beta-0991-full-experience'].includes(pkg.name));
-assert.ok(['node tests/beta099-i2-intelligent-procedural-experience-engine.mjs','node tests/beta099-i3-game-sourced-visual-composition.mjs','node tests/beta099-i4-three-stage-universe-production-pipeline.mjs','node tests/beta099-i5-production-consolidation.mjs','node tests/beta099-i6-universe-builder-experience.mjs','node tests/beta099-i6-hf1-build-reliability.mjs','node tests/beta099-i6-hf2-launch-rebrand.mjs','node tests/beta0991-full-experience.mjs'].includes(pkg.scripts.test));
+assert.ok(['0.99.2','0.99.3','0.99.4','0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0','0.991.1'].includes(pkg.version));
+assert.ok(['gameindex-beta-099-i2-intelligent-procedural-experience-engine','gameindex-beta-099-i3-game-sourced-visual-composition','gameindex-beta-099-i4-three-stage-universe-production-pipeline','gameindex-beta-099-i5-production-consolidation','gameindex-beta-099-i6-universe-builder-experience','gameindex-beta-099-i6-hf1-build-reliability','gameindex-beta-099-i6-hf2-launch-visual-rebrand','gameindex-beta-0991-full-experience','gameindex-beta-0991-hf1-identity-restoration'].includes(pkg.name));
+assert.ok(['node tests/beta099-i2-intelligent-procedural-experience-engine.mjs','node tests/beta099-i3-game-sourced-visual-composition.mjs','node tests/beta099-i4-three-stage-universe-production-pipeline.mjs','node tests/beta099-i5-production-consolidation.mjs','node tests/beta099-i6-universe-builder-experience.mjs','node tests/beta099-i6-hf1-build-reliability.mjs','node tests/beta099-i6-hf2-launch-rebrand.mjs','node tests/beta0991-full-experience.mjs','node tests/beta0991-hf1-identity-restoration.mjs'].includes(pkg.scripts.test));
 
 const migration=read('src/database/migrations/035_beta_099_i2.sql');
 assert.match(migration,/ADD COLUMN visual_density/);
@@ -64,7 +64,7 @@ assert.match(runtime,/GameIndexMusic\?\.isMuted/);
 assert.match(runtime,/AbortController/);
 assert.match(universeRuntime,/GameIndexInteractionEngine099I2/);
 assert.match(universeRuntime,/data-gi-element-key/);
-if(['0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0'].includes(pkg.version)){
+if(['0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0','0.991.1'].includes(pkg.version)){
   assert.match(universeRuntime,/GameIndexVisualGrounding099I5/);
   assert.match(gameHtml,/visual-grounding-099i5\.js/);
   assert.match(gameHtml,/visual-grounding-099i3\.js/); // safe real-asset-only fallback

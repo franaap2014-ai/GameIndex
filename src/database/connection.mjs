@@ -12,6 +12,10 @@ export function isAzureEnvironment() {
   return Boolean(process.env.WEBSITE_SITE_NAME||process.env.WEBSITE_INSTANCE_ID||process.env.WEBSITE_HOSTNAME||process.env.WEBSITE_HOME_STAMPNAME);
 }
 
+export function isRenderEnvironment() {
+  return Boolean(process.env.RENDER||process.env.RENDER_SERVICE_ID||process.env.RENDER_EXTERNAL_HOSTNAME);
+}
+
 function explicitDatabasePath(){return process.env.GAMEINDEX_DB||process.env.GAMEVAULT_DB||"";}
 function explicitDataRoot(){return process.env.GAMEINDEX_DATA_DIR||process.env.GAMEVAULT_DATA_DIR||"";}
 
@@ -336,15 +340,16 @@ export function migrateDatabase() {
     {version:37,file:"037_beta_099_i4.sql",name:"beta-0.99-i4-three-stage-universe-production-pipeline",toVersion:"0.99-I4"},
     {version:38,file:"038_beta_099_i5.sql",name:"beta-0.99-i5-production-consolidation",toVersion:"0.99-I5"},
     {version:39,file:"039_beta_099_i6.sql",name:"beta-0.99-i6-universe-builder-experience",toVersion:"0.99-I6"},
-    {version:40,file:"040_beta_099_i6_hf1.sql",name:"beta-0.99-i6-hf1-build-reliability",toVersion:"0.99-I6-HF1"}
+    {version:40,file:"040_beta_099_i6_hf1.sql",name:"beta-0.99-i6-hf1-build-reliability",toVersion:"0.99-I6-HF1"},
+    {version:41,file:"041_beta_0991_hf1.sql",name:"beta-0.991-hf1-identity-restoration",toVersion:"0.991-HF1"}
   ];
 
-  const targetSchema=Math.min(40,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||40)||40));
+  const targetSchema=Math.min(41,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||41)||41));
 
   for (const step of steps) {
     if(step.version>targetSchema)break;
     if (version >= step.version) continue;
-    const from=version===1?"0.5":version===2?"0.6":version===3?"0.65":version===4?"0.67":version===5?"0.675":version===6?"0.7":version===7?"0.705":version===8?"0.8":version===9?"0.85":version===10?"0.86":version===11?"0.87":version===12?"0.88":version===13?"0.885":version===14?"0.89":version===15?"0.9":version===16?"0.91":version===17?"0.92":version===18?"0.95":version===19?"0.96":version===20?"0.97":version===21?"0.97-BF":version===22?"0.975-BF":version===23?"0.975-BF-PRE-PUBLIC":version===24?"0.98":version===25?"0.985":version===26?"0.985-HF2":version===27?"0.985-HF3":version===28?"0.985-HF4":version===29?"0.986":version===30?"0.986-HF2":version===31?"0.986-HF2":version===32?"0.987":version===33?"0.9875":version===34?"0.99-I1":version===35?"0.99-I2":version===36?"0.99-I3":version===37?"0.99-I4":version===38?"0.99-I5":"unknown";
+    const from=version===1?"0.5":version===2?"0.6":version===3?"0.65":version===4?"0.67":version===5?"0.675":version===6?"0.7":version===7?"0.705":version===8?"0.8":version===9?"0.85":version===10?"0.86":version===11?"0.87":version===12?"0.88":version===13?"0.885":version===14?"0.89":version===15?"0.9":version===16?"0.91":version===17?"0.92":version===18?"0.95":version===19?"0.96":version===20?"0.97":version===21?"0.97-BF":version===22?"0.975-BF":version===23?"0.975-BF-PRE-PUBLIC":version===24?"0.98":version===25?"0.985":version===26?"0.985-HF2":version===27?"0.985-HF3":version===28?"0.985-HF4":version===29?"0.986":version===30?"0.986-HF2":version===31?"0.986-HF2":version===32?"0.987":version===33?"0.9875":version===34?"0.99-I1":version===35?"0.99-I2":version===36?"0.99-I3":version===37?"0.99-I4":version===38?"0.99-I5":version===39?"0.99-I6":version===40?"0.99-I6-HF1":"unknown";
     createDatabaseBackup({fromVersion:from,toVersion:step.toVersion,label:step.name});
     try {
       db.exec("BEGIN IMMEDIATE");

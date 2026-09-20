@@ -5,7 +5,7 @@ const root=path.resolve(import.meta.dirname,"..");
 const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 const pkg=JSON.parse(read("package.json"));
 assert.ok(["0.99.6-2","0.991.0"].includes(pkg.version));
-assert.ok(["node tests/beta099-i6-hf2-launch-rebrand.mjs","node tests/beta0991-full-experience.mjs"].includes(pkg.scripts.test));
+assert.ok(["node tests/beta099-i6-hf2-launch-rebrand.mjs","node tests/beta0991-full-experience.mjs","node tests/beta0991-hf1-identity-restoration.mjs"].includes(pkg.scripts.test));
 const release=read("src/config/release-099i6.mjs");
 assert.match(release,/0\.99-I6-HF2|0\.991/);assert.match(release,/BETA_0_99_I6_HF2_LAUNCH_VISUAL_REBRAND|BETA_0_991_FULL_EXPERIENCE/);assert.match(release,/TARGET_SCHEMA=40/);
 const shell=read("public/js/shell-0986.js"),settings=read("public/js/settings.js"),css=read("public/css/gameindex-0986.css"),credits=read("public/credits.html"),auth=read("src/auth/auth-service.mjs");

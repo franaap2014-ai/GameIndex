@@ -126,5 +126,10 @@
   "image.editor.center": "Center",
   "image.editor.help": "Drag the image and use the four corner handles to resize without distortion.",
   "image.group.robloxGames": "Roblox Games",
-  "image.group.games": "Games / Experiences"
+  "image.group.games": "Games / Experiences",
+  "cinematic.welcome": "WELCOME",
+  "cinematic.pro": "PRO",
+  "cinematic.tester": "TESTER",
+  "cinematic.dev": "DEV",
+  "cinematic.creator": "CREATOR"
 }

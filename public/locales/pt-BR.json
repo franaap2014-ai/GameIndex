@@ -126,5 +126,10 @@
   "image.editor.center": "Centralizar",
   "image.editor.help": "Arraste a imagem e use as quatro bolinhas para redimensionar sem deformar.",
   "image.group.robloxGames": "Roblox Games",
-  "image.group.games": "Jogos / Experiências"
+  "image.group.games": "Jogos / Experiências",
+  "cinematic.welcome": "BEM-VINDO",
+  "cinematic.pro": "PRO",
+  "cinematic.tester": "TESTER",
+  "cinematic.dev": "DEV",
+  "cinematic.creator": "CREATOR"
 }

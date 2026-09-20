@@ -1,9 +1,9 @@
 export const PUBLIC_VERSION="0.991";
 export const PUBLIC_VERSION_LABEL=`Beta ${PUBLIC_VERSION}`;
-export const INTERNAL_RELEASE="0.991";
-export const INTERNAL_RELEASE_LABEL="GameIndex Beta 0.991";
-export const INTERNAL_RELEASE_CODE="BETA_0_991_FULL_EXPERIENCE";
-export const TARGET_SCHEMA=40;
+export const INTERNAL_RELEASE="0.991-HF1";
+export const INTERNAL_RELEASE_LABEL="GameIndex Beta 0.991 HF1";
+export const INTERNAL_RELEASE_CODE="BETA_0_991_HF1_IDENTITY_RESTORATION";
+export const TARGET_SCHEMA=41;
 export const ARCHITECTURE="LOCAL_FIRST_NO_API_KEY";
 
 export function releaseSnapshotI6({technical=false}={}){

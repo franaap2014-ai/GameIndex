@@ -11,9 +11,9 @@ function run(args,env={}){const r=spawnSync(process.execPath,args,{cwd:root,enco
 function lastJson(output){for(const line of String(output).trim().split('\n').reverse()){try{return JSON.parse(line);}catch{}}throw new Error(`No JSON found:\n${output}`);}
 
 const pkg=JSON.parse(read('package.json'));
-assert.ok(['gameindex-beta-099-i5-production-consolidation','gameindex-beta-099-i6-universe-builder-experience','gameindex-beta-099-i6-hf1-build-reliability','gameindex-beta-099-i6-hf2-launch-visual-rebrand','gameindex-beta-0991-full-experience'].includes(pkg.name));
-assert.ok(['0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0'].includes(pkg.version));
-assert.ok(['node tests/beta099-i5-production-consolidation.mjs','node tests/beta099-i6-universe-builder-experience.mjs','node tests/beta099-i6-hf1-build-reliability.mjs','node tests/beta099-i6-hf2-launch-rebrand.mjs','node tests/beta0991-full-experience.mjs'].includes(pkg.scripts.test));
+assert.ok(['gameindex-beta-099-i5-production-consolidation','gameindex-beta-099-i6-universe-builder-experience','gameindex-beta-099-i6-hf1-build-reliability','gameindex-beta-099-i6-hf2-launch-visual-rebrand','gameindex-beta-0991-full-experience','gameindex-beta-0991-hf1-identity-restoration'].includes(pkg.name));
+assert.ok(['0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0','0.991.1'].includes(pkg.version));
+assert.ok(['node tests/beta099-i5-production-consolidation.mjs','node tests/beta099-i6-universe-builder-experience.mjs','node tests/beta099-i6-hf1-build-reliability.mjs','node tests/beta099-i6-hf2-launch-rebrand.mjs','node tests/beta0991-full-experience.mjs','node tests/beta0991-hf1-identity-restoration.mjs'].includes(pkg.scripts.test));
 assert.equal(pkg.engines.node,'>=22.13');
 
 const release=read('src/config/release-099i5.mjs');
@@ -52,7 +52,7 @@ assert.match(builderJs,/advancedBuilder/);
 
 const adminHtml=read('public/admin.html'),adminJs=read('public/js/admin.js');
 for(const token of ['Visão geral','Usuários','Conteúdo','Social','Sistema','Bugs','Avançado','Buscar usuário \/ alterar cargo','Search Admin|Pesquisar usuário'])assert.match(adminHtml,new RegExp(token,'i'));
-assert.match(adminHtml,/Internal release 0\.99-I(?:5|6)/);
+assert.match(adminHtml,/Internal release (?:0\.99-I(?:5|6)|0\.991-HF1)/);
 assert.match(adminJs,/staff-role/);
 assert.match(adminJs,/expectedRole/);
 assert.match(adminJs,/expectedRevision/);

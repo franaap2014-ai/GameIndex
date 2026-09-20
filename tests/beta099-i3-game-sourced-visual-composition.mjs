@@ -12,9 +12,9 @@ function lastJson(output){const lines=String(output).trim().split('\n').filter(B
 
 // Current I3 suite checks preserved contracts directly because historical release tests intentionally hard-code older package/cache identifiers.
 const pkg=JSON.parse(read('package.json'));
-assert.ok(['0.99.3','0.99.4','0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0'].includes(pkg.version));
-assert.ok(['gameindex-beta-099-i3-game-sourced-visual-composition','gameindex-beta-099-i4-three-stage-universe-production-pipeline','gameindex-beta-099-i5-production-consolidation','gameindex-beta-099-i6-universe-builder-experience','gameindex-beta-099-i6-hf1-build-reliability','gameindex-beta-099-i6-hf2-launch-visual-rebrand','gameindex-beta-0991-full-experience'].includes(pkg.name));
-assert.ok(['node tests/beta099-i3-game-sourced-visual-composition.mjs','node tests/beta099-i4-three-stage-universe-production-pipeline.mjs','node tests/beta099-i5-production-consolidation.mjs','node tests/beta099-i6-universe-builder-experience.mjs','node tests/beta099-i6-hf1-build-reliability.mjs','node tests/beta099-i6-hf2-launch-rebrand.mjs','node tests/beta0991-full-experience.mjs'].includes(pkg.scripts.test));
+assert.ok(['0.99.3','0.99.4','0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0','0.991.1'].includes(pkg.version));
+assert.ok(['gameindex-beta-099-i3-game-sourced-visual-composition','gameindex-beta-099-i4-three-stage-universe-production-pipeline','gameindex-beta-099-i5-production-consolidation','gameindex-beta-099-i6-universe-builder-experience','gameindex-beta-099-i6-hf1-build-reliability','gameindex-beta-099-i6-hf2-launch-visual-rebrand','gameindex-beta-0991-full-experience','gameindex-beta-0991-hf1-identity-restoration'].includes(pkg.name));
+assert.ok(['node tests/beta099-i3-game-sourced-visual-composition.mjs','node tests/beta099-i4-three-stage-universe-production-pipeline.mjs','node tests/beta099-i5-production-consolidation.mjs','node tests/beta099-i6-universe-builder-experience.mjs','node tests/beta099-i6-hf1-build-reliability.mjs','node tests/beta099-i6-hf2-launch-rebrand.mjs','node tests/beta0991-full-experience.mjs','node tests/beta0991-hf1-identity-restoration.mjs'].includes(pkg.scripts.test));
 
 const crop=read('public/js/image-crop-editor.js'),imageRoutes=read('src/api/beta0986-routes.mjs');
 assert.match(crop,/setPointerCapture\(e\.pointerId\)/);
@@ -60,7 +60,7 @@ const gameHtml=read('public/game.html'),runtime=read('public/js/universe-runtime
 assert.match(gameHtml,/visual-grounding-099i3\.js/);
 assert.doesNotMatch(gameHtml,/visual-grounding-099i1\.js/);
 assert.doesNotMatch(gameHtml,/visual-grounding-099i2\.js/);
-if(['0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0'].includes(pkg.version)){assert.match(gameHtml,/visual-grounding-099i5\.js/);assert.match(runtime,/GameIndexVisualGrounding099I5/);}else assert.match(runtime,/GameIndexVisualGrounding099I3/);
+if(['0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0','0.991.1'].includes(pkg.version)){assert.match(gameHtml,/visual-grounding-099i5\.js/);assert.match(runtime,/GameIndexVisualGrounding099I5/);}else assert.match(runtime,/GameIndexVisualGrounding099I3/);
 assert.match(runtime,/state\.visualAssets/);
 
 const html=read('public/universe-builder.html'),builder=read('public/js/universe-builder.js'),routes=read('src/api/beta099-routes.mjs');

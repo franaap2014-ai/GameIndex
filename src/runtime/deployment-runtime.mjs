@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { existsSync, statSync } from "node:fs";
 import path from "node:path";
-import { db, databaseStorageState, isAzureEnvironment, latestBackup, projectRoot, schemaVersion, testDatabaseRead, testDatabaseWrite } from "../database/connection.mjs";
+import { db, databaseStorageState, isAzureEnvironment, isRenderEnvironment, latestBackup, projectRoot, schemaVersion, testDatabaseRead, testDatabaseWrite } from "../database/connection.mjs";
 import { gameCount } from "../database/repositories/game-repository.mjs";
 import { knowledgeCount } from "../database/repositories/knowledge-repository.mjs";
 import { reportRuntimeIssue } from "../database/repositories/bug-tracker-repository.mjs";
@@ -32,12 +32,13 @@ export function redactRuntimeValue(value,depth=0){
 
 export function runtimeEnvironment(){
   if(isAzureEnvironment())return "azure";
+  if(isRenderEnvironment())return "render";
   return String(process.env.NODE_ENV||"development").toLowerCase()==="production"?"production":"local";
 }
 
 function tableExists(name){try{return Boolean(db.prepare(`SELECT 1 FROM sqlite_master WHERE type='table' AND name=?`).get(name));}catch{return false;}}
 function publicDirectoryState(){const publicDirectory=path.join(projectRoot,"public");return {status:existsSync(publicDirectory)?"ready":"degraded",publicDirectory:existsSync(publicDirectory)};}
-function envPresence(){return {PORT:Boolean(process.env.PORT),NODE_ENV:Boolean(process.env.NODE_ENV),GAMEINDEX_DATA_DIR:Boolean(process.env.GAMEINDEX_DATA_DIR),GAMEINDEX_DB:Boolean(process.env.GAMEINDEX_DB),externalApiDisabled:true,WEBSITE_SITE_NAME:Boolean(process.env.WEBSITE_SITE_NAME),HOME:Boolean(process.env.HOME)};}
+function envPresence(){return {PORT:Boolean(process.env.PORT),NODE_ENV:Boolean(process.env.NODE_ENV),GAMEINDEX_DATA_DIR:Boolean(process.env.GAMEINDEX_DATA_DIR),GAMEINDEX_DB:Boolean(process.env.GAMEINDEX_DB),externalApiDisabled:true,WEBSITE_SITE_NAME:Boolean(process.env.WEBSITE_SITE_NAME),RENDER:Boolean(process.env.RENDER||process.env.RENDER_SERVICE_ID),HOME:Boolean(process.env.HOME)};}
 function effectivePort(){const raw=process.env.PORT||3000,value=Number(raw);return Number.isInteger(value)&&value>0&&value<=65535?value:"iis-named-pipe";}
 export function startupPrerequisites(){
   const assets=publicDirectoryState(),files={packageJson:existsSync(path.join(projectRoot,"package.json")),server:existsSync(path.join(projectRoot,"server.mjs")),publicDirectory:assets.publicDirectory};

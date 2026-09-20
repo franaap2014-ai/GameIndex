@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 const ROOT=new URL("../",import.meta.url).pathname;
 const text=p=>readFileSync(join(ROOT,p),"utf8");
 assert.match(text("src/config/release-099i6.mjs"),/(?:0\.99-I6-HF(?:1|2)|0\.991)/);
-assert.match(text("src/config/release-099i6.mjs"),/TARGET_SCHEMA=40/);
+assert.match(text("src/config/release-099i6.mjs"),/TARGET_SCHEMA=(?:40|41)/);
 assert.match(text("src/database/connection.mjs"),/040_beta_099_i6_hf1\.sql/);
 assert.match(text("src/database/migrations/040_beta_099_i6_hf1.sql"),/universe_build_job_state/);
 assert.match(text("src/database/migrations/040_beta_099_i6_hf1.sql"),/universe_build_job_stages/);

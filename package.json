@@ -1,9 +1,9 @@
 {
-  "name": "gameindex-beta-0991-full-experience",
-  "version": "0.991.0",
+  "name": "gameindex-beta-0991-hf1-identity-restoration",
+  "version": "0.991.1",
   "private": true,
   "type": "module",
-  "description": "GameIndex Beta 0.991: official brand, lobby evolution, definitive appearance cutscene, Universe Builder UX and launch polish.",
+  "description": "GameIndex Beta 0.991 HF1: original I6 interface restoration, account cinematics, restored administration and Universe Builder V3.",
   "engines": {
     "node": ">=22.13"
   },
@@ -11,9 +11,9 @@
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
     "check": "node scripts/check.mjs",
-    "test": "node tests/beta0991-full-experience.mjs",
+    "test": "node tests/beta0991-hf1-identity-restoration.mjs",
     "test:0986": "node tests/beta0986-production-consolidation.mjs",
-    "smoke": "node tests/http-smoke-0986.mjs",
+    "smoke": "node tests/http-smoke-0991-hf1.mjs",
     "test:hf2": "node tests/hf2-ai-slim-game-experiences.mjs",
     "test:0987": "node tests/beta0987-final-personalization.mjs",
     "test:09875": "node tests/beta09875-full-page-personalization.mjs",
@@ -27,7 +27,9 @@
     "test:099i5": "node tests/beta099-i5-production-consolidation.mjs",
     "test:099i6": "node tests/beta099-i6-universe-builder-experience.mjs",
     "test:099i6hf2": "node tests/beta099-i6-hf2-launch-rebrand.mjs",
-    "test:0991": "node tests/beta0991-full-experience.mjs"
+    "test:0991": "node tests/beta0991-full-experience.mjs",
+    "test:0991hf1": "node tests/beta0991-hf1-identity-restoration.mjs",
+    "smoke:0986": "node tests/http-smoke-0986.mjs"
   },
   "dependencies": {
     "dotenv": "^17.2.2",

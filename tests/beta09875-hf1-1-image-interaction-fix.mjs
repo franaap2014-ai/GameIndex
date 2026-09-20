@@ -79,8 +79,8 @@ assert.match(server,/release:"(?:BETA_0_9875_HF1_1_IMAGE_INTERACTION_FIX|BETA_0_
 assert.match(server,/LOCAL_FIRST_NO_API_KEY/);
 
 const pkg=JSON.parse(read('package.json'));
-assert.ok(['0.9875.2','0.99.0','0.99.1','0.99.2','0.99.3','0.99.4','0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0'].includes(pkg.version));
-assert.ok(['node tests/beta09875-hf1-1-image-interaction-fix.mjs','node tests/beta099-final-foundation.mjs','node tests/beta099-i1-foundation-correction.mjs','node tests/beta099-i2-intelligent-procedural-experience-engine.mjs','node tests/beta099-i3-game-sourced-visual-composition.mjs','node tests/beta099-i4-three-stage-universe-production-pipeline.mjs','node tests/beta099-i5-production-consolidation.mjs','node tests/beta099-i6-universe-builder-experience.mjs','node tests/beta099-i6-hf1-build-reliability.mjs','node tests/beta099-i6-hf2-launch-rebrand.mjs','node tests/beta0991-full-experience.mjs'].includes(pkg.scripts.test));
+assert.ok(['0.9875.2','0.99.0','0.99.1','0.99.2','0.99.3','0.99.4','0.99.5','0.99.6','0.99.6-1','0.99.6-2','0.991.0','0.991.1'].includes(pkg.version));
+assert.ok(['node tests/beta09875-hf1-1-image-interaction-fix.mjs','node tests/beta099-final-foundation.mjs','node tests/beta099-i1-foundation-correction.mjs','node tests/beta099-i2-intelligent-procedural-experience-engine.mjs','node tests/beta099-i3-game-sourced-visual-composition.mjs','node tests/beta099-i4-three-stage-universe-production-pipeline.mjs','node tests/beta099-i5-production-consolidation.mjs','node tests/beta099-i6-universe-builder-experience.mjs','node tests/beta099-i6-hf1-build-reliability.mjs','node tests/beta099-i6-hf2-launch-rebrand.mjs','node tests/beta0991-full-experience.mjs','node tests/beta0991-hf1-identity-restoration.mjs'].includes(pkg.scripts.test));
 assert.equal(pkg.dependencies.express,'^5.1.0');
 assert.equal(pkg.dependencies.dotenv,'^17.2.2');
 
