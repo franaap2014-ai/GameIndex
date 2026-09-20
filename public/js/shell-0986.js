@@ -54,6 +54,14 @@ async function initShell(){mountGlobalUi();GV.applyBrand({tier:localStorage.getI
   try{const updates=await GV.api("/api/update-log"),dot=document.getElementById("updateLogDot");if(dot)dot.hidden=!updates.hasUnread;}catch{}
   window.dispatchEvent(new CustomEvent("gv:shell-ready",{detail:{auth:GV.auth,language:GV.lang}}));}
 initShell();
+(()=>{
+  if(document.querySelector("script[data-gi-i1-runtime]"))return;
+  const script=document.createElement("script");
+  script.src="/js/gameindex-0991-i1.js?v=0991i1";
+  script.defer=true;
+  script.dataset.giI1Runtime="1";
+  document.head.appendChild(script);
+})();
 
 (function imageEngineVerification(){const reported=new Set();function report(img,ok){const asset=img?.dataset?.gvIe3Asset,revision=Number(img?.dataset?.gvIe3Revision||0);if(!asset||!revision)return;const key=`${asset}:${revision}:${ok}`;if(reported.has(key))return;reported.add(key);fetch('/api/image-engine3/browser-result',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({assetId:asset,revision,width:ok?img.naturalWidth:0,height:ok?img.naturalHeight:0,contextMatch:ok})}).catch(()=>{});}addEventListener('load',e=>{if(e.target instanceof HTMLImageElement)report(e.target,true);},true);addEventListener('error',e=>{if(e.target instanceof HTMLImageElement)report(e.target,false);},true);})();
 
