@@ -41,9 +41,13 @@ export const storageOrigin = neonRemotePersistenceConfigured()?"NEON_REMOTE_SQLI
 export function productionStorageSafety(){
   const production=String(process.env.NODE_ENV||"").toLowerCase()==="production"||isAzureEnvironment()||isRenderEnvironment();
   const remote=neonRemotePersistenceConfigured();
-  const persistent=remote||storageOrigin==="AZURE_HOME"||storageOrigin.startsWith("EXPLICIT");
-  const reason=!production||persistent?(remote?"NEON_REMOTE_PERSISTENCE":"PERSISTENT_OR_LOCAL_DEV"):"EPHEMERAL_PRODUCTION_STORAGE";
-  return {production,persistent,remote,safe:!production||persistent,origin:storageOrigin,provider:remote?"NEON_REMOTE_SQLITE_SNAPSHOT":"LOCAL_SQLITE",reason};
+  const render=isRenderEnvironment();
+  const explicitLocal=storageOrigin.startsWith("EXPLICIT");
+  const renderDiskOptIn=render&&explicitLocal&&String(process.env.GAMEINDEX_RENDER_PERSISTENT_DISK||"").toLowerCase()==="true";
+  const localPersistent=storageOrigin==="AZURE_HOME"||(!render&&explicitLocal)||renderDiskOptIn;
+  const persistent=remote||localPersistent;
+  const reason=!production||persistent?(remote?"NEON_REMOTE_PERSISTENCE":renderDiskOptIn?"RENDER_PERSISTENT_DISK":"PERSISTENT_OR_LOCAL_DEV"):"EPHEMERAL_PRODUCTION_STORAGE";
+  return {production,persistent,remote,render,renderDiskOptIn,safe:!production||persistent,origin:storageOrigin,provider:remote?"NEON_REMOTE_SQLITE_SNAPSHOT":"LOCAL_SQLITE",reason};
 }
 
 const startupStorageSafety=productionStorageSafety();
@@ -166,7 +170,7 @@ export function storageWritable(){
 export function databaseStorageState({includePath=false,probeWrite=false}={}){
   const read=testDatabaseRead(),write=probeWrite?testDatabaseWrite():{ok:!openedReadOnly&&!read.error,notProbed:true};
   let stats=null;try{stats=statSync(databasePath);}catch{}
-  const remote=neonRemotePersistenceState(),persistent=neonRemotePersistenceConfigured()||storageOrigin==="AZURE_HOME"||storageOrigin.startsWith("EXPLICIT");
+  const remote=neonRemotePersistenceState(),safety=productionStorageSafety(),persistent=safety.persistent;
   return {status:!read.ok?"unavailable":write.ok?"ready":"read_only",origin:storageOrigin,azure:isAzureEnvironment(),render:isRenderEnvironment(),persistent,provider:remote.configured?"NEON_REMOTE_SQLITE_SNAPSHOT":"LOCAL_SQLITE",read:read.ok,write:write.ok,readOnly:!write.ok,games:read.games||0,sizeBytes:stats?.size||0,modifiedAt:stats?.mtime?.toISOString?.()||"",latestBackup:latestBackup(),remote:{...remote,restore:remoteRestoreState},...(includePath?{databasePath,persistentRoot,backupsDir}:{})};
 }
 
