@@ -35,7 +35,18 @@ export const persistentDataDir = explicitDatabasePath() ? path.dirname(path.reso
 export const avatarsDir = path.join(persistentRoot, "avatars");
 export const backupsDir = path.join(persistentRoot, "backups");
 export const databasePath = explicitDatabasePath() ? path.resolve(explicitDatabasePath()) : path.join(persistentDataDir, "gamevault.sqlite");
-export const storageOrigin = explicitDatabasePath()?"EXPLICIT_DATABASE":explicitDataRoot()?"EXPLICIT_DATA_DIR":isAzureEnvironment()?"AZURE_HOME":process.platform==="win32"?"WINDOWS_LOCALAPPDATA":"LOCAL_HOME";\n\nexport function productionStorageSafety(){\n  const production=String(process.env.NODE_ENV||"").toLowerCase()==="production"||isAzureEnvironment()||isRenderEnvironment();\n  const persistent=storageOrigin==="AZURE_HOME"||storageOrigin.startsWith("EXPLICIT");\n  return {production,persistent,safe:!production||persistent,origin:storageOrigin,reason:!production||persistent?"PERSISTENT_OR_LOCAL_DEV":"EPHEMERAL_PRODUCTION_STORAGE"};\n}\n\nconst startupStorageSafety=productionStorageSafety();\nif(startupStorageSafety.production&&!startupStorageSafety.safe&&String(process.env.GAMEINDEX_ALLOW_EPHEMERAL_PRODUCTION||"").toLowerCase()!=="true"){\n  throw new Error("GAMEINDEX_PERSISTENT_STORAGE_REQUIRED: configure GAMEINDEX_DATA_DIR or GAMEINDEX_DB before starting production.");\n}
+export const storageOrigin = explicitDatabasePath()?"EXPLICIT_DATABASE":explicitDataRoot()?"EXPLICIT_DATA_DIR":isAzureEnvironment()?"AZURE_HOME":process.platform==="win32"?"WINDOWS_LOCALAPPDATA":"LOCAL_HOME";
+
+export function productionStorageSafety(){
+  const production=String(process.env.NODE_ENV||"").toLowerCase()==="production"||isAzureEnvironment()||isRenderEnvironment();
+  const persistent=storageOrigin==="AZURE_HOME"||storageOrigin.startsWith("EXPLICIT");
+  return {production,persistent,safe:!production||persistent,origin:storageOrigin,reason:!production||persistent?"PERSISTENT_OR_LOCAL_DEV":"EPHEMERAL_PRODUCTION_STORAGE"};
+}
+
+const startupStorageSafety=productionStorageSafety();
+if(startupStorageSafety.production&&!startupStorageSafety.safe&&String(process.env.GAMEINDEX_ALLOW_EPHEMERAL_PRODUCTION||"").toLowerCase()!=="true"){
+  throw new Error("GAMEINDEX_PERSISTENT_STORAGE_REQUIRED: configure GAMEINDEX_DATA_DIR or GAMEINDEX_DB before starting production.");
+}
 
 for (const dir of [persistentRoot, persistentDataDir, avatarsDir, backupsDir]) mkdirSync(dir, { recursive:true });
 
@@ -341,7 +352,8 @@ export function migrateDatabase() {
     {version:38,file:"038_beta_099_i5.sql",name:"beta-0.99-i5-production-consolidation",toVersion:"0.99-I5"},
     {version:39,file:"039_beta_099_i6.sql",name:"beta-0.99-i6-universe-builder-experience",toVersion:"0.99-I6"},
     {version:40,file:"040_beta_099_i6_hf1.sql",name:"beta-0.99-i6-hf1-build-reliability",toVersion:"0.99-I6-HF1"},
-    {version:41,file:"041_beta_0991_hf1.sql",name:"beta-0.991-hf1-identity-restoration",toVersion:"0.991-HF1"},\n    {version:42,file:"042_beta_0991_i1.sql",name:"beta-0.991-i1-reliability-navigation-diagnostics",toVersion:"0.991-I1"}
+    {version:41,file:"041_beta_0991_hf1.sql",name:"beta-0.991-hf1-identity-restoration",toVersion:"0.991-HF1"},
+    {version:42,file:"042_beta_0991_i1.sql",name:"beta-0.991-i1-reliability-navigation-diagnostics",toVersion:"0.991-I1"}
   ];
 
   const targetSchema=Math.min(42,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||42)||42));
