@@ -162,7 +162,7 @@ async function pruneRemoteSnapshots(){
       WHERE snapshot_key=$1 AND complete=TRUE
       ORDER BY completed_at DESC NULLS LAST,created_at DESC
       OFFSET $2
-    )`,[SNAPSHOT_KEY,String(KEEP_COMPLETE)]);
+    )`,[SNAPSHOT_KEY,KEEP_COMPLETE]);
   await neonHttpQuery(`DELETE FROM gameindex_runtime_snapshots
     WHERE snapshot_key=$1 AND complete=FALSE AND created_at < NOW()-INTERVAL '1 day'`,[SNAPSHOT_KEY]);
 }
@@ -193,10 +193,10 @@ async function performUpload({force=false,reason="runtime"}={}){
     const chunks=[];for(let offset=0;offset<buffer.length;offset+=RAW_CHUNK_BYTES)chunks.push(buffer.subarray(offset,Math.min(buffer.length,offset+RAW_CHUNK_BYTES)).toString("base64"));
     await neonHttpQuery(`INSERT INTO gameindex_runtime_snapshots(snapshot_id,snapshot_key,schema_version,release,sha256,size_bytes,chunk_count,complete,created_at)
       VALUES($1,$2,$3,$4,$5,$6,$7,FALSE,NOW())`,[
-      snapshotId,SNAPSHOT_KEY,String(getSchemaVersion?.()||0),String(release||""),sha,String(buffer.length),String(chunks.length)
+      snapshotId,SNAPSHOT_KEY,Number(getSchemaVersion?.()||0),String(release||""),sha,buffer.length,chunks.length
     ]);
     for(let i=0;i<chunks.length;i++){
-      await neonHttpQuery(`INSERT INTO gameindex_runtime_snapshot_chunks(snapshot_id,chunk_index,payload_base64) VALUES($1,$2,$3)`,[snapshotId,String(i),chunks[i]]);
+      await neonHttpQuery(`INSERT INTO gameindex_runtime_snapshot_chunks(snapshot_id,chunk_index,payload_base64) VALUES($1,$2,$3)`,[snapshotId,i,chunks[i]]);
     }
     await neonHttpQuery(`UPDATE gameindex_runtime_snapshots SET complete=TRUE,completed_at=NOW() WHERE snapshot_id=$1`,[snapshotId]);
     lastUploadedSha=sha;latestSnapshotId=snapshotId;lastSyncAt=new Date().toISOString();lastError="";
@@ -211,7 +211,7 @@ async function performUpload({force=false,reason="runtime"}={}){
 export function markNeonSnapshotDirty({critical=false,reason="database-write"}={}){
   if(!runtimeConfig||!neonRemotePersistenceConfigured()||stopping)return;
   if(scheduledTimer)clearTimeout(scheduledTimer);
-  const delay=critical?100:SYNC_DELAY_MS;
+  const delay=critical?0:SYNC_DELAY_MS;
   scheduledTimer=setTimeout(()=>{scheduledTimer=null;void flushNeonSnapshot({reason});},delay);
   scheduledTimer.unref?.();
 }
