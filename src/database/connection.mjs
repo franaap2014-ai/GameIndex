@@ -37,6 +37,17 @@ export const backupsDir = path.join(persistentRoot, "backups");
 export const databasePath = explicitDatabasePath() ? path.resolve(explicitDatabasePath()) : path.join(persistentDataDir, "gamevault.sqlite");
 export const storageOrigin = explicitDatabasePath()?"EXPLICIT_DATABASE":explicitDataRoot()?"EXPLICIT_DATA_DIR":isAzureEnvironment()?"AZURE_HOME":process.platform==="win32"?"WINDOWS_LOCALAPPDATA":"LOCAL_HOME";
 
+export function productionStorageSafety(){
+  const production=String(process.env.NODE_ENV||"").toLowerCase()==="production"||isAzureEnvironment()||isRenderEnvironment();
+  const persistent=storageOrigin==="AZURE_HOME"||storageOrigin.startsWith("EXPLICIT");
+  return {production,persistent,safe:!production||persistent,origin:storageOrigin,reason:!production||persistent?"PERSISTENT_OR_LOCAL_DEV":"EPHEMERAL_PRODUCTION_STORAGE"};
+}
+
+const startupStorageSafety=productionStorageSafety();
+if(startupStorageSafety.production&&!startupStorageSafety.safe&&String(process.env.GAMEINDEX_ALLOW_EPHEMERAL_PRODUCTION||"").toLowerCase()!=="true"){
+  throw new Error("GAMEINDEX_PERSISTENT_STORAGE_REQUIRED: configure GAMEINDEX_DATA_DIR or GAMEINDEX_DB before starting production.");
+}
+
 for (const dir of [persistentRoot, persistentDataDir, avatarsDir, backupsDir]) mkdirSync(dir, { recursive:true });
 
 const legacyBundledDb = path.join(projectRoot, "data", "gamevault-beta.sqlite");
@@ -341,15 +352,16 @@ export function migrateDatabase() {
     {version:38,file:"038_beta_099_i5.sql",name:"beta-0.99-i5-production-consolidation",toVersion:"0.99-I5"},
     {version:39,file:"039_beta_099_i6.sql",name:"beta-0.99-i6-universe-builder-experience",toVersion:"0.99-I6"},
     {version:40,file:"040_beta_099_i6_hf1.sql",name:"beta-0.99-i6-hf1-build-reliability",toVersion:"0.99-I6-HF1"},
-    {version:41,file:"041_beta_0991_hf1.sql",name:"beta-0.991-hf1-identity-restoration",toVersion:"0.991-HF1"}
+    {version:41,file:"041_beta_0991_hf1.sql",name:"beta-0.991-hf1-identity-restoration",toVersion:"0.991-HF1"},
+    {version:42,file:"042_beta_0991_i1.sql",name:"beta-0.991-i1-reliability-navigation-diagnostics",toVersion:"0.991-I1"}
   ];
 
-  const targetSchema=Math.min(41,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||41)||41));
+  const targetSchema=Math.min(42,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||42)||42));
 
   for (const step of steps) {
     if(step.version>targetSchema)break;
     if (version >= step.version) continue;
-    const from=version===1?"0.5":version===2?"0.6":version===3?"0.65":version===4?"0.67":version===5?"0.675":version===6?"0.7":version===7?"0.705":version===8?"0.8":version===9?"0.85":version===10?"0.86":version===11?"0.87":version===12?"0.88":version===13?"0.885":version===14?"0.89":version===15?"0.9":version===16?"0.91":version===17?"0.92":version===18?"0.95":version===19?"0.96":version===20?"0.97":version===21?"0.97-BF":version===22?"0.975-BF":version===23?"0.975-BF-PRE-PUBLIC":version===24?"0.98":version===25?"0.985":version===26?"0.985-HF2":version===27?"0.985-HF3":version===28?"0.985-HF4":version===29?"0.986":version===30?"0.986-HF2":version===31?"0.986-HF2":version===32?"0.987":version===33?"0.9875":version===34?"0.99-I1":version===35?"0.99-I2":version===36?"0.99-I3":version===37?"0.99-I4":version===38?"0.99-I5":version===39?"0.99-I6":version===40?"0.99-I6-HF1":"unknown";
+    const from=version===1?"0.5":version===2?"0.6":version===3?"0.65":version===4?"0.67":version===5?"0.675":version===6?"0.7":version===7?"0.705":version===8?"0.8":version===9?"0.85":version===10?"0.86":version===11?"0.87":version===12?"0.88":version===13?"0.885":version===14?"0.89":version===15?"0.9":version===16?"0.91":version===17?"0.92":version===18?"0.95":version===19?"0.96":version===20?"0.97":version===21?"0.97-BF":version===22?"0.975-BF":version===23?"0.975-BF-PRE-PUBLIC":version===24?"0.98":version===25?"0.985":version===26?"0.985-HF2":version===27?"0.985-HF3":version===28?"0.985-HF4":version===29?"0.986":version===30?"0.986-HF2":version===31?"0.986-HF2":version===32?"0.987":version===33?"0.9875":version===34?"0.99-I1":version===35?"0.99-I2":version===36?"0.99-I3":version===37?"0.99-I4":version===38?"0.99-I5":version===39?"0.99-I6":version===40?"0.99-I6-HF1":version===41?"0.991-HF1":"unknown";
     createDatabaseBackup({fromVersion:from,toVersion:step.toVersion,label:step.name});
     try {
       db.exec("BEGIN IMMEDIATE");

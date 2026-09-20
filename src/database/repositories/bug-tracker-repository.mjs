@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { db, json, nowIso, parseJson } from "../connection.mjs";
-const STATUSES=new Set(["REPORTED","CONFIRMED","INVESTIGATING","FIXING","TESTING","FIXED","VERIFIED","REOPENED","WONT_FIX","DUPLICATE"]);
+const STATUSES=new Set(["NEW","REPORTED","TRIAGED","REPRODUCED","CONFIRMED","INVESTIGATING","FIXING","TESTING","FIXED","VERIFIED","CLOSED","REOPENED","NEEDS_INFORMATION","CANNOT_REPRODUCE","WONT_FIX","DUPLICATE"]);
 const SEVERITIES=new Set(["CRITICAL","BUG","UX","IMPROVEMENT","SECURITY","PERFORMANCE","DATA"]);
 const CATEGORIES=new Set(["GENERAL","AI","AUTOGEN","IMAGE","ADMIN","UX","DATA","SECURITY","PERFORMANCE"]);
 function map(r){return r?{id:r.id,bugCode:r.bug_code,title:r.title,description:r.description,severity:r.severity,category:r.category,status:r.status,versionFound:r.version_found,targetVersion:r.target_version,component:r.component,createdBy:r.created_by,traceId:r.trace_id,generationJobId:r.generation_job_id,entityId:r.entity_id,gameId:r.game_id,imageId:r.image_id,databaseRecordRef:r.database_record_ref,rootCause:r.root_cause,fixSummary:r.fix_summary,verificationNotes:r.verification_notes,createdAt:r.created_at,updatedAt:r.updated_at}:null;}

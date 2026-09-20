@@ -4,7 +4,7 @@ import { getPreference, setPreference } from "../database/repositories/user-repo
 import { themePublicState } from "../themes/theme-service.mjs";
 
 export const CINEMATIC_EVENTS=Object.freeze({
-  WELCOME:{eventKey:"welcome_0991_hf1_visual_v2",eventType:"WELCOME",identity:"WELCOME",version:"1",titleKey:"cinematic.welcome",fallbackTitle:"BEM-VINDO",color:"NEUTRAL"},
+  WELCOME:{eventKey:"welcome_0991_i1",eventType:"WELCOME",identity:"WELCOME",version:"1",titleKey:"cinematic.welcome",fallbackTitle:"BEM-VINDO",color:"NEUTRAL"},
   PRO:{eventKey:"pro_intro_v2",eventType:"IDENTITY",identity:"PRO",version:"1",titleKey:"cinematic.pro",fallbackTitle:"PRO",color:"GREEN",theme:"PRO_GREEN"},
   TESTER:{eventKey:"tester_intro_v2",eventType:"IDENTITY",identity:"TESTER",version:"1",titleKey:"cinematic.tester",fallbackTitle:"TESTER",color:"BLUE",theme:"TESTER_BLUE"},
   DEV:{eventKey:"dev_intro_v2",eventType:"IDENTITY",identity:"DEV",version:"1",titleKey:"cinematic.dev",fallbackTitle:"DEV",color:"RED",theme:"DEV_RED"},
@@ -26,10 +26,10 @@ function recentlyStarted(state){if(!state||state.status!=="STARTED"||!state.upda
 
 export function cinematicQueueForUser(userId){
   const user=String(userId),identity=resolvePrimaryIdentity(user),queue=[];
-  const welcome=ensureCinematicEvent(user,{...CINEMATIC_EVENTS.WELCOME,metadata:{release:"0.991-HF1"}});
+  const welcome=ensureCinematicEvent(user,{...CINEMATIC_EVENTS.WELCOME,metadata:{release:"0.991-I1"}});
   if(welcome.status!=="COMPLETED"&&welcome.status!=="SKIPPED"&&!recentlyStarted(welcome))queue.push(clientEvent(CINEMATIC_EVENTS.WELCOME,welcome));
   if(identity!=="FREE"){
-    const def=CINEMATIC_EVENTS[identity],state=ensureCinematicEvent(user,{...def,metadata:{identity,release:"0.991-HF1"}});
+    const def=CINEMATIC_EVENTS[identity],state=ensureCinematicEvent(user,{...def,metadata:{identity,release:"0.991-I1"}});
     if(state.status!=="COMPLETED"&&state.status!=="SKIPPED"&&!recentlyStarted(state))queue.push(clientEvent(def,state));
   }
   return {identity,queue,theme:themePublicState(user,getPreference(user).theme)};
