@@ -43,3 +43,13 @@ export function skipCinematicEvent(userId,eventKey,{reason=""}={}){
   db.prepare(`UPDATE user_cinematic_events SET status='SKIPPED',completed_at=CASE WHEN completed_at='' THEN ? ELSE completed_at END,updated_at=?,metadata_json=? WHERE user_id=? AND event_key=?`).run(now,now,json({...current.metadata,skipReason:String(reason||"")}),String(userId),String(eventKey));
   return cinematicEvent(userId,eventKey);
 }
+
+
+export function resetCinematicEvent(userId,eventKey,{reason=""}={}){
+  const current=cinematicEvent(userId,eventKey);if(!current)return null;const now=nowIso();
+  db.prepare(`UPDATE user_cinematic_events
+    SET status='ELIGIBLE',started_at='',completed_at='',updated_at=?,metadata_json=?
+    WHERE user_id=? AND event_key=?`)
+    .run(now,json({...current.metadata,resetReason:String(reason||"").slice(0,240),resetAt:now}),String(userId),String(eventKey));
+  return cinematicEvent(userId,eventKey);
+}
