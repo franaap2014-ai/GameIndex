@@ -1,27 +1,35 @@
 # Full Deploy — GameIndex Beta 0.991 I1
 
-## Required production storage
-GameIndex 0.991 I1 will not silently use an ephemeral production SQLite path.
+> **Superseded for Render by Beta 0.991 I1 HF1.**
+> In the HF1 deployment, do **not** configure a persistent SQLite path on Render.
+> Render production persistence is provided only by the external Neon database through `DATABASE_URL`.
+> See `FULL_DEPLOY_README_BETA_0.991_I1_HF1.md`.
 
-Configure one of:
-- `GAMEINDEX_DATA_DIR=/persistent/mount/GameIndex`
-- `GAMEINDEX_DB=/persistent/mount/GameIndex/gamevault.sqlite`
+## I1 historical storage rule
 
-The directory must actually survive redeploys/restarts on the chosen hosting provider. Merely setting an environment variable to a temporary path is not persistence.
+The original I1 introduced a safety guard so production would not silently depend on disposable SQLite storage. HF1 replaces the Render-specific solution with Neon persistence.
 
-Do not enable `GAMEINDEX_ALLOW_EPHEMERAL_PRODUCTION=true` for a real deployment containing accounts.
+For the current Render Free deployment:
 
-## Deployment
-1. Back up the current schema-41 database.
-2. Make persistent storage available to the service.
-3. Point `GAMEINDEX_DATA_DIR` or `GAMEINDEX_DB` at it.
-4. Ensure the existing database is present at that location before the I1 application starts when migrating an existing installation.
-5. Run `npm ci`.
-6. Run `npm run check`, `npm run test:0991hf1` and `npm run test:0991i1`.
-7. Start the application.
-8. Confirm schema 42 and Admin → System → Account Storage = Persistent / Safe.
-9. Create a temporary test account, restart the service, and confirm the same account can still sign in.
-10. Only then consider the deployment verified.
+- do not use `GAMEINDEX_DATA_DIR` as production persistence;
+- do not use `GAMEINDEX_DB` as production persistence;
+- do not configure or depend on a Render Persistent Disk;
+- configure the Neon `DATABASE_URL` instead.
+
+SQLite may still exist inside the running Render instance as a temporary runtime cache, but it is not the durable database.
+
+## Current deployment
+
+1. Configure the private Neon `DATABASE_URL` in Render Environment.
+2. Apply the complete **Beta 0.991 I1 HF1 UPDATE_ONLY** package.
+3. Run/install the application normally.
+4. Confirm schema 43.
+5. Confirm Admin → System → Account Storage = **Persistent / Safe**.
+6. Confirm provider = `NEON_REMOTE_SQLITE_SNAPSHOT`.
+7. Create or recover the owner account.
+8. Restart/redeploy the Render service.
+9. Confirm the same account can still sign in.
 
 ## Rollback
-Do not delete or replace the database when rolling application code back. Schema 42 is additive; preserve a pre-migration backup.
+
+Do not delete Neon snapshots when rolling application code back. Schema 42/43 migrations are additive and the durable snapshot history should be preserved.

@@ -33,7 +33,7 @@ DATABASE_URL=<Neon PostgreSQL connection string>
 
 Keep this value only in Render Environment. Never commit it to GitHub.
 
-A local `GAMEINDEX_DB` or `GAMEINDEX_DATA_DIR` path is no longer treated as persistent on Render Free. A paid Render Persistent Disk can be explicitly acknowledged with `GAMEINDEX_RENDER_PERSISTENT_DISK=true`.
+On Render, `GAMEINDEX_DB` and `GAMEINDEX_DATA_DIR` are never accepted as production persistence. The only supported production persistence path for this HF1 on Render Free is Neon through `DATABASE_URL`. SQLite remains only as a temporary runtime cache inside the Render instance.
 
 ## Schema
 

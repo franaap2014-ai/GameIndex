@@ -43,16 +43,22 @@ export function productionStorageSafety(){
   const remote=neonRemotePersistenceConfigured();
   const render=isRenderEnvironment();
   const explicitLocal=storageOrigin.startsWith("EXPLICIT");
-  const renderDiskOptIn=render&&explicitLocal&&String(process.env.GAMEINDEX_RENDER_PERSISTENT_DISK||"").toLowerCase()==="true";
-  const localPersistent=storageOrigin==="AZURE_HOME"||(!render&&explicitLocal)||renderDiskOptIn;
-  const persistent=remote||localPersistent;
-  const reason=!production||persistent?(remote?"NEON_REMOTE_PERSISTENCE":renderDiskOptIn?"RENDER_PERSISTENT_DISK":"PERSISTENT_OR_LOCAL_DEV"):"EPHEMERAL_PRODUCTION_STORAGE";
-  return {production,persistent,remote,render,renderDiskOptIn,safe:!production||persistent,origin:storageOrigin,provider:remote?"NEON_REMOTE_SQLITE_SNAPSHOT":"LOCAL_SQLITE",reason};
+  // Render local storage is always treated as ephemeral in the Free deployment path.
+  // A GAMEINDEX_DB/GAMEINDEX_DATA_DIR value must never satisfy production persistence on Render.
+  const localPersistent=!render&&(storageOrigin==="AZURE_HOME"||explicitLocal);
+  const persistent=render?remote:(remote||localPersistent);
+  const reason=!production||persistent?(remote?"NEON_REMOTE_PERSISTENCE":"PERSISTENT_OR_LOCAL_DEV"):"EPHEMERAL_PRODUCTION_STORAGE";
+  return {production,persistent,remote,render,safe:!production||persistent,origin:storageOrigin,provider:remote?"NEON_REMOTE_SQLITE_SNAPSHOT":"LOCAL_SQLITE",reason};
 }
 
 const startupStorageSafety=productionStorageSafety();
-if(startupStorageSafety.production&&!startupStorageSafety.safe&&String(process.env.GAMEINDEX_ALLOW_EPHEMERAL_PRODUCTION||"").toLowerCase()!=="true"){
-  throw new Error("GAMEINDEX_PERSISTENT_STORAGE_REQUIRED: on Render Free configure DATABASE_URL with the GameIndex Neon PostgreSQL connection string before starting production.");
+if(startupStorageSafety.production&&!startupStorageSafety.safe){
+  const emergencyOverride=String(process.env.GAMEINDEX_ALLOW_EPHEMERAL_PRODUCTION||"").toLowerCase()==="true";
+  // Render production must always use Neon. Local SQLite is only a temporary runtime cache there,
+  // and neither GAMEINDEX_DB/GAMEINDEX_DATA_DIR nor the emergency override can make it durable.
+  if(startupStorageSafety.render||!emergencyOverride){
+    throw new Error("GAMEINDEX_PERSISTENT_STORAGE_REQUIRED: Render production requires DATABASE_URL for the GameIndex Neon PostgreSQL database. Local SQLite paths are temporary and are never accepted as persistent storage.");
+  }
 }
 
 for (const dir of [persistentRoot, persistentDataDir, avatarsDir, backupsDir]) mkdirSync(dir, { recursive:true });

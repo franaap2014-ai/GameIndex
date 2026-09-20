@@ -3,7 +3,7 @@
 This update is intended to be applied over the existing HF1 repository.
 
 ## Before pushing
-The most important step is **persistent account storage**. If production currently stores `gamevault.sqlite` on an ephemeral filesystem, move/configure it on durable storage first. I1 deliberately refuses the unsafe silent fallback.
+This I1 document is retained for release history, but the current package is **Beta 0.991 I1 HF1**. On Render, do not move `gamevault.sqlite` to a persistent local path or configure a persistent Render disk. Configure the Neon `DATABASE_URL` and follow `UPDATE_ONLY_README_0.991_I1_HF1.md`.
 
 ## Suggested GitHub Desktop flow
 1. Keep the existing local GameIndex clone.
@@ -11,7 +11,7 @@ The most important step is **persistent account storage**. If production current
 3. Review changes.
 4. Commit `GameIndex Beta 0.991 I1`.
 5. Push.
-6. Deploy only after the production persistent path is configured.
+6. For the HF1 Render deployment, deploy only after the Neon `DATABASE_URL` is configured.
 
 ## Post-deploy checks
 - account still exists after restart

@@ -17,7 +17,7 @@ Incremental reliability, navigation, cinematic and diagnostics release built on 
 - Expanded compatible bug workflow states while preserving legacy statuses.
 
 ## Persistence requirement
-In production, configure a genuinely persistent path through `GAMEINDEX_DATA_DIR` or `GAMEINDEX_DB`. GameIndex intentionally refuses to boot on an unconfigured ephemeral production filesystem unless the explicit emergency override is enabled. The override is not appropriate for real production data.
+This section is superseded on Render by **Beta 0.991 I1 HF1**. For the current Render deployment, do not configure `GAMEINDEX_DATA_DIR`, `GAMEINDEX_DB`, or a Render Persistent Disk as the durable production database. Configure the external Neon `DATABASE_URL`; Render-local SQLite is temporary runtime storage only.
 
 ## Security
 No password, auth cookie/token, setup code or credential is intentionally collected by the diagnostics pipeline. Server-side capabilities continue to guard Admin/Cinematics/Bug APIs.

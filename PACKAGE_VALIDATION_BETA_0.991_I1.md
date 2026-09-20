@@ -33,4 +33,4 @@ The branch does not intentionally add `.env`, a production SQLite database, `nod
 A real `npm ci`, full `npm run check`, HTTP smoke and production restart test were not executed in this environment because direct GitHub/npm network checkout was unavailable. See `TEST_REPORT_BETA_0.991_I1.md`.
 
 ## Deployment gate
-Production must configure a genuinely persistent database path before merge/deploy. I1 intentionally rejects unsafe silent ephemeral production storage.
+For the current Beta 0.991 I1 HF1 package on Render, production persistence must be the Neon `DATABASE_URL`. Do not configure a persistent SQLite path or Render disk as the production data store.

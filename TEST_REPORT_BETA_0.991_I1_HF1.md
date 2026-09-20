@@ -9,8 +9,8 @@
 - Existing I1 static regression contract was updated for schema 43.
 - HF1 static persistence contract was added.
 - Release-contract checks passed for:
-  - Render Free local paths not being treated as persistent by default.
-  - Neon `DATABASE_URL` detection.
+  - Render local paths never being treated as persistent production storage.
+  - Neon `DATABASE_URL` detection and mandatory Render production gate.
   - remote restore before SQLite open.
   - schema 43 migration wiring.
   - SHA-256 snapshot verification.
