@@ -30,6 +30,6 @@ Never expose or commit the connection string.
 
 ## Safety
 
-HF1 refuses normal Render Free production startup without a valid Neon URL unless a real paid Render Persistent Disk is explicitly configured. The old emergency ephemeral override remains a development/emergency escape hatch and should not be enabled for real account data.
+HF1 refuses Render production startup without a valid Neon `DATABASE_URL`. Render-local `GAMEINDEX_DB` / `GAMEINDEX_DATA_DIR` paths are never considered persistent, and the emergency ephemeral override cannot bypass this rule on Render. SQLite is only a temporary runtime cache; Neon is the durable authority.
 
 The Neon snapshot payload is chunked, versioned and SHA-256 checked. Incomplete snapshots are ignored during restore.
