@@ -23,7 +23,7 @@ function audit(actor,target,eventKey,actionType,metadata={}){
 export function registerBeta0991I1Routes(app){
   app.get("/api/admin/i1/storage",requireCapability("creator_control"),(req,res)=>{
     const state=databaseStorageState({includePath:false,probeWrite:false}),safety=productionStorageSafety();
-    return noStore(res).json({ok:true,storage:{status:state.status,origin:state.origin,persistent:state.persistent,read:state.read,write:state.write,readOnly:state.readOnly,sizeBytes:state.sizeBytes,modifiedAt:state.modifiedAt},safety});
+    return noStore(res).json({ok:true,storage:{status:state.status,origin:state.origin,provider:state.provider,persistent:state.persistent,read:state.read,write:state.write,readOnly:state.readOnly,sizeBytes:state.sizeBytes,modifiedAt:state.modifiedAt,remote:state.remote||null},safety});
   });
 
   app.get("/api/admin/i1/cinematics",requireCapability("creator_control"),(req,res)=>{
