@@ -4,11 +4,11 @@ import { getPreference, setPreference } from "../database/repositories/user-repo
 import { themePublicState } from "../themes/theme-service.mjs";
 
 export const CINEMATIC_EVENTS=Object.freeze({
-  WELCOME:{eventKey:"welcome_0991_hf1",eventType:"WELCOME",identity:"WELCOME",version:"1",titleKey:"cinematic.welcome",fallbackTitle:"BEM-VINDO",color:"NEUTRAL"},
-  PRO:{eventKey:"pro_intro_v1",eventType:"IDENTITY",identity:"PRO",version:"1",titleKey:"cinematic.pro",fallbackTitle:"PRO",color:"GREEN",theme:"PRO_GREEN"},
-  TESTER:{eventKey:"tester_intro_v1",eventType:"IDENTITY",identity:"TESTER",version:"1",titleKey:"cinematic.tester",fallbackTitle:"TESTER",color:"BLUE",theme:"TESTER_BLUE"},
-  DEV:{eventKey:"dev_intro_v1",eventType:"IDENTITY",identity:"DEV",version:"1",titleKey:"cinematic.dev",fallbackTitle:"DEV",color:"RED",theme:"DEV_RED"},
-  CREATOR:{eventKey:"creator_intro_v1",eventType:"IDENTITY",identity:"CREATOR",version:"1",titleKey:"cinematic.creator",fallbackTitle:"CREATOR",color:"GOLD",theme:"CREATOR_TECH"}
+  WELCOME:{eventKey:"welcome_0991_hf1_visual_v2",eventType:"WELCOME",identity:"WELCOME",version:"1",titleKey:"cinematic.welcome",fallbackTitle:"BEM-VINDO",color:"NEUTRAL"},
+  PRO:{eventKey:"pro_intro_v2",eventType:"IDENTITY",identity:"PRO",version:"1",titleKey:"cinematic.pro",fallbackTitle:"PRO",color:"GREEN",theme:"PRO_GREEN"},
+  TESTER:{eventKey:"tester_intro_v2",eventType:"IDENTITY",identity:"TESTER",version:"1",titleKey:"cinematic.tester",fallbackTitle:"TESTER",color:"BLUE",theme:"TESTER_BLUE"},
+  DEV:{eventKey:"dev_intro_v2",eventType:"IDENTITY",identity:"DEV",version:"1",titleKey:"cinematic.dev",fallbackTitle:"DEV",color:"RED",theme:"DEV_RED"},
+  CREATOR:{eventKey:"creator_intro_v2",eventType:"IDENTITY",identity:"CREATOR",version:"1",titleKey:"cinematic.creator",fallbackTitle:"CREATOR",color:"GOLD",theme:"CREATOR_TECH"}
 });
 
 export function resolvePrimaryIdentity(userId){
