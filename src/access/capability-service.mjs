@@ -8,7 +8,7 @@ export const CAPABILITIES=Object.freeze([
   "creator_studio_edit","content_publish","image_management","game_submission","tester_preview","tester_feedback","bug_triage",
   "database_explorer","ai_diagnostics","deployment_monitor","social_lab_access","social_group_create",
   "social_community_access","social_report","social_moderation_review","simulator_run_safe","simulator_configure",
-  "simulator_review_all","ai_sharpener","animation_edit","animation_publish"
+  "simulator_review_all","ai_sharpener","animation_edit","animation_publish","cinematic_test","profile_avatar_management"
 ]);
 
 
@@ -18,8 +18,8 @@ export function rankPower(snapshot={}){const rank=snapshot.staffRole&&snapshot.s
 
 const ROLE_CAPABILITIES=Object.freeze({
   CREATOR:new Set(CAPABILITIES),
-  DEV:new Set(["page_generation","universe_build","creator_studio_edit","image_management","music_management","game_submission","bug_triage","database_explorer","ai_diagnostics","deployment_monitor"]),
-  TESTER:new Set(["game_submission","tester_preview","tester_feedback","social_lab_access","social_group_create","social_community_access","social_report","simulator_run_safe"]),
+  DEV:new Set(["page_generation","universe_build","creator_studio_edit","image_management","music_management","game_submission","bug_triage","ai_diagnostics","cinematic_test"]),
+  TESTER:new Set(["game_submission","tester_preview","tester_feedback","social_lab_access","social_group_create","social_community_access","social_report","simulator_run_safe","cinematic_test"]),
   NONE:new Set()
 });
 

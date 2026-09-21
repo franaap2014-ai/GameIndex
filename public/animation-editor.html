@@ -1,11 +1,11 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Animation Editor | GameIndex Beta 0.991 I1 HF2</title><script src="/js/theme-bootstrap.js"></script><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/gameindex-0986.css?v=0991i1hf2"><link rel="stylesheet" href="/css/gameindex-0991-hf1.css?v=0991i1hf2"><link rel="stylesheet" href="/css/animation-editor.css?v=0991i1hf2"><script src="/js/shell-0986.js?v=0991i1hf2" defer></script><script src="/js/animation-runtime.js?v=0991i1hf2" defer></script><script src="/js/animation-editor.js?v=0991i1hf2" defer></script></head>
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Cinematic Editor | GameIndex Beta 0.9915</title><script src="/js/theme-bootstrap.js"></script><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/gameindex-0986.css?v=09915"><link rel="stylesheet" href="/css/gameindex-0991-hf1.css?v=09915"><link rel="stylesheet" href="/css/animation-editor.css?v=09915"><script src="/js/shell-0986.js?v=09915" defer></script><script src="/js/animation-runtime.js?v=09915" defer></script><script src="/js/animation-editor.js?v=09915" defer></script></head>
 <body data-page="animation-editor"><div id="siteShell"></div>
 <main class="gi-animation-editor">
   <section class="ae-topbar">
-    <div class="ae-title"><span class="mark">◆</span><div><h1>Animation Editor</h1><p>GameIndex Creator · cinematics, UI animations e detalhes tecnológicos</p></div></div>
+    <div class="ae-title"><span class="mark">◆</span><div><h1>Cinematic Editor</h1><p>Crie cutscenes, transições e animações do GameIndex.</p></div></div>
     <div class="ae-actions">
       <span id="aeSaveState" class="ae-save-state">Carregando...</span>
-      <button id="aeUndo" class="button ghost-button" type="button">Desfazer</button>
+      <button id="aeNewProjectTop" class="button ghost-button" type="button">+ Nova</button><button id="aeUndo" class="button ghost-button" type="button">Desfazer</button>
       <button id="aeRedo" class="button ghost-button" type="button">Refazer</button>
       <button id="aeDuplicate" class="button ghost-button" type="button">Duplicar</button>
       <button id="aeSave" class="button primary-button" type="button">Salvar</button>
@@ -27,12 +27,17 @@
     <section class="ae-panel ae-center mobile-active" data-mobile-id="center">
       <div class="ae-panel-head"><strong id="aeProjectTitle">Nenhum projeto</strong><small id="aeProjectMeta">—</small></div>
       <div class="ae-preview-toolbar">
-        <div class="ae-preview-tools">
-          <button id="aePlay" type="button" title="Play">▶</button><button id="aePause" type="button" title="Pause">Ⅱ</button><button id="aeRestart" type="button" title="Restart">↺</button><label><input id="aeLoop" type="checkbox"> Loop</label>
+        <div class="ae-preview-tools gi9915-preview-controls">
+          <button id="aePlay" class="play" type="button" aria-label="Reproduzir preview">▶ Play</button>
+          <button id="aePause" type="button" aria-label="Pausar preview">⏸ Pausar</button>
+          <button id="aeRestart" type="button" aria-label="Reiniciar preview">↺ Reiniciar</button>
+          <button id="aeFitPreview" type="button" aria-label="Ajustar preview">Ajustar</button>
+          <button id="aeFullscreen" type="button" aria-label="Preview em tela cheia">⛶ Tela cheia</button>
+          <label><input id="aeLoop" type="checkbox"> Loop</label>
         </div>
         <div class="ae-time"><span id="aeCurrentTime">0.00</span>s / <span id="aeDurationLabel">0.00</span>s</div>
       </div>
-      <div class="ae-preview-wrap"><div id="aePreviewShell" class="ae-preview-shell"><div class="ae-preview-empty">Selecione ou crie uma animação.</div></div></div>
+      <div class="ae-preview-wrap"><div id="aePreviewShell" class="ae-preview-shell"><div id="aeWelcome" class="gi9915-editor-welcome"><div><p class="gi9915-kicker">CINEMATIC EDITOR</p><h2>O que você quer criar?</h2><p class="gi9915-muted">Comece em branco, use um preset ou teste uma cutscene existente.</p><div class="gi9915-editor-start-actions"><button id="aeWelcomeNew" class="gi9915-button primary" type="button">Nova cutscene</button><button id="aeWelcomePreset" class="gi9915-button" type="button">Usar preset</button><a class="gi9915-button ghost" href="/cinematic-test-lab.html">Testar cutscenes</a></div></div></div></div></div>
     </section>
 
     <aside class="ae-panel ae-right" data-mobile-id="right">
@@ -53,5 +58,5 @@
   </section>
 </main>
 
-<div id="aeModal" class="ae-modal" hidden><div class="ae-modal-card"><div class="section-title-row"><div><p class="section-eyebrow">ANIMATION EDITOR</p><h2 id="aeModalTitle">Nova animação</h2></div><button id="aeModalClose" class="ae-mini-btn" type="button">×</button></div><div id="aeModalBody"></div></div></div>
+<div id="aeModal" class="ae-modal" hidden><div class="ae-modal-card"><div class="section-title-row"><div><p class="section-eyebrow">CINEMATIC EDITOR</p><h2 id="aeModalTitle">Nova animação</h2></div><button id="aeModalClose" class="ae-mini-btn" type="button">×</button></div><div id="aeModalBody"></div></div></div>
 </body></html>

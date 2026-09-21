@@ -12,6 +12,7 @@ import { pageCount } from "../database/repositories/page-repository.mjs";
 import { inspectKnowledgeQuality } from "../quality/knowledge-quality-inspector.mjs";
 import { listKnowledgeGaps } from "../quality/knowledge-gap.mjs";
 import { imageEngine3Summary } from "../images/image-engine3.mjs";
+import { PUBLIC_VERSION } from "../config/release-099i6.mjs";
 
 function actor(req){return currentAuth(req)?.user?.id||null;}
 function requireSocialLogin(req,res,next){const userId=actor(req);if(!userId)return res.status(401).json({ok:false,error:{code:"LOGIN_REQUIRED",message:"Faça login para participar do GameIndex Social.",component:"SOCIAL_AUTH",retryable:false}});next();}
@@ -24,7 +25,7 @@ function table(name){return Boolean(db.prepare(`SELECT 1 FROM sqlite_master WHER
 export function registerBeta096Routes(app,{socialLimiter,simulatorLimiter,generationLimiter}={}){
   const socialLimit=socialLimiter||((req,res,next)=>next()),simulatorLimit=simulatorLimiter||((req,res,next)=>next()),generationLimit=generationLimiter||((req,res,next)=>next());
   app.get("/api/beta096/status",(req,res)=>res.json({product:"GameIndex",version:"Beta 0.986",semanticVersion:"0.986.0",codename:"Production Consolidation",schema:schemaVersion(),games:gameCount(),pages:pageCount(),storageOrigin,intelligence:"GI_CORE_8.5_SCRIPTS + DEXTER_OLLAMA_OPTIONAL",architecture:"DETERMINISTIC_CORE_SEMANTIC_EDGE",mode:"LOCAL_FIRST_NO_API_KEY",apiKeyRequired:false,imageRuntime:"IMAGE_ENGINE_3_NATIVE",socialLab:"PUBLIC_BETA",simulator:"MEGA_SIMULATOR",workers:{construction:true,researchRecovery:true},access:accessSnapshot(req)}));
-  app.get("/api/runtime/version",(req,res)=>res.json({app:"GameIndex",version:"0.986",semanticVersion:"0.986.0",channel:"DELIVERY_RECOVERY",schema:schemaVersion(),intelligence:"GI_CORE_8.5_SCRIPTS + DEXTER_OLLAMA_OPTIONAL",runtime:"LOCAL_FIRST_NO_API_KEY",socialAccess:"PUBLIC",legacyAI:"REMOVED"}));
+  app.get("/api/runtime/version",(req,res)=>res.json({app:"GameIndex",version:PUBLIC_VERSION,label:`Beta ${PUBLIC_VERSION}`,channel:"BETA",schema:schemaVersion(),socialAccess:"PUBLIC"}));
   app.get("/api/beta096/diagnostics",requireCapability("deployment_monitor"),route((req,res)=>{const required=["user_access_revisions","research_batches","ai7_handoffs","social_messages","social_communities","simulator_runs"],tables=Object.fromEntries(required.map(name=>[name,table(name)]));res.json({ok:true,version:"0.975.0",schema:schemaVersion(),storageOrigin,tables,creatorAssignments:Number(db.prepare(`SELECT COUNT(*) count FROM staff_role_assignments WHERE role='CREATOR'`).get()?.count||0),researchBatches:Number(db.prepare(`SELECT COUNT(*) count FROM research_batches`).get()?.count||0),socialMessages:Number(db.prepare(`SELECT COUNT(*) count FROM social_messages`).get()?.count||0),simulatorRuns:Number(db.prepare(`SELECT COUNT(*) count FROM simulator_runs`).get()?.count||0),intelligence:"GI_CORE_8.5_SCRIPTS",images:imageEngine3Summary(),secretsRedacted:true});}));
 
   app.use("/api/universe",requireSameOriginMutation);

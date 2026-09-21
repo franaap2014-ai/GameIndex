@@ -1,0 +1,25 @@
+/* Shared declarative cinematic runtime for public transitions and Creator tools. */
+.gi-animation-runtime-stage{position:absolute!important;inset:0;overflow:hidden;background:var(--gi-animation-bg,#06090d)}
+.gi-animation-runtime-stage[data-background="gameindex-light"]{background:#eef1f4}
+.gi-animation-runtime-stage[data-background="blackout"]{background:#000}
+.gi-animation-runtime-stage[data-background="grid"]{background-color:#070b10;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:32px 32px}
+.gi-animation-runtime-stage[data-background="technical_field"]{background:radial-gradient(circle at center,rgba(84,168,255,.08),transparent 45%),#06090d}
+.gi-animation-runtime-stage[data-background="transparent"]{background:transparent}
+.gi-anim-element{position:absolute;left:50%;top:50%;transform-origin:center;pointer-events:none;color:var(--gi-anim-color);box-sizing:border-box}
+.gi-anim-title,.gi-anim-classification{font-size:clamp(24px,5vw,64px);font-weight:900;letter-spacing:.12em;text-shadow:0 0 28px color-mix(in srgb,var(--gi-anim-color) 35%,transparent);white-space:nowrap}
+.gi-anim-subtitle,.gi-anim-system-label,.gi-anim-diagnostic-label{font-size:clamp(10px,1.5vw,18px);letter-spacing:.16em;white-space:nowrap}
+.gi-anim-gi-logo{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.12em;font-size:clamp(14px,2vw,28px);white-space:nowrap}
+.gi-anim-logo-mark,.gi-anim-gi-g-mark{width:58px;height:58px;border:2px solid var(--gi-anim-color);display:grid;place-items:center;border-radius:15px;font-weight:950;font-size:30px}
+.gi-anim-gi-g-mark{font-size:44px;width:76px;height:76px}
+.gi-anim-rail,.gi-anim-circuit-line,.gi-anim-separator,.gi-anim-cable{width:calc(var(--gi-anim-width,100%)*3);height:var(--gi-anim-thickness,2px);background:linear-gradient(90deg,transparent,var(--gi-anim-color),transparent);clip-path:inset(0 calc((1 - var(--gi-anim-line-progress,1))*50%) 0 calc((1 - var(--gi-anim-line-progress,1))*50%))}
+.gi-anim-node{width:14px;height:14px;border:2px solid var(--gi-anim-color);border-radius:50%;box-shadow:0 0 22px var(--gi-anim-color)}
+.gi-anim-bracket,.gi-anim-tech-corner{width:100px;height:70px;border-top:2px solid var(--gi-anim-color);border-left:2px solid var(--gi-anim-color)}
+.gi-anim-frame{width:calc(var(--gi-anim-width,100%)*2.6);height:calc(var(--gi-anim-height,100%)*1.45);border:2px solid color-mix(in srgb,var(--gi-anim-color) calc(var(--gi-anim-border-opacity,1)*100%),transparent)}
+.gi-anim-grid{width:360px;height:240px;background-image:linear-gradient(color-mix(in srgb,var(--gi-anim-color) 16%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--gi-anim-color) 16%,transparent) 1px,transparent 1px);background-size:24px 24px}
+.gi-anim-scan{width:340px;height:2px;background:var(--gi-anim-color);top:calc(12% + var(--gi-anim-scan-position,0)*76%);box-shadow:0 0 24px var(--gi-anim-color)}
+.gi-anim-glow,.gi-anim-energy-pulse,.gi-anim-boot{width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gi-anim-color) 35%,transparent),transparent 68%)}
+.gi-anim-blackout{inset:-60%;left:-10%;top:-10%;width:120%;height:120%;background:#000;transform:none!important}
+.gi-anim-socket{width:70px;height:70px;border:2px solid var(--gi-anim-color);border-radius:18px}
+.gi-anim-iris{width:120vmax;height:120vmax;border:calc((1 - var(--gi-anim-clip-progress,0))*60vmax) solid #000;border-radius:50%;box-sizing:border-box}
+.gi-anim-light-sweep{width:220px;height:420px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--gi-anim-color) 35%,transparent),transparent);transform:translate(-50%,-50%) skewX(-18deg)}
+.gi-anim-digital-reveal,.gi-anim-glitch,.gi-anim-flicker,.gi-anim-particles{width:260px;height:120px;border:1px solid color-mix(in srgb,var(--gi-anim-color) 45%,transparent);background:repeating-linear-gradient(0deg,transparent 0 5px,color-mix(in srgb,var(--gi-anim-color) 8%,transparent) 5px 6px)}

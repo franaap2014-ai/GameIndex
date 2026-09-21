@@ -12,6 +12,7 @@ let game=null;
 let activeTab=params.get("tab")||null;
 let activeSection=params.get("section")||null;
 let following=false;
+let favorite=false;
 
 function esc(v=""){return GV.safe(v);}
 function initials(name=""){
@@ -68,6 +69,42 @@ async function toggleFollow(){
     button.textContent="Tentar novamente";
   }finally{button.disabled=false;}
 }
+function updateFavoriteButton(value){
+  favorite=Boolean(value);const button=$("favoriteGame");if(!button)return;
+  button.classList.toggle("active",favorite);button.textContent=favorite?"★ Favorito":"☆ Favoritar";button.setAttribute("aria-pressed",String(favorite));
+}
+async function loadFavoriteState(){
+  if(!game)return;try{const d=await GV.api(`/api/profile/favorites/${encodeURIComponent(game.slug)}/status`);updateFavoriteButton(Boolean(d.favorite));}catch{updateFavoriteButton(false);}
+}
+async function toggleFavorite(){
+  const button=$("favoriteGame");if(!button||!game)return;button.disabled=true;
+  try{
+    const method=favorite?"DELETE":"POST";await GV.api(`/api/profile/favorites/${encodeURIComponent(game.slug)}`,{method});updateFavoriteButton(!favorite);
+  }catch(error){
+    if(error.status===401||/login/i.test(String(error.message))){location.href=`/login.html?return=${encodeURIComponent(location.pathname+location.search)}`;return;}
+    button.textContent="Tentar novamente";
+  }finally{button.disabled=false;}
+}
+async function playGameEntryCutscene(){
+  if(!game||!window.GameIndexAnimationRuntime)return;
+  const recentKey=`gi_game_entry_${game.id}`,last=Number(sessionStorage.getItem(recentKey)||0);
+  if(Date.now()-last<8000)return;
+  sessionStorage.setItem(recentKey,String(Date.now()));
+  let overlay=null,controller=null,safety=0;
+  try{
+    const d=await GV.api(`/api/games/${encodeURIComponent(game.slug)}/entry-cutscene`,{timeout:3500}),runtime=d.runtime;
+    if(!runtime)return;
+    overlay=document.createElement("div");overlay.className="gi9915-game-transition";overlay.setAttribute("aria-hidden","true");
+    const stage=document.createElement("div");stage.className="gi9915-game-transition-stage";overlay.appendChild(stage);document.body.appendChild(overlay);
+    const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches||document.documentElement.dataset.reducedMotion==="1"||document.documentElement.dataset.animations==="off";
+    const finish=()=>{if(!overlay)return;overlay.classList.add("done");setTimeout(()=>{controller?.destroy?.();overlay?.remove();overlay=null;},190);};
+    safety=setTimeout(finish,Math.min(2900,Math.max(500,Number(runtime.durationMs||650)+350)));
+    if(reduced){stage.innerHTML=`<div class="gi9915-game-transition-fallback"><strong>${esc(game.nome)}</strong></div>`;setTimeout(finish,260);return;}
+    controller=window.GameIndexAnimationRuntime.create(stage,runtime);controller.onState(s=>{if(!s.playing&&s.time>=s.duration)finish();});controller.play(0);
+  }catch{
+    overlay?.remove();
+  }
+}
 
 function setVisual(visual={}){
   const cover=$("gameCover"),backdrop=$("gameBackdrop"),url=cleanPublicText(visual?.cover||"");
@@ -80,7 +117,7 @@ function setHero(){
   $("gameName").textContent=game.nome;
   $("gameDescription").textContent=basicGameDescription(game);
   const facts=$("gameBasicFacts");if(facts){const rows=basicGameFacts(game);facts.innerHTML=rows.map(item=>`<span>${esc(item)}</span>`).join("");facts.hidden=!rows.length;}
-  $("gameStatus").textContent=game.status==="PUBLISHED"?"BETA 0.99":"RASCUNHO";
+  $("gameStatus").textContent=game.status==="PUBLISHED"?"BETA 0.9915":"RASCUNHO";
   $("gameFranchiseTop").textContent=game.franquia||"";
   const relationLabel=$("relatedRelationshipLabel");if(relationLabel)relationLabel.textContent=game.slug==="roblox"?GV.t("relationship.experiences","EXPERIÊNCIAS"):GV.t("relationship.franchise","FRANQUIA");
   $("gameInitials").textContent=initials(game.nome);
@@ -235,9 +272,12 @@ async function start(){
     $("gameLoading").classList.add("hidden");
     $("gameView").classList.remove("hidden");
     setHero();
+    playGameEntryCutscene().catch(()=>{});
     await window.GameIndexFoundation099?.mount?.({game,slug:game.slug});
     buildTabs();
     $("followGame")?.addEventListener("click",toggleFollow);
+    $("favoriteGame")?.addEventListener("click",toggleFavorite);
+    loadFavoriteState().catch(()=>{});
     let parentSlug=null;try{const parentData=await GV.api(`/api/games/${encodeURIComponent(game.slug)}/parent`);parentSlug=parentData.parent?.slug||null;}catch{}
     window.dispatchEvent(new CustomEvent("gameindex:context",{detail:{gameSlug:game.slug,parentSlug}}));
     window.GameIndexMusic?.mountGameControls?.($("gameExperienceControls"));

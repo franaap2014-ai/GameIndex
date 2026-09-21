@@ -13,8 +13,9 @@ import { listUpdateLog, getUpdateLog } from "../database/repositories/update-log
 import { getPreference } from "../database/repositories/user-repository.mjs";
 import { schemaVersion, latestBackup, db } from "../database/connection.mjs";
 import { listKnowledgeGaps } from "../quality/knowledge-gap.mjs";
+import { PUBLIC_VERSION, INTERNAL_RELEASE, TARGET_SCHEMA } from "../config/release-099i6.mjs";
 
-const CURRENT_VERSION="0.986";
+const CURRENT_VERSION=PUBLIC_VERSION;
 function health(){
   const r=researchRecoveryMetrics();
   const unrecovered=Math.max(0,r.recoveryAttempts-r.recovered);
@@ -39,5 +40,5 @@ export function registerBeta086Routes(app){
   app.post("/api/admin/ai5/simulate",requireDev,async(req,res)=>{const input=String(req.body?.input||"").trim();if(!input)return res.status(400).json({erro:"Informe uma entrada para a simulação."});res.json({deprecatedEndpoint:true,replacedBy:"DEXTER",...(await publicDexterConsult({question:input,selectedGame:req.body?.selectedGame||"AUTOMATIC",language:req.body?.language||"pt-BR",forceResearch:Boolean(req.body?.forceResearch)}))});});
   app.get("/api/admin/ai5/construction",requireDev,(req,res)=>res.json({status:autonomousGenerationStatus(),metrics:{...autogenMetrics(),states:autogenStateMetrics()},components:constructionComponentMetrics(),failureClusters:generationFailureClusters(),entries:listAutogenQueue({status:req.query.status||null,limit:req.query.limit||100}),knowledgeGaps:listKnowledgeGaps({limit:req.query.gapLimit||60}),diagnostics:listGenerationDiagnostics({jobId:req.query.jobId||null,limit:req.query.diagLimit||60})}));
   app.post("/api/admin/ai5/construction/run",requireDev,async(req,res)=>res.json(await runAutonomousGenerationCycle({language:req.body?.language||"pt-BR"})));
-  app.get("/api/admin/update-log/technical",requireDev,(req,res)=>res.json({product:"GameIndex",version:CURRENT_VERSION,intelligence:"GI_CORE_8.5_SCRIPTS + DEXTER_OLLAMA_OPTIONAL",schemaVersion:schemaVersion(),migrationStatus:schemaVersion()>=26?"PASS":"PENDING",latestBackup:Boolean(latestBackup()),build:"GameIndex Beta 0.986 · Delivery Recovery"}));
+  app.get("/api/admin/update-log/technical",requireDev,(req,res)=>res.json({product:"GameIndex",version:CURRENT_VERSION,internalRelease:INTERNAL_RELEASE,aiSystem:"GI Core 8.5 + Dexter",schemaVersion:schemaVersion(),targetSchema:TARGET_SCHEMA,migrationStatus:schemaVersion()>=TARGET_SCHEMA?"PASS":"PENDING",latestBackup:Boolean(latestBackup()),build:`GameIndex Beta ${CURRENT_VERSION}`}));
 }
