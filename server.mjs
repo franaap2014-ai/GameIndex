@@ -51,6 +51,7 @@ import { registerBeta099I5Routes } from "./src/api/beta099-i5-routes.mjs";
 import { registerBeta099I6Routes } from "./src/api/beta099-i6-routes.mjs";
 import { registerBeta0991HF1Routes } from "./src/api/beta0991-hf1-routes.mjs";
 import { registerBeta0991I1Routes } from "./src/api/beta0991-i1-routes.mjs";
+import { registerAnimationEditorRoutes } from "./src/api/animation-editor-routes.mjs";
 import { recoverInterruptedFoundationBuilds } from "./src/universe/universe-builder-099.mjs";
 import { PUBLIC_VERSION, INTERNAL_RELEASE, INTERNAL_RELEASE_CODE } from "./src/config/release-099i6.mjs";
 import { gameMediaDir } from "./src/images/game-media-service.mjs";
@@ -112,6 +113,7 @@ app.get(["/creator-studio","/creator-studio.html"],requireCapability("creator_st
 app.get(["/tester-lab","/tester-lab.html"],requireCapability("tester_preview"),(req,res)=>res.sendFile(path.join(publicDir,"tester-lab.html")));
 app.get(["/image-library","/image-library.html"],requireCapability("image_management"),(req,res)=>res.sendFile(path.join(publicDir,"image-library.html")));
 app.get(["/game-experience-manager","/game-experience-manager.html"],requireCapability("creator_control"),(req,res)=>res.sendFile(path.join(publicDir,"game-experience-manager.html")));
+app.get(["/animation-editor","/animation-editor.html"],requireCapability("animation_edit"),(req,res)=>res.sendFile(path.join(publicDir,"animation-editor.html")));
 app.get(["/social","/social.html"],(req,res)=>res.sendFile(path.join(publicDir,"social.html")));
 app.get(["/mega-simulator","/mega-simulator.html"],requireCapability("simulator_run_safe"),(req,res)=>res.sendFile(path.join(publicDir,"mega-simulator.html")));
 app.get(["/ai-sharpener","/ai-sharpener.html"],requireCapability("ai_sharpener"),(req,res)=>res.status(410).send("AI Sharpener removido do runtime atual do GameIndex Beta 0.99."));
@@ -119,7 +121,7 @@ app.get(["/game/roblox","/game/roblox/"],(req,res)=>res.sendFile(path.join(publi
 app.get("/game/roblox/:child",(req,res,next)=>{const parent=getGameBySlug("roblox"),child=getGameBySlug(String(req.params.child||"").toLowerCase());if(!parent||!child||child.entityType!=="EXPERIENCE"||child.parentGameId!==parent.id||child.status!=="PUBLISHED")return next();res.sendFile(path.join(publicDir,"game.html"));});
 app.use(express.static(publicDir,{extensions:["html"],maxAge:0,etag:true,lastModified:true,setHeaders(res,file){
   const normalized=String(file||"").replaceAll("\\","/");
-  const hotEntry=/\/(?:index|games|game|admin|music-manager|image-library|universe-builder|login|settings|ai-control|ai-flow)\.html$/i.test(normalized)||/\/(?:shell-0986|cinematic-0991-hf1|gameindex-0991-i1|experience-engine|game-experience-manager|app|games|game|music-manager|image-library|image-crop-editor|universe-builder|visual-grounding-099i1|visual-grounding-099i2|universe-interaction-engine-099i2|universe-runtime-099|interactive-runtime-099|auth|settings)\.js$/i.test(normalized)||/\/(?:gameindex-0986|gameindex-0991-hf1|gameindex-0991-i1|cinematic-0991-hf1|universe-builder-v3|experience-engine|game|image-manager-hf1|final-foundation-099)\.css$/i.test(normalized);
+  const hotEntry=/\/(?:index|games|game|admin|animation-editor|music-manager|image-library|universe-builder|login|settings|ai-control|ai-flow)\.html$/i.test(normalized)||/\/(?:shell-0986|cinematic-0991-hf1|gameindex-0991-i1|animation-editor|animation-runtime|experience-engine|game-experience-manager|app|games|game|music-manager|image-library|image-crop-editor|universe-builder|visual-grounding-099i1|visual-grounding-099i2|universe-interaction-engine-099i2|universe-runtime-099|interactive-runtime-099|auth|settings)\.js$/i.test(normalized)||/\/(?:gameindex-0986|gameindex-0991-hf1|gameindex-0991-i1|cinematic-0991-hf1|animation-editor|universe-builder-v3|experience-engine|game|image-manager-hf1|final-foundation-099)\.css$/i.test(normalized);
   if(hotEntry){res.setHeader("Cache-Control","no-cache, max-age=0, must-revalidate");return;}
   if(PERFORMANCE_MODE&&/\.(?:js|mjs|css|woff2|webp|avif|svg)$/i.test(normalized))res.setHeader("Cache-Control","public, max-age=7200, stale-while-revalidate=86400");
 }}));
@@ -219,6 +221,7 @@ registerBeta099I5Routes(app);
 registerBeta099I6Routes(app);
 registerBeta0991HF1Routes(app);
 registerBeta0991I1Routes(app);
+registerAnimationEditorRoutes(app);
 
 app.get("/",(req,res)=>res.sendFile(path.join(publicDir,"index.html")));
 app.use((req,res,next)=>{if(req.path.startsWith("/api/"))return res.status(404).json({erro:"Rota da API não encontrada."});next();});
@@ -232,7 +235,7 @@ app.listen(PORT,()=>{
   let generationRecovery={enabled:false,recovered:0};try{if(!PERFORMANCE_MODE||String(process.env.GAMEINDEX_BACKGROUND_WORKERS||"false").toLowerCase()==="true")generationRecovery=startGenerationRecoveryWorker();else generationRecovery={enabled:false,recovered:0,deferred:true};}catch(error){runtimeLog("generation_recovery_start_failed",{error:String(error.message||error)});}
   runtimeLog("server_started",{port:PORT,environment:runtimeEnvironment(),schema:schemaVersion(),games:gameCount(),storageOrigin,database:startupDatabase,assets:startupAssets,startupDurationMs:Math.max(0,Date.now()-Date.parse(startedAt)),autogenEnabled:Boolean(autogen.enabled),constructionWorker:Boolean(construction.enabled),constructionRecovered:Number(construction.recovered||0),externalAiConfigured:false,aiMode:"LOCAL_FIRST_NO_API_KEY",prePublicWorker:Boolean(prePublic.enabled),core98Worker:Boolean(core98.enabled),generationRecoveryWorker:Boolean(generationRecovery.enabled),generationRecovered:Number(generationRecovery.recovered||0),universeBuildsRecovered:Number(startupUniverseBuildRecovery.recovered||0),version:PUBLIC_VERSION,release:INTERNAL_RELEASE_CODE,persistence:startupPersistence,aiRuntime:"LOCAL_SHARED_LAZY"});
   const endpoint=typeof PORT==="string"&&!/^\d+$/.test(PORT)?"Azure IIS named pipe":`http://localhost:${PORT}`;
-  console.log(`\n================================================\n GAMEINDEX BETA 0.991 I1 HF1 — NEON PERSISTENCE ONLINE\n================================================\n ${endpoint}\n Ambiente: ${runtimeEnvironment()}\n AI Slim Runtime: Ollama gemma3:4b · shared lazy runtime · optional\n Modo sem API externa: SUPORTADO\n Universe Builder 2.0 + Visual Grounding Engine 2.1 + GI Core 8.5: ACTIVE
+  console.log(`\n================================================\n GAMEINDEX BETA 0.991 I1 HF2 — CREATOR + ANIMATION EDITOR ONLINE\n================================================\n ${endpoint}\n Ambiente: ${runtimeEnvironment()}\n AI Slim Runtime: Ollama gemma3:4b · shared lazy runtime · optional\n Modo sem API externa: SUPORTADO\n Universe Builder 2.0 + Visual Grounding Engine 2.1 + GI Core 8.5: ACTIVE
  Pre-Public Worker: ${prePublic.enabled?"ACTIVE":"OFFLINE"}\n GI Core 8.5: ${core98.enabled?"ACTIVE":"OFFLINE"}\n Social Lab (TESTER/CREATOR): ACTIVE\n Mega Simulator: ACTIVE\n Legacy AI Systems: REMOVED\n Construction Worker: ${construction.enabled?"ACTIVE":"OFFLINE"}\n Billing: ${billingStatus().provider}\n Auto Page Builder: ${String(process.env.GAMEVAULT_PAGE_GENERATION_ENABLED??"true").toLowerCase()==="true"?"ACTIVE":"OFFLINE"}\n Generation Recovery: ${generationRecovery.enabled?"ACTIVE":"OFFLINE"} · recovered=${generationRecovery.recovered||0}\n Schema: ${schemaVersion()}\n Storage: ${storageOrigin}\n Durable persistence: ${startupPersistence?.enabled?"NEON ACTIVE":"LOCAL/NOT CONFIGURED"}\n`);
 });
 
