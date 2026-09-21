@@ -11,7 +11,7 @@
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
     "check": "node scripts/check.mjs",
-    "test": "node tests/beta0991-i1-hf2-creator-animation-editor.mjs",
+    "test": "node tests/beta09915-cinematic-update.mjs",
     "test:0986": "node tests/beta0986-production-consolidation.mjs",
     "smoke": "node tests/http-smoke-0991-hf1.mjs",
     "test:hf2": "node tests/hf2-ai-slim-game-experiences.mjs",
