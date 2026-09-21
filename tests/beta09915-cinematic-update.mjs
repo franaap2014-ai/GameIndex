@@ -52,7 +52,7 @@ assert.match(social,/createCommunity/);
 assert.match(editor,/fullscreenPreview/);
 assert.match(editor,/showWelcome/);
 assert.match(testLab,/runSequence/);
-assert.match(testLab,/mutatesHistory/);
+assert.match(routes,/mutatesHistory:false/);
 assert.match(updateLog,/PUBLIC_ORDER/);
 assert.equal(pkg.version,"0.9915.0");
 assert.equal(pkg.scripts.test,"node tests/beta09915-cinematic-update.mjs");
