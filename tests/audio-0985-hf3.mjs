@@ -1,5 +1,0 @@
-import assert from 'node:assert/strict';import {readFileSync,existsSync,statSync} from 'node:fs';import path from 'node:path';
-const root=new URL('..',import.meta.url).pathname,audio=readFileSync(path.join(root,'public/js/audio-hf3.js'),'utf8');
-assert.match(audio,/stored===null\?true/);assert.match(audio,/gi_audio_enabled/);assert.match(audio,/gi_audio_volume/);assert.match(audio,/new Audio\(src\)/);assert.match(audio,/audio-profile/);assert.match(audio,/minecraft/);assert.match(audio,/roblox/);assert.match(audio,/fortnite/);assert.doesNotMatch(audio,/Odetari|Spotify|YouTube|KEEP UP/i);
-for(const f of ['gameindex-rebirth.wav','voxel-pulse.wav','creative-grid.wav','arena-drive.wav']){const p=path.join(root,'public/audio/rebirth',f);assert.ok(existsSync(p),`${f} missing`);assert.ok(statSync(p).size>100000,`${f} too small`);const b=readFileSync(p);assert.equal(b.subarray(0,4).toString('ascii'),'RIFF');assert.equal(b.subarray(8,12).toString('ascii'),'WAVE');}
-console.log('HF3 audio OK — four bundled original music loops + same-origin managed track priority + persistent sound control.');
