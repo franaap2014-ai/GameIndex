@@ -4,6 +4,7 @@ import { currentAuth, rotateLoginSession, verifyUserPassword } from "./auth-serv
 import { getUserById, setUserRole } from "../database/repositories/user-repository.mjs";
 import { setInternalTier } from "../database/repositories/entitlement-repository.mjs";
 import { firstAdminSetupState } from "./first-admin-setup.mjs";
+import { ensureAdminConnection, setAdminConnection } from "../access/admin-connection-service.mjs";
 
 function meta(key){try{return db.prepare(`SELECT value FROM meta WHERE key=?`).get(key)?.value||"";}catch{return "";}}
 function setMeta(key,value){db.prepare(`INSERT INTO meta(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value`).run(key,String(value));}
@@ -35,11 +36,12 @@ export function claimAdminRecovery(req,res,{password,recoveryCode:code}={}){
       db.prepare(`INSERT INTO developer_permissions(user_id,database_explorer,ai_flow_inspector,bug_tracker,image_diagnostics,deployment_monitor,page_generation,granted_by,updated_at) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(user_id) DO UPDATE SET database_explorer=1,ai_flow_inspector=1,bug_tracker=1,image_diagnostics=1,deployment_monitor=1,page_generation=1,granted_by=excluded.granted_by,updated_at=excluded.updated_at`).run(userId,1,1,1,1,1,1,"BETA_09_OWNER_RECOVERY",nowIso());
       setMeta("primary_admin_user_id",userId);setMeta("admin_setup_required","0");setMeta("first_admin_setup_completed","1");setMeta("beta_09_admin_recovery_completed","1");setMeta("beta_09_admin_recovery_completed_at",nowIso());
       const creator=db.prepare(`SELECT user_id FROM staff_role_assignments WHERE role='CREATOR'`).get();
+      // Activate the recovered owner first so Creator authority is never temporarily absent.
+      ensureAdminConnection({userId,role:"CREATOR",status:"ACTIVE",actorUserId:userId,reason:"Secure owner recovery",reactivate:true});
       if(creator&&creator.user_id!==userId){
-        db.prepare(`UPDATE staff_role_assignments SET role='DEV',assigned_by=?,reason='Secure owner recovery transfer',updated_at=? WHERE user_id=?`).run(userId,nowIso(),creator.user_id);
+        setAdminConnection({userId:creator.user_id,role:"DEV",status:"ACTIVE",actorUserId:userId,reason:"Secure owner recovery transfer"});
         try{db.prepare(`INSERT INTO role_change_audit(id,actor_user_id,target_user_id,action,previous_value,new_value,reason,request_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)`).run(randomUUID(),userId,creator.user_id,"STAFF_ROLE_CHANGED","CREATOR","DEV","Secure owner recovery transfer","OWNER_RECOVERY",nowIso());}catch{}
       }
-      db.prepare(`INSERT INTO staff_role_assignments(user_id,role,suspended,assigned_by,reason,created_at,updated_at) VALUES(?,'CREATOR',0,?,'Secure owner recovery',?,?) ON CONFLICT(user_id) DO UPDATE SET role='CREATOR',suspended=0,updated_at=excluded.updated_at`).run(userId,userId,nowIso(),nowIso());
       try{db.prepare(`INSERT INTO role_change_audit(id,actor_user_id,target_user_id,action,previous_value,new_value,reason,request_id,created_at) VALUES(?,?,?,?,?,?,?,?,?)`).run(randomUUID(),userId,userId,"OWNER_RECOVERY","NONE","CREATOR","Secure recovery with password and configured code","OWNER_RECOVERY",nowIso());}catch{}
       setMeta("primary_creator_user_id",userId);setMeta("creator_setup_required","0");
     });
