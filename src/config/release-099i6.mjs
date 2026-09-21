@@ -11,3 +11,7 @@ export function releaseSnapshotI6({technical=false}={}){
     ? {product:"GameIndex",publicVersion:PUBLIC_VERSION,publicLabel:PUBLIC_VERSION_LABEL,internalRelease:INTERNAL_RELEASE,internalLabel:INTERNAL_RELEASE_LABEL,release:INTERNAL_RELEASE_CODE,schema:TARGET_SCHEMA,architecture:ARCHITECTURE}
     : {product:"GameIndex",version:PUBLIC_VERSION,label:PUBLIC_VERSION_LABEL};
 }
+
+
+export function publicReleaseSnapshot(){return releaseSnapshotI6();}
+export function internalReleaseSnapshot(){return releaseSnapshotI6({technical:true});}
