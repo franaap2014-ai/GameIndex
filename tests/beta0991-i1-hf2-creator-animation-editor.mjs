@@ -24,6 +24,9 @@ const repository=read("src/database/repositories/animation-repository.mjs");
 const editorHtml=read("public/animation-editor.html");
 const editorJs=read("public/js/animation-editor.js");
 const editorCss=read("public/css/animation-editor.css");
+const browserRuntime=read("public/js/animation-runtime.js");
+const adminHtml=read("public/admin.html");
+const adminJs=read("public/js/admin.js");
 const pkg=JSON.parse(read("package.json"));
 
 assert.match(release,/INTERNAL_RELEASE="0\.991-I1-HF2"/);
@@ -53,6 +56,7 @@ assert.match(migration,/CREATE TABLE IF NOT EXISTS animation_audit/);
 
 assert.match(shell,/Animation Editor/);
 assert.match(shell,/data-cap="animation_edit"/);
+assert.match(shell,/admin\.html#connections/);
 assert.match(server,/requireCapability\("animation_edit"\)/);
 assert.match(server,/registerAnimationEditorRoutes/);
 assert.match(routes,/requireCapability\("animation_publish"\)/);
@@ -61,8 +65,17 @@ assert.match(service,/flushDurablePersistence\(\{force:true,reason:"animation-pu
 assert.match(repository,/status='PUBLISHED'/);
 assert.match(editorHtml,/TIMELINE/);
 assert.match(editorJs,/bindKeyframeDrag/);
+assert.match(editorJs,/INSPECTOR_PROPERTIES/);
+assert.match(editorJs,/TECH_CORNER/);
+assert.match(editorJs,/Custom color/);
 assert.match(editorJs,/1800/);
 assert.match(editorCss,/grid-template-columns:250px minmax\(420px,1fr\) 280px/);
+assert.match(browserRuntime,/function easeValue/);
+assert.match(browserRuntime,/GI_POWER/);
+assert.match(adminHtml,/data-admin-section="connections"/);
+assert.match(adminHtml,/adminConnectionsList/);
+assert.match(adminJs,/loadConnections/);
+assert.match(adminJs,/currentPassword/);
 
 assert.equal(pkg.version,"0.991.4");
 assert.equal(pkg.scripts["test:0991i1hf2"],"node tests/beta0991-i1-hf2-creator-animation-editor.mjs");
