@@ -1,9 +1,9 @@
 {
-  "name": "gameindex-beta-0991-i1-hf1-neon-persistence",
-  "version": "0.991.3",
+  "name": "gameindex-beta-0991-i1-hf2-creator-animation-editor",
+  "version": "0.991.4",
   "private": true,
   "type": "module",
-  "description": "GameIndex Beta 0.991 I1 HF1: Render Free + Neon durable persistence, with the complete I1 feature set.",
+  "description": "GameIndex Beta 0.991 I1 HF2: Creator authority restoration, Admin Panel stabilization and Animation Editor.",
   "engines": {
     "node": ">=22.13"
   },
@@ -11,7 +11,7 @@
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
     "check": "node scripts/check.mjs",
-    "test": "node tests/beta0991-i1-hf1-neon-persistence.mjs",
+    "test": "node tests/beta0991-i1-hf2-creator-animation-editor.mjs",
     "test:0986": "node tests/beta0986-production-consolidation.mjs",
     "smoke": "node tests/http-smoke-0991-hf1.mjs",
     "test:hf2": "node tests/hf2-ai-slim-game-experiences.mjs",
@@ -31,7 +31,8 @@
     "test:0991hf1": "node tests/beta0991-hf1-identity-restoration.mjs",
     "smoke:0986": "node tests/http-smoke-0986.mjs",
     "test:0991i1": "node tests/beta0991-i1-reliability-navigation-diagnostics.mjs",
-    "test:0991i1hf1": "node tests/beta0991-i1-hf1-neon-persistence.mjs"
+    "test:0991i1hf1": "node tests/beta0991-i1-hf1-neon-persistence.mjs",
+    "test:0991i1hf2": "node tests/beta0991-i1-hf2-creator-animation-editor.mjs"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
