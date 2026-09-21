@@ -103,6 +103,11 @@ export function createAnimationProject({name="Nova animação",type="CINEMATIC",
   const project=insertAnimationProject({key:safeKey(name),name:normalized.name,type:normalized.type,durationMs:normalized.durationMs,definition:normalized,actorUserId,source});
   return animationProjectDetails(project.id);
 }
+export function duplicateAnimationProject({projectId,actorUserId}={}){
+  const details=animationProjectDetails(projectId);if(!details?.project||!details.current)throw Object.assign(new Error("ANIMATION_PROJECT_NOT_FOUND"),{code:"ANIMATION_PROJECT_NOT_FOUND"});
+  const name=`${details.project.name} Copy`;
+  return createAnimationProject({name,type:details.project.type,durationMs:details.project.durationMs,definition:{...details.current.definition,name},actorUserId,source:`DUPLICATE:${details.project.id}`});
+}
 export function createAnimationFromPreset({presetKey,actorUserId}={}){
   const preset=getAnimationPreset(presetKey);if(!preset)throw Object.assign(new Error("ANIMATION_PRESET_NOT_FOUND"),{code:"ANIMATION_PRESET_NOT_FOUND"});
   return createAnimationProject({name:`${preset.name} Copy`,type:preset.definition.type,durationMs:preset.definition.durationMs,definition:{...preset.definition,name:`${preset.name} Copy`},actorUserId,source:`PRESET:${preset.key}`});
