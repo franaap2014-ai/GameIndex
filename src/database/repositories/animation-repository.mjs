@@ -51,11 +51,13 @@ export function getAnimationPreset(key){
   return presetMap(db.prepare(`SELECT * FROM animation_presets WHERE preset_key=? LIMIT 1`).get(String(key||"")));
 }
 export function upsertBuiltInAnimationPreset({key,name,category,definition}={}){
+  const serialized=json(definition),existing=getAnimationPreset(key);
+  if(existing&&existing.name===String(name)&&existing.category===String(category)&&json(existing.definition)===serialized&&existing.builtIn)return existing;
   const now=nowIso(),id=`preset-${String(key||"").replace(/[^a-z0-9_-]/gi,"-").toLowerCase()}`;
   db.prepare(`INSERT INTO animation_presets(id,preset_key,name,category,definition_json,built_in,created_at,updated_at)
     VALUES(?,?,?,?,?,1,?,?)
     ON CONFLICT(preset_key) DO UPDATE SET name=excluded.name,category=excluded.category,definition_json=excluded.definition_json,built_in=1,updated_at=excluded.updated_at`)
-    .run(id,String(key),String(name),String(category),json(definition),now,now);
+    .run(id,String(key),String(name),String(category),serialized,now,now);
   return getAnimationPreset(key);
 }
 export function recordAnimationAudit({actorUserId=null,projectId=null,revisionId=null,action,metadata={}}={}){
