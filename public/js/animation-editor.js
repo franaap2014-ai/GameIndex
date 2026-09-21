@@ -7,6 +7,28 @@
     ["BOOT","Boot","⌁"],["IRIS","Iris","◉"],["LIGHT_SWEEP","Light Sweep","╱"],["DIGITAL_REVEAL","Digital Reveal","▤"],["GLITCH","Glitch","≋"],["PARTICLES","Particles","·"]
   ];
   const COLORS=["CREATOR_GOLD","CREATOR_RED","DEV_RED","DEV_BLUE","TESTER_BLUE","PRO_GREEN","DARK_CABLE","LIGHT_CABLE","GAMEINDEX_WHITE","GAMEINDEX_BLACK","GAMEINDEX_PANEL","GAMEINDEX_BORDER"];
+  const PROPERTY_META=Object.freeze({
+    x:["X %",-200,200,1],y:["Y %",-200,200,1],rotation:["Rotation",-720,720,1],scale:["Scale",.05,5,.05],
+    opacity:["Opacity",0,1,.05],blur:["Blur",0,80,1],glow:["Glow",0,2,.05],brightness:["Brightness",0,3,.05],
+    width:["Width %",0,300,1],height:["Height %",0,300,1],borderOpacity:["Border opacity",0,1,.05],
+    lineProgress:["Line progress",0,1,.05],scanPosition:["Scan position",0,1,.05],energy:["Energy",0,1,.05],
+    maskProgress:["Mask progress",0,1,.05],clipProgress:["Clip progress",0,1,.05],thickness:["Thickness",.5,24,.5]
+  });
+  const INSPECTOR_PROPERTIES=Object.freeze({
+    GI_LOGO:["x","y","scale","rotation","opacity","glow","blur","brightness"],GI_G_MARK:["x","y","scale","rotation","opacity","glow","blur","brightness"],
+    TITLE:["x","y","scale","rotation","opacity","glow","blur","brightness"],SUBTITLE:["x","y","scale","rotation","opacity","glow","blur","brightness"],
+    CLASSIFICATION:["x","y","scale","rotation","opacity","glow","blur","brightness"],SYSTEM_LABEL:["x","y","scale","opacity","glow","blur"],
+    DIAGNOSTIC_LABEL:["x","y","scale","opacity","glow","blur"],RAIL:["x","y","rotation","scale","opacity","glow","lineProgress","thickness","width"],
+    CIRCUIT_LINE:["x","y","rotation","scale","opacity","glow","lineProgress","thickness","width"],SEPARATOR:["x","y","rotation","scale","opacity","lineProgress","thickness","width"],
+    CABLE:["x","y","rotation","scale","opacity","glow","lineProgress","energy","thickness","width"],NODE:["x","y","scale","opacity","glow"],
+    BRACKET:["x","y","rotation","scale","opacity","glow","width","height","thickness"],TECH_CORNER:["x","y","rotation","scale","opacity","glow","width","height","thickness"],
+    FRAME:["x","y","rotation","scale","opacity","glow","width","height","borderOpacity","thickness"],GRID:["x","y","scale","opacity","glow","width","height"],
+    SOCKET:["x","y","rotation","scale","opacity","glow"],SCAN:["x","y","rotation","opacity","glow","scanPosition","width","thickness"],
+    GLOW:["x","y","scale","opacity","glow","brightness"],ENERGY_PULSE:["x","y","scale","opacity","glow","energy"],
+    BLACKOUT:["opacity","brightness"],BOOT:["x","y","scale","opacity","glow","brightness"],IRIS:["opacity","clipProgress"],
+    LIGHT_SWEEP:["x","y","rotation","scale","opacity","glow","width"],DIGITAL_REVEAL:["x","y","scale","opacity","glow","clipProgress"],
+    GLITCH:["x","y","scale","opacity","glow","brightness"],FLICKER:["x","y","scale","opacity","brightness"],PARTICLES:["x","y","scale","opacity","glow"]
+  });
   const state={catalog:null,projects:[],details:null,definition:null,selectedTrackId:null,selectedFrameIndex:null,leftTab:"layers",undo:[],redo:[],dirty:false,saving:false,controller:null,playhead:0,zoom:1,autosave:null,canPublish:false};
   function esc(v=""){return GV.safe(String(v??""));}
   function setSaveState(text,kind=""){const el=$("aeSaveState");if(el){el.textContent=text;el.dataset.state=kind;}}
@@ -139,11 +161,7 @@
       <h3>${f?"Selected keyframe":"Base transform"}</h3>
       ${f?field("Time (ms)",`<input id="aeFrameTime" type="number" min="0" max="${state.definition.durationMs}" step="50" value="${f.time}">`):""}
       ${f?field("Easing",`<select id="aeFrameEasing">${(state.catalog?.schema?.easings||["GI_SOFT"]).map(e=>`<option value="${e}" ${f.easing===e?"selected":""}>${e}</option>`).join("")}</select>`):""}
-      <div class="ae-field-row">${numInput("x","X %",stateValues.x,-200,200,1)}${numInput("y","Y %",stateValues.y,-200,200,1)}</div>
-      <div class="ae-field-row">${numInput("scale","Scale",stateValues.scale,.05,5,.05)}${numInput("rotation","Rotation",stateValues.rotation,-720,720,1)}</div>
-      <div class="ae-field-row">${numInput("opacity","Opacity",stateValues.opacity,0,1,.05)}${numInput("glow","Glow",stateValues.glow,0,2,.05)}</div>
-      <div class="ae-field-row">${numInput("blur","Blur",stateValues.blur,0,80,1)}${numInput("brightness","Brightness",stateValues.brightness,0,3,.05)}</div>
-      <div class="ae-field-row">${numInput("lineProgress","Line progress",stateValues.lineProgress,0,1,.05)}${numInput("energy","Energy",stateValues.energy,0,1,.05)}</div>
+      <div class="ae-field-row">${(INSPECTOR_PROPERTIES[t.component]||["x","y","scale","opacity"]).map(key=>{const meta=PROPERTY_META[key];return numInput(key,meta[0],stateValues[key],meta[1],meta[2],meta[3]);}).join("")}</div>
       <button id="aeDeleteTrack" class="button ghost-button ae-danger" type="button">Excluir layer</button>`;
     $("aeTrackName").onchange=e=>mutate(()=>t.name=e.target.value);
     if($("aeTrackText"))$("aeTrackText").onchange=e=>mutate(()=>t.text=e.target.value);
