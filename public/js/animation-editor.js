@@ -3,7 +3,7 @@
   const COMPONENT_LIBRARY=[
     ["GI_LOGO","Logo","◆"],["GI_G_MARK","G Mark","G"],["TITLE","Title","T"],["SUBTITLE","Subtitle","t"],["CLASSIFICATION","Classification","C"],
     ["RAIL","Rail","━"],["NODE","Node","•"],["BRACKET","Bracket","⌜"],["FRAME","Frame","□"],["CIRCUIT_LINE","Circuit","⌁"],["GRID","Grid","▦"],
-    ["CABLE","Cable","⌇"],["SOCKET","Socket","◉"],["SCAN","Scan","—"],["GLOW","Glow","✦"],["ENERGY_PULSE","Energy","◈"],["BLACKOUT","Blackout","■"],
+    ["CABLE","Cable","⌇"],["SOCKET","Socket","◉"],["TECH_CORNER","Tech Corner","⌜"],["SEPARATOR","Separator","—"],["SCAN","Scan","—"],["GLOW","Glow","✦"],["FLICKER","Flicker","⋄"],["ENERGY_PULSE","Energy","◈"],["BLACKOUT","Blackout","■"],
     ["BOOT","Boot","⌁"],["IRIS","Iris","◉"],["LIGHT_SWEEP","Light Sweep","╱"],["DIGITAL_REVEAL","Digital Reveal","▤"],["GLITCH","Glitch","≋"],["PARTICLES","Particles","·"]
   ];
   const COLORS=["CREATOR_GOLD","CREATOR_RED","DEV_RED","DEV_BLUE","TESTER_BLUE","PRO_GREEN","DARK_CABLE","LIGHT_CABLE","GAMEINDEX_WHITE","GAMEINDEX_BLACK","GAMEINDEX_PANEL","GAMEINDEX_BORDER"];
@@ -133,7 +133,8 @@
       <h3>Layer</h3>
       ${field("Name",`<input id="aeTrackName" value="${esc(t.name||t.component)}">`)}
       ${["TITLE","SUBTITLE","CLASSIFICATION","SYSTEM_LABEL","DIAGNOSTIC_LABEL"].includes(t.component)?field("Text",`<input id="aeTrackText" maxlength="180" value="${esc(t.text||"")}">`):""}
-      ${field("Color",`<select id="aeTrackColor">${COLORS.map(c=>`<option value="${c}" ${t.color===c?"selected":""}>${c.replaceAll("_"," ")}</option>`).join("")}</select>`)}
+      ${field("Recommended color",`<select id="aeTrackColor">${COLORS.map(c=>`<option value="${c}" ${t.color===c?"selected":""}>${c.replaceAll("_"," ")}</option>`).join("")}<option value="CUSTOM" ${String(t.color||"").startsWith("#")?"selected":""}>CUSTOM HEX</option></select>`)}
+      ${field("Custom color",`<input id="aeTrackCustomColor" type="text" maxlength="7" placeholder="#e7bd5b" value="${String(t.color||"").startsWith("#")?esc(t.color):""}">`)}
       ${field("Layer order",`<input id="aeTrackLayer" type="number" min="-100" max="100" value="${Number(t.layer||0)}">`)}
       <h3>${f?"Selected keyframe":"Base transform"}</h3>
       ${f?field("Time (ms)",`<input id="aeFrameTime" type="number" min="0" max="${state.definition.durationMs}" step="50" value="${f.time}">`):""}
@@ -146,7 +147,9 @@
       <button id="aeDeleteTrack" class="button ghost-button ae-danger" type="button">Excluir layer</button>`;
     $("aeTrackName").onchange=e=>mutate(()=>t.name=e.target.value);
     if($("aeTrackText"))$("aeTrackText").onchange=e=>mutate(()=>t.text=e.target.value);
-    $("aeTrackColor").onchange=e=>mutate(()=>t.color=e.target.value);$("aeTrackLayer").onchange=e=>mutate(()=>t.layer=Number(e.target.value));
+    $("aeTrackColor").onchange=e=>{if(e.target.value!=="CUSTOM")mutate(()=>t.color=e.target.value);};
+    $("aeTrackCustomColor").onchange=e=>{const value=String(e.target.value||"").trim();if(!/^#[0-9a-f]{3}(?:[0-9a-f]{3})?$/i.test(value)){setSaveState("Cor HEX inválida","error");e.target.value=String(t.color||"").startsWith("#")?t.color:"";return;}mutate(()=>t.color=value.toLowerCase());};
+    $("aeTrackLayer").onchange=e=>mutate(()=>t.layer=Number(e.target.value));
     if($("aeFrameTime"))$("aeFrameTime").onchange=e=>mutate(()=>{f.time=Math.max(0,Math.min(state.definition.durationMs,Number(e.target.value)||0));t.keyframes.sort((a,b)=>a.time-b.time);state.selectedFrameIndex=t.keyframes.indexOf(f);});
     if($("aeFrameEasing"))$("aeFrameEasing").onchange=e=>mutate(()=>f.easing=e.target.value);
     host.querySelectorAll("[data-track-number]").forEach(input=>input.onchange=e=>{const key=e.target.dataset.trackNumber,value=Number(e.target.value);mutate(()=>{if(f)f[key]=value;else{t.properties=t.properties||{};t.properties[key]=value;}});});
