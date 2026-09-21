@@ -24,6 +24,19 @@
     }else if(track.component==="GI_G_MARK")el.textContent="G";
     return el;
   }
+  function easeValue(name,t){
+    const x=Math.max(0,Math.min(1,t)),key=String(name||"linear");
+    if(key==="ease-in")return x*x;
+    if(key==="ease-out")return 1-Math.pow(1-x,2);
+    if(key==="ease-in-out"||key==="ease")return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+    if(key==="GI_BOOT")return 1-Math.pow(1-x,4);
+    if(key==="GI_POWER")return x<.65?Math.pow(x/.65,2)*.82:.82+(1-Math.pow(1-(x-.65)/.35,3))*.18;
+    if(key==="GI_IRIS")return x*x*(3-2*x);
+    if(key==="GI_SCAN")return x<.12?x/.12*.08:.08+(x-.12)/.88*.92;
+    if(key==="GI_SOFT")return 1-Math.pow(1-x,3);
+    if(key==="GI_TECH")return x<.5?Math.pow(x*2,3)/2:1-Math.pow((1-x)*2,3)/2;
+    return x;
+  }
   function interpolate(a,b,t){
     if(!Number.isFinite(a))return Number.isFinite(b)?b:undefined;
     if(!Number.isFinite(b))return a;
@@ -38,7 +51,7 @@
       if(frames[i].time<=time)left=frames[i];
       if(frames[i].time>=time){right=frames[i];break;}
     }
-    const span=Math.max(1,Number(right.time)-Number(left.time)),ratio=left===right?0:(time-Number(left.time))/span;
+    const span=Math.max(1,Number(right.time)-Number(left.time)),rawRatio=left===right?0:(time-Number(left.time))/span,ratio=easeValue(right.easing||left.easing||"linear",rawRatio);
     const state={...base};
     for(const key of NUMERIC){
       const lv=left[key]!==undefined?Number(left[key]):Number(base[key]);
