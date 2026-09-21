@@ -4,7 +4,7 @@
 <div id="adminGate" class="content-skeleton"></div>
 <section id="adminPanel" hidden>
   <div class="gi099i5-admin-search"><input id="adminGlobalSearch" type="search" placeholder="Pesquisar usuário, Blox Fruits, GI-0004, cargo..."><div id="adminSearchResults" class="gi099i5-search-results" hidden></div></div>
-  <nav class="gi099i5-admin-nav" aria-label="Admin"><button class="active" data-admin-section="overview">Visão geral</button><button data-admin-section="users">Usuários</button><button data-admin-section="content">Conteúdo</button><button data-admin-section="social">Social</button><button data-admin-section="system">Sistema</button><button data-admin-section="cinematics">Cinematics</button><button data-admin-section="bugs">Bugs</button><button data-admin-section="advanced">Avançado</button></nav>
+  <nav class="gi099i5-admin-nav" aria-label="Admin"><button class="active" data-admin-section="overview">Visão geral</button><button data-admin-section="users">Usuários</button><button data-admin-section="content">Conteúdo</button><button data-admin-section="social">Social</button><button data-admin-section="system">Sistema</button><button data-admin-section="cinematics">Cinematics</button><button data-admin-section="connections">Conexões</button><button data-admin-section="bugs">Bugs</button><button data-admin-section="advanced">Avançado</button></nav>
   <div id="adminWelcome" class="admin-welcome"></div><div id="adminMessage" class="form-message" role="status"></div>
 
   <section data-admin-panel="overview"><div id="adminStats" class="admin-stat-grid"></div><article class="admin-card wide"><div class="section-title-row"><div><p class="section-eyebrow">AÇÕES RÁPIDAS</p><h2>O que você quer fazer?</h2></div><button id="refreshAdmin" class="button ghost-button">Atualizar</button></div><div class="gi099i5-quick-actions"><button data-admin-go="users" class="button primary-button">Buscar usuário / alterar cargo</button><a class="button ghost-button" href="/universe-builder.html">Abrir Universe Builder</a><button data-admin-go="social" class="button ghost-button">Moderar Social</button><button data-admin-go="bugs" class="button ghost-button">Ver bugs</button><a class="button ghost-button" href="/deployment-monitor.html">Diagnósticos</a></div></article><div id="adminOverviewCards" class="admin-status-grid"></div></section>
@@ -25,6 +25,13 @@
       <h3>Theme Change Simulation</h3>
       <div class="gi-i1-theme-sim"><label>Origem<select id="cinematicThemeFrom"><option value="FREE_DARK">Dark</option><option value="FREE_LIGHT">Light</option></select></label><label>Destino<select id="cinematicThemeTo"><option value="FREE_LIGHT">Light</option><option value="FREE_DARK">Dark</option></select></label><button id="previewThemeCinematic" class="button primary-button">Preview</button></div>
       <h3>Estado da conta</h3><div id="adminCinematicEvents" class="gi-i1-cinematic-debug"></div>
+    </article>
+  </section>
+
+  <section data-admin-panel="connections" hidden>
+    <article class="admin-card wide">
+      <div class="section-title-row"><div><p class="section-eyebrow">ADMIN CONNECTIONS</p><h2>Autoridade administrativa</h2><p>Sincronize Creator/DEV com a conexão administrativa ativa. Alterações exigem sua senha atual.</p></div><button id="refreshAdminConnections" class="button ghost-button" type="button">Atualizar</button></div>
+      <div id="adminConnectionsList" class="admin-list"></div>
     </article>
   </section>
 
