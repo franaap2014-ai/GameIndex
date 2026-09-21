@@ -45,7 +45,16 @@
   function defaultTrack(component){
     const id=(component.toLowerCase()+"-"+Math.random().toString(36).slice(2,7));
     const textDefaults={TITLE:"TITLE",SUBTITLE:"Subtitle",CLASSIFICATION:"CREATOR",SYSTEM_LABEL:"SYSTEM",DIAGNOSTIC_LABEL:"DIAGNOSTIC"};
-    return {id,component,name:component.replaceAll("_"," "),text:textDefaults[component]||"",color:component==="CLASSIFICATION"?"CREATOR_GOLD":"GAMEINDEX_WHITE",layer:(state.definition?.tracks?.length||0)+1,properties:{},keyframes:[{time:0,easing:"GI_SOFT",opacity:0},{time:Math.min(600,state.definition?.durationMs||4200),easing:"GI_SOFT",opacity:1},{time:Math.max(700,(state.definition?.durationMs||4200)-500),easing:"GI_SOFT",opacity:1},{time:state.definition?.durationMs||4200,easing:"GI_SOFT",opacity:0}]};
+    const lineComponents=new Set(["RAIL","CIRCUIT_LINE","SEPARATOR","CABLE"]);
+    const properties=lineComponents.has(component)?{lineProgress:1,width:100,thickness:2}
+      :component==="FRAME"?{width:100,height:100,borderOpacity:1,thickness:2}
+      :component==="GRID"?{width:100,height:100}
+      :component==="SCAN"?{scanPosition:0,width:100,thickness:2}
+      :component==="IRIS"?{clipProgress:1}
+      :component==="GLOW"?{glow:1}
+      :component==="ENERGY_PULSE"?{energy:1,glow:1}
+      :{};
+    return {id,component,name:component.replaceAll("_"," "),text:textDefaults[component]||"",color:component==="CLASSIFICATION"?"CREATOR_GOLD":"GAMEINDEX_WHITE",layer:(state.definition?.tracks?.length||0)+1,properties,keyframes:[{time:0,easing:"GI_SOFT",opacity:0},{time:Math.min(600,state.definition?.durationMs||4200),easing:"GI_SOFT",opacity:1},{time:Math.max(700,(state.definition?.durationMs||4200)-500),easing:"GI_SOFT",opacity:1},{time:state.definition?.durationMs||4200,easing:"GI_SOFT",opacity:0}]};
   }
   async function api(url,options={}){return GV.api(url,{timeout:20000,...options});}
 
