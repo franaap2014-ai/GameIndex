@@ -52,6 +52,7 @@ import { registerBeta099I6Routes } from "./src/api/beta099-i6-routes.mjs";
 import { registerBeta0991HF1Routes } from "./src/api/beta0991-hf1-routes.mjs";
 import { registerBeta0991I1Routes } from "./src/api/beta0991-i1-routes.mjs";
 import { registerAnimationEditorRoutes } from "./src/api/animation-editor-routes.mjs";
+import { registerBeta09915Routes } from "./src/api/beta09915-routes.mjs";
 import { recoverInterruptedFoundationBuilds } from "./src/universe/universe-builder-099.mjs";
 import { PUBLIC_VERSION, INTERNAL_RELEASE, INTERNAL_RELEASE_CODE } from "./src/config/release-099i6.mjs";
 import { gameMediaDir } from "./src/images/game-media-service.mjs";
@@ -99,7 +100,7 @@ app.get(["/admin-recovery","/admin-recovery.html"],(req,res)=>res.sendFile(path.
 app.get(["/admin","/admin.html"],requireCapability("creator_control"),(req,res)=>res.sendFile(path.join(publicDir,"admin.html")));
 app.get(["/music-manager","/music-manager.html"],requireCapability("music_management"),(req,res)=>res.sendFile(path.join(publicDir,"music-manager.html")));
 app.get(["/add-game","/add-game.html"],requireCapability("creator_control"),(req,res)=>res.sendFile(path.join(publicDir,"add-game.html")));
-app.get(["/generate-page","/generate-page.html"],requireCapability("page_generation"),(req,res)=>res.sendFile(path.join(publicDir,"generate-page.html")));
+app.get(["/generate-page","/generate-page.html"],requireCapability("page_generation"),(req,res)=>res.redirect(302,"/universe-builder.html?mode=page-create"));
 app.get(["/ai-control","/ai-control.html"],requireCapability("ai_diagnostics"),(req,res)=>res.sendFile(path.join(publicDir,"ai-control.html")));
 app.get(["/database-explorer","/database-explorer.html"],requireCapability("database_explorer"),(req,res)=>res.sendFile(path.join(publicDir,"database-explorer.html")));
 app.get(["/ai-flow","/ai-flow.html"],requireCapability("ai_diagnostics"),(req,res)=>res.sendFile(path.join(publicDir,"ai-flow.html")));
@@ -114,6 +115,7 @@ app.get(["/tester-lab","/tester-lab.html"],requireCapability("tester_preview"),(
 app.get(["/image-library","/image-library.html"],requireCapability("image_management"),(req,res)=>res.sendFile(path.join(publicDir,"image-library.html")));
 app.get(["/game-experience-manager","/game-experience-manager.html"],requireCapability("creator_control"),(req,res)=>res.sendFile(path.join(publicDir,"game-experience-manager.html")));
 app.get(["/animation-editor","/animation-editor.html"],requireCapability("animation_edit"),(req,res)=>res.sendFile(path.join(publicDir,"animation-editor.html")));
+app.get(["/cinematic-test-lab","/cinematic-test-lab.html"],requireCapability("cinematic_test"),(req,res)=>res.sendFile(path.join(publicDir,"cinematic-test-lab.html")));
 app.get(["/social","/social.html"],(req,res)=>res.sendFile(path.join(publicDir,"social.html")));
 app.get(["/mega-simulator","/mega-simulator.html"],requireCapability("simulator_run_safe"),(req,res)=>res.sendFile(path.join(publicDir,"mega-simulator.html")));
 app.get(["/ai-sharpener","/ai-sharpener.html"],requireCapability("ai_sharpener"),(req,res)=>res.status(410).send("AI Sharpener removido do runtime atual do GameIndex Beta 0.99."));
@@ -222,6 +224,7 @@ registerBeta099I6Routes(app);
 registerBeta0991HF1Routes(app);
 registerBeta0991I1Routes(app);
 registerAnimationEditorRoutes(app);
+registerBeta09915Routes(app);
 
 app.get("/",(req,res)=>res.sendFile(path.join(publicDir,"index.html")));
 app.use((req,res,next)=>{if(req.path.startsWith("/api/"))return res.status(404).json({erro:"Rota da API não encontrada."});next();});
@@ -235,8 +238,8 @@ app.listen(PORT,()=>{
   let generationRecovery={enabled:false,recovered:0};try{if(!PERFORMANCE_MODE||String(process.env.GAMEINDEX_BACKGROUND_WORKERS||"false").toLowerCase()==="true")generationRecovery=startGenerationRecoveryWorker();else generationRecovery={enabled:false,recovered:0,deferred:true};}catch(error){runtimeLog("generation_recovery_start_failed",{error:String(error.message||error)});}
   runtimeLog("server_started",{port:PORT,environment:runtimeEnvironment(),schema:schemaVersion(),games:gameCount(),storageOrigin,database:startupDatabase,assets:startupAssets,startupDurationMs:Math.max(0,Date.now()-Date.parse(startedAt)),autogenEnabled:Boolean(autogen.enabled),constructionWorker:Boolean(construction.enabled),constructionRecovered:Number(construction.recovered||0),externalAiConfigured:false,aiMode:"LOCAL_FIRST_NO_API_KEY",prePublicWorker:Boolean(prePublic.enabled),core98Worker:Boolean(core98.enabled),generationRecoveryWorker:Boolean(generationRecovery.enabled),generationRecovered:Number(generationRecovery.recovered||0),universeBuildsRecovered:Number(startupUniverseBuildRecovery.recovered||0),version:PUBLIC_VERSION,release:INTERNAL_RELEASE_CODE,persistence:startupPersistence,aiRuntime:"LOCAL_SHARED_LAZY"});
   const endpoint=typeof PORT==="string"&&!/^\d+$/.test(PORT)?"Azure IIS named pipe":`http://localhost:${PORT}`;
-  console.log(`\n================================================\n GAMEINDEX BETA 0.991 I1 HF2 — CREATOR + ANIMATION EDITOR ONLINE\n================================================\n ${endpoint}\n Ambiente: ${runtimeEnvironment()}\n AI Slim Runtime: Ollama gemma3:4b · shared lazy runtime · optional\n Modo sem API externa: SUPORTADO\n Universe Builder 2.0 + Visual Grounding Engine 2.1 + GI Core 8.5: ACTIVE
- Pre-Public Worker: ${prePublic.enabled?"ACTIVE":"OFFLINE"}\n GI Core 8.5: ${core98.enabled?"ACTIVE":"OFFLINE"}\n Social Lab (TESTER/CREATOR): ACTIVE\n Mega Simulator: ACTIVE\n Legacy AI Systems: REMOVED\n Construction Worker: ${construction.enabled?"ACTIVE":"OFFLINE"}\n Billing: ${billingStatus().provider}\n Auto Page Builder: ${String(process.env.GAMEVAULT_PAGE_GENERATION_ENABLED??"true").toLowerCase()==="true"?"ACTIVE":"OFFLINE"}\n Generation Recovery: ${generationRecovery.enabled?"ACTIVE":"OFFLINE"} · recovered=${generationRecovery.recovered||0}\n Schema: ${schemaVersion()}\n Storage: ${storageOrigin}\n Durable persistence: ${startupPersistence?.enabled?"NEON ACTIVE":"LOCAL/NOT CONFIGURED"}\n`);
+  console.log(`\n================================================\n GAMEINDEX BETA 0.9915 — CINEMATIC UPDATE ONLINE\n================================================\n ${endpoint}\n Ambiente: ${runtimeEnvironment()}\n AI Slim Runtime: Ollama gemma3:4b · shared lazy runtime · optional\n Modo sem API externa: SUPORTADO\n Universe Builder 2.0 + Visual Grounding Engine 2.1 + GI Core 8.5: ACTIVE
+ Pre-Public Worker: ${prePublic.enabled?"ACTIVE":"OFFLINE"}\n GI Core 8.5: ${core98.enabled?"ACTIVE":"OFFLINE"}\n Social: ACTIVE\n Mega Simulator: ACTIVE\n Legacy AI Systems: REMOVED\n Construction Worker: ${construction.enabled?"ACTIVE":"OFFLINE"}\n Billing: ${billingStatus().provider}\n Auto Page Builder: ${String(process.env.GAMEVAULT_PAGE_GENERATION_ENABLED??"true").toLowerCase()==="true"?"ACTIVE":"OFFLINE"}\n Generation Recovery: ${generationRecovery.enabled?"ACTIVE":"OFFLINE"} · recovered=${generationRecovery.recovered||0}\n Schema: ${schemaVersion()}\n Storage: ${storageOrigin}\n Durable persistence: ${startupPersistence?.enabled?"NEON ACTIVE":"LOCAL/NOT CONFIGURED"}\n`);
 });
 
 process.on("unhandledRejection",reason=>runtimeLog("unhandled_rejection",{error:String(reason?.message||reason||"UNKNOWN")}));
