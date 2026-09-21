@@ -8,7 +8,7 @@ INSERT OR IGNORE INTO admin_connections(user_id,connection_role,status,created_b
 SELECT s.user_id,
        CASE WHEN s.role='CREATOR' THEN 'CREATOR' ELSE 'DEV' END,
        'ACTIVE',
-       COALESCE(NULLIF(s.assigned_by,''),s.user_id),
+       CASE WHEN EXISTS(SELECT 1 FROM users a WHERE a.id=s.assigned_by) THEN s.assigned_by ELSE s.user_id END,
        '0.991 I1 HF2 repair: active staff assignment missing Admin Connection',
        COALESCE(NULLIF(s.created_at,''),datetime('now')),
        datetime('now')
