@@ -113,7 +113,7 @@ function openDatabase(){
 }
 const rawDb = openDatabase();
 function mutatingSql(sql=""){return /\b(?:INSERT|UPDATE|DELETE|REPLACE|CREATE|ALTER|DROP|VACUUM|REINDEX)\b/i.test(String(sql||""));}
-function criticalSql(sql=""){return /\b(?:users|sessions|subscriptions|staff_role_assignments|user_profiles|user_preferences|cinematic_events|cinematic_admin_actions|bugs|bug_diagnostics|universes|universe_|creator_|social_|admin_)\b/i.test(String(sql||""));}
+function criticalSql(sql=""){return /\b(?:users|sessions|subscriptions|staff_role_assignments|user_profiles|user_preferences|cinematic_events|cinematic_admin_actions|bugs|bug_diagnostics|universes|universe_|creator_|social_|admin_|animation_)\b/i.test(String(sql||""));}
 function wrapStatement(statement,sql){
   if(!mutatingSql(sql))return statement;
   return new Proxy(statement,{get(target,prop){
@@ -392,15 +392,16 @@ export function migrateDatabase() {
     {version:40,file:"040_beta_099_i6_hf1.sql",name:"beta-0.99-i6-hf1-build-reliability",toVersion:"0.99-I6-HF1"},
     {version:41,file:"041_beta_0991_hf1.sql",name:"beta-0.991-hf1-identity-restoration",toVersion:"0.991-HF1"},
     {version:42,file:"042_beta_0991_i1.sql",name:"beta-0.991-i1-reliability-navigation-diagnostics",toVersion:"0.991-I1"},
-    {version:43,file:"043_beta_0991_i1_hf1.sql",name:"beta-0.991-i1-hf1-neon-persistence",toVersion:"0.991-I1-HF1"}
+    {version:43,file:"043_beta_0991_i1_hf1.sql",name:"beta-0.991-i1-hf1-neon-persistence",toVersion:"0.991-I1-HF1"},
+    {version:44,file:"044_beta_0991_i1_hf2.sql",name:"beta-0.991-i1-hf2-creator-animation-editor",toVersion:"0.991-I1-HF2"}
   ];
 
-  const targetSchema=Math.min(43,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||43)||43));
+  const targetSchema=Math.min(44,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||44)||44));
 
   for (const step of steps) {
     if(step.version>targetSchema)break;
     if (version >= step.version) continue;
-    const from=version===1?"0.5":version===2?"0.6":version===3?"0.65":version===4?"0.67":version===5?"0.675":version===6?"0.7":version===7?"0.705":version===8?"0.8":version===9?"0.85":version===10?"0.86":version===11?"0.87":version===12?"0.88":version===13?"0.885":version===14?"0.89":version===15?"0.9":version===16?"0.91":version===17?"0.92":version===18?"0.95":version===19?"0.96":version===20?"0.97":version===21?"0.97-BF":version===22?"0.975-BF":version===23?"0.975-BF-PRE-PUBLIC":version===24?"0.98":version===25?"0.985":version===26?"0.985-HF2":version===27?"0.985-HF3":version===28?"0.985-HF4":version===29?"0.986":version===30?"0.986-HF2":version===31?"0.986-HF2":version===32?"0.987":version===33?"0.9875":version===34?"0.99-I1":version===35?"0.99-I2":version===36?"0.99-I3":version===37?"0.99-I4":version===38?"0.99-I5":version===39?"0.99-I6":version===40?"0.99-I6-HF1":version===41?"0.991-HF1":version===42?"0.991-I1":"unknown";
+    const from=version===1?"0.5":version===2?"0.6":version===3?"0.65":version===4?"0.67":version===5?"0.675":version===6?"0.7":version===7?"0.705":version===8?"0.8":version===9?"0.85":version===10?"0.86":version===11?"0.87":version===12?"0.88":version===13?"0.885":version===14?"0.89":version===15?"0.9":version===16?"0.91":version===17?"0.92":version===18?"0.95":version===19?"0.96":version===20?"0.97":version===21?"0.97-BF":version===22?"0.975-BF":version===23?"0.975-BF-PRE-PUBLIC":version===24?"0.98":version===25?"0.985":version===26?"0.985-HF2":version===27?"0.985-HF3":version===28?"0.985-HF4":version===29?"0.986":version===30?"0.986-HF2":version===31?"0.986-HF2":version===32?"0.987":version===33?"0.9875":version===34?"0.99-I1":version===35?"0.99-I2":version===36?"0.99-I3":version===37?"0.99-I4":version===38?"0.99-I5":version===39?"0.99-I6":version===40?"0.99-I6-HF1":version===41?"0.991-HF1":version===42?"0.991-I1":version===43?"0.991-I1-HF1":"unknown";
     createDatabaseBackup({fromVersion:from,toVersion:step.toVersion,label:step.name});
     try {
       db.exec("BEGIN IMMEDIATE");
@@ -427,7 +428,7 @@ export function latestBackup() {
   } catch { return null; }
 }
 
-export async function startDurablePersistence({release="0.991-I1-HF1"}={}){
+export async function startDurablePersistence({release="0.991-I1-HF2"}={}){
   if(!neonRemotePersistenceConfigured())return {enabled:false,provider:"NONE",safety:productionStorageSafety()};
   return startNeonSnapshotRuntime({
     databasePath,

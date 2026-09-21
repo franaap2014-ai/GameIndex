@@ -8,7 +8,7 @@ export const CAPABILITIES=Object.freeze([
   "creator_studio_edit","content_publish","image_management","game_submission","tester_preview","tester_feedback","bug_triage",
   "database_explorer","ai_diagnostics","deployment_monitor","social_lab_access","social_group_create",
   "social_community_access","social_report","social_moderation_review","simulator_run_safe","simulator_configure",
-  "simulator_review_all","ai_sharpener"
+  "simulator_review_all","ai_sharpener","animation_edit","animation_publish"
 ]);
 
 

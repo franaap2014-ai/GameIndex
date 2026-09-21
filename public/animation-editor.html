@@ -1,0 +1,57 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Animation Editor | GameIndex Beta 0.991 I1 HF2</title><script src="/js/theme-bootstrap.js"></script><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/gameindex-0986.css?v=0991i1hf2"><link rel="stylesheet" href="/css/gameindex-0991-hf1.css?v=0991i1hf2"><link rel="stylesheet" href="/css/animation-editor.css?v=0991i1hf2"><script src="/js/shell-0986.js?v=0991i1hf2" defer></script><script src="/js/animation-runtime.js?v=0991i1hf2" defer></script><script src="/js/animation-editor.js?v=0991i1hf2" defer></script></head>
+<body data-page="animation-editor"><div id="siteShell"></div>
+<main class="gi-animation-editor">
+  <section class="ae-topbar">
+    <div class="ae-title"><span class="mark">◆</span><div><h1>Animation Editor</h1><p>GameIndex Creator · cinematics, UI animations e detalhes tecnológicos</p></div></div>
+    <div class="ae-actions">
+      <span id="aeSaveState" class="ae-save-state">Carregando...</span>
+      <button id="aeUndo" class="button ghost-button" type="button">Desfazer</button>
+      <button id="aeRedo" class="button ghost-button" type="button">Refazer</button>
+      <button id="aeDuplicate" class="button ghost-button" type="button">Duplicar</button>
+      <button id="aeSave" class="button primary-button" type="button">Salvar</button>
+      <button id="aePublish" class="button primary-button" type="button">Publicar</button>
+    </div>
+  </section>
+
+  <div class="ae-mobile-tabs" aria-label="Painéis do editor">
+    <button class="active" data-mobile-panel="center">Preview</button><button data-mobile-panel="left">Layers</button><button data-mobile-panel="timeline">Timeline</button><button data-mobile-panel="right">Inspector</button><button data-mobile-panel="library">Library</button>
+  </div>
+
+  <section class="ae-workspace">
+    <aside class="ae-panel ae-left" data-mobile-id="left">
+      <div class="ae-panel-head"><strong>PROJECT / LAYERS</strong><button id="aeNewProject" class="ae-mini-btn" type="button" title="Nova animação">+</button></div>
+      <div class="ae-tabs"><button class="active" data-left-tab="layers">Layers</button><button data-left-tab="projects">Projects</button><button data-left-tab="library">Library</button></div>
+      <div id="aeLeftScroll" class="ae-scroll"></div>
+    </aside>
+
+    <section class="ae-panel ae-center mobile-active" data-mobile-id="center">
+      <div class="ae-panel-head"><strong id="aeProjectTitle">Nenhum projeto</strong><small id="aeProjectMeta">—</small></div>
+      <div class="ae-preview-toolbar">
+        <div class="ae-preview-tools">
+          <button id="aePlay" type="button" title="Play">▶</button><button id="aePause" type="button" title="Pause">Ⅱ</button><button id="aeRestart" type="button" title="Restart">↺</button><label><input id="aeLoop" type="checkbox"> Loop</label>
+        </div>
+        <div class="ae-time"><span id="aeCurrentTime">0.00</span>s / <span id="aeDurationLabel">0.00</span>s</div>
+      </div>
+      <div class="ae-preview-wrap"><div id="aePreviewShell" class="ae-preview-shell"><div class="ae-preview-empty">Selecione ou crie uma animação.</div></div></div>
+    </section>
+
+    <aside class="ae-panel ae-right" data-mobile-id="right">
+      <div class="ae-panel-head"><strong>INSPECTOR</strong><small id="aeInspectorType">—</small></div>
+      <div id="aeInspector" class="ae-inspector"><div class="ae-inspector-empty">Selecione uma layer ou keyframe.</div></div>
+    </aside>
+
+    <section class="ae-panel ae-timeline-panel" data-mobile-id="timeline">
+      <div class="ae-panel-head"><strong>TIMELINE</strong><small id="aeTimelineStatus">0 tracks</small></div>
+      <div class="ae-timeline-toolbar">
+        <label>Duração <input id="aeDurationInput" type="number" min="250" max="30000" step="50" value="4200"> ms</label>
+        <label>Zoom <select id="aeTimelineZoom"><option value=".5">50%</option><option value="1" selected>100%</option><option value="2">200%</option></select></label>
+        <button id="aeAddKeyframe" class="ae-mini-btn" type="button">+ Keyframe</button>
+        <button id="aeDeleteKeyframe" class="ae-mini-btn ae-danger" type="button">Excluir keyframe</button>
+      </div>
+      <div id="aeTimelineScroll" class="ae-timeline-scroll"><div id="aeTimeline" class="ae-timeline"></div></div>
+    </section>
+  </section>
+</main>
+
+<div id="aeModal" class="ae-modal" hidden><div class="ae-modal-card"><div class="section-title-row"><div><p class="section-eyebrow">ANIMATION EDITOR</p><h2 id="aeModalTitle">Nova animação</h2></div><button id="aeModalClose" class="ae-mini-btn" type="button">×</button></div><div id="aeModalBody"></div></div></div>
+</body></html>

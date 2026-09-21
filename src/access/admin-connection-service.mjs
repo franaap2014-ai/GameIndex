@@ -12,6 +12,14 @@ export function adminConnectionForUser(userId){
   const row=db.prepare(`SELECT ac.*,p.username,u.display_name FROM admin_connections ac JOIN users u ON u.id=ac.user_id LEFT JOIN user_profiles p ON p.user_id=u.id WHERE ac.user_id=?`).get(String(userId));
   return row?{userId:row.user_id,username:row.username||"",displayName:row.display_name||"",role:row.connection_role,status:row.status,active:row.status==="ACTIVE",createdBy:row.created_by||"",reason:row.reason||"",createdAt:row.created_at,updatedAt:row.updated_at}:null;
 }
+export function ensureAdminConnection({userId,role,status="ACTIVE",actorUserId=userId,reason="",reactivate=false}={}){
+  const current=adminConnectionForUser(userId);
+  const desiredRole=String(role||"").toUpperCase(),desiredStatus=String(status||"ACTIVE").toUpperCase();
+  if(current&&current.role===desiredRole&&current.status===desiredStatus)return current;
+  if(current&&!reactivate&&["INACTIVE","REVOKED"].includes(current.status))return current;
+  return setAdminConnection({userId,role:desiredRole,status:desiredStatus,actorUserId:actorUserId||userId,reason});
+}
+
 export function listAdminConnections(){
   if(!tableExists("admin_connections"))return [];
   return db.prepare(`SELECT ac.*,p.username,u.display_name,u.email FROM admin_connections ac JOIN users u ON u.id=ac.user_id LEFT JOIN user_profiles p ON p.user_id=u.id ORDER BY CASE ac.connection_role WHEN 'CREATOR' THEN 0 ELSE 1 END, lower(COALESCE(p.username,u.display_name,u.email))`).all().map(row=>({userId:row.user_id,username:row.username||"",displayName:row.display_name||"",email:row.email||"",role:row.connection_role,status:row.status,active:row.status==="ACTIVE",reason:row.reason||"",createdAt:row.created_at,updatedAt:row.updated_at}));

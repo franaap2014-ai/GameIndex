@@ -24,7 +24,7 @@ const release=read("src/config/release-099i6.mjs");
 assert.match(connection,/productionStorageSafety/);
 assert.match(connection,/GAMEINDEX_PERSISTENT_STORAGE_REQUIRED/);
 assert.match(connection,/042_beta_0991_i1\.sql/);
-assert.match(connection,/GAMEINDEX_TARGET_SCHEMA\|\|43/);
+assert.match(connection,/GAMEINDEX_TARGET_SCHEMA\|\|44/);
 assert.match(migration,/CREATE TABLE IF NOT EXISTS bug_diagnostics/);
 assert.match(migration,/CREATE TABLE IF NOT EXISTS cinematic_admin_actions/);
 assert.match(service,/welcome_0991_i1/);
@@ -61,7 +61,7 @@ assert.match(report,/recordBugDiagnostics/);
 assert.match(diagnostics,/developerReportForBug/);
 assert.match(diagnostics,/\[REDACTED\]/);
 assert.match(server,/registerBeta0991I1Routes/);
-assert.match(release,/TARGET_SCHEMA=43/);
+assert.match(release,/TARGET_SCHEMA=44/);
 assert.match(release,/0\.991-I1/);
 
 console.log("Beta 0.991 I1 static release contract: PASS");
