@@ -1,58 +1,9 @@
-const $=id=>document.getElementById(id);
-const esc=v=>GV.safe(v??"");
-
-const LABELS={
-  NEW:"NEW",IMPROVED:"IMPROVED",AI:"AI",FIXED:"FIXED",SECURITY:"SECURITY",DEV:"DEV",UI:"UI",AUTOGEN:"AUTOGEN"
-};
-function asSections(entry){
-  const raw=entry.sections;
-  if(Array.isArray(raw)) return raw;
-  if(raw&&typeof raw==="object") return Object.entries(raw).map(([title,items])=>({title,items:Array.isArray(items)?items:[String(items)]}));
-  return [];
-}
-function tags(entry){
-  const list=Array.isArray(entry.tags)?entry.tags:[];
-  return list.map(t=>`<span class="update-tag">${esc(LABELS[String(t).toUpperCase()]||t)}</span>`).join("");
-}
-function versionCard(entry,current){
-  const sections=asSections(entry);
-  const historical=/GameVault/i.test(String(entry.title||""))||String(entry.version)!==String(current);
-  return `<article class="update-card ${entry.version===current?'current':''}">
-    <header class="update-card-head">
-      <div><p class="section-eyebrow">${historical?'RELEASE HISTORY':'CURRENT RELEASE'}</p><h2>${esc(entry.title||`Beta ${entry.version}`)}</h2><p>${esc(entry.codename||"")}</p></div>
-      <div class="update-version"><strong>${esc(entry.version)}</strong>${entry.releaseDate?`<small>${esc(new Date(entry.releaseDate).toLocaleDateString(GV.lang||'pt-BR'))}</small>`:''}</div>
-    </header>
-    ${tags(entry)?`<div class="update-tags">${tags(entry)}</div>`:''}
-    <div class="update-sections">${sections.length?sections.map(s=>`<section><h3>${esc(s.title||'Atualização')}</h3><ul>${(s.items||[]).map(i=>`<li>${esc(i)}</li>`).join('')}</ul></section>`).join(''):'<p class="admin-muted-line">Registro histórico resumido. Não há detalhes adicionais verificados para esta versão.</p>'}</div>
-  </article>`;
-}
-async function markSeen(version){
-  if(!GV.auth?.user)return;
-  try{await GV.api(`/api/update-log/${encodeURIComponent(version)}/seen`,{method:'POST'});document.querySelector('[data-update-dot]')?.setAttribute('hidden','');}catch{}
-}
-async function loadTechnical(){
-  const tier=String(GV.auth?.effectiveTier||GV.auth?.tier||"").toUpperCase();
-  if(tier!=="DEV"&&!GV.auth?.user?.isAdmin)return;
-  try{
-    const d=await GV.api('/api/admin/update-log/technical');
-    $('updateTechnical').hidden=false;
-    $('updateTechnical').innerHTML=`<p class="section-eyebrow">DEV · TECHNICAL DETAILS</p><h2>Detalhes técnicos</h2><div class="trace-summary"><article><b>Produto</b><span>${esc(d.product)}</span></article><article><b>Versão</b><span>${esc(d.version)}</span></article><article><b>AI System</b><span>${esc(d.aiSystem)}</span></article><article><b>Schema</b><span>${esc(d.schemaVersion)}</span></article><article><b>Migração</b><span>${esc(d.migrationStatus)}</span></article><article><b>Backup</b><span>${d.latestBackup?'Detectado':'Não detectado nesta execução'}</span></article></div><p class="admin-muted-line">${esc(d.build||'')}</p>`;
-  }catch{}
-}
-async function load(){
-  try{
-    const d=await GV.api('/api/update-log');
-    const entries=d.entries||[];
-    $('updateLogList').innerHTML=entries.length?entries.map(x=>versionCard(x,d.currentVersion)).join(''):'<div class="empty-state">Nenhum registro de versão disponível.</div>';
-    const current=entries.find(x=>String(x.version)===String(d.currentVersion));
-    if(current){
-      $('updateCurrentBanner').hidden=false;
-      $('updateCurrentBanner').innerHTML=`<p class="section-eyebrow">LATEST</p><h2>GameIndex Beta ${esc(d.currentVersion)}</h2><p>${esc(current.codename||'Delivery Recovery')}</p>${d.hasUnread?'<span class="trace-pill ok">NOVO PARA VOCÊ</span>':''}`;
-      await markSeen(d.currentVersion);
-    }
-    await loadTechnical();
-  }catch(err){$('updateLogList').innerHTML=`<div class="empty-state"><strong>Não foi possível carregar o Update Log.</strong><p>${esc(err.message)}</p></div>`;}
-}
-let started=false;async function start(){if(started&&GV.auth===null)return;started=true;await load();}
-window.addEventListener('gv:shell-ready',()=>start());
-window.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{if(GV.auth!==null)start();},0);});
+const $=id=>document.getElementById(id),esc=v=>GV.safe(v??"");
+const PUBLIC_ORDER=["RESUMO","NOVO","MELHORADO","VISUAL","SOCIAL","CORRIGIDO","PERFORMANCE"];
+function sections(entry){const raw=entry.sections;if(Array.isArray(raw))return raw.map(s=>({title:s.title||"MELHORADO",items:s.items||[]}));if(raw&&typeof raw==="object")return Object.entries(raw).map(([title,items])=>({title,items:Array.isArray(items)?items:[String(items)]}));return [];}
+function publicVersion(v=""){return String(v).split(/\s+(?:I\d+|HF\d+)/i)[0];}
+function card(entry,current){const all=sections(entry),map=new Map(all.map(s=>[String(s.title).toUpperCase(),s.items||[]])),summary=map.get("RESUMO")||[],ordered=PUBLIC_ORDER.filter(k=>k!=="RESUMO"&&map.has(k)).map(k=>({title:k,items:map.get(k)}));for(const s of all){const key=String(s.title).toUpperCase();if(!PUBLIC_ORDER.includes(key)&&!/(TECH|DEV|INTERNAL|SCHEMA|MIGRATION)/i.test(key))ordered.push({title:s.title,items:s.items});}const version=publicVersion(entry.version),isCurrent=version===publicVersion(current);return `<article class="gi9915-update-card gi9915-card ${isCurrent?"current":""}"><div class="gi9915-update-head"><div><p class="gi9915-kicker">${isCurrent?"VERSÃO ATUAL":"HISTÓRICO"}</p><h2>${esc(entry.title||`GameIndex Beta ${version}`)}</h2><p class="gi9915-muted">${esc(entry.codename||"")}</p></div><span class="gi9915-update-version">Beta ${esc(version)}</span></div>${summary.length?`<div class="gi9915-update-summary">${summary.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}<div class="gi9915-update-sections">${ordered.map(s=>`<section class="gi9915-update-section"><h3>${esc(s.title)}</h3><ul>${(s.items||[]).map(i=>`<li>${esc(i)}</li>`).join("")}</ul></section>`).join("")}</div></article>`;}
+async function markSeen(version){if(!GV.auth?.user)return;try{await GV.api(`/api/update-log/${encodeURIComponent(version)}/seen`,{method:"POST"});}catch{}}
+async function technical(){const role=String(GV.auth?.user?.staffRole||"").toUpperCase(),admin=GV.auth?.user?.role==="ADMIN";if(role!=="DEV"&&role!=="CREATOR"&&!admin)return;try{const d=await GV.api("/api/admin/update-log/technical");$("updateTechnical").hidden=false;$("updateTechnical").innerHTML=`<details class="gi9915-tech-history gi9915-card" style="padding:16px"><summary>Histórico técnico da versão</summary><div style="padding-top:12px"><p class="gi9915-muted">Informações internas para contas autorizadas.</p><div class="trace-summary"><article><b>Release</b><span>${esc(d.version||"")}</span></article><article><b>AI</b><span>${esc(d.aiSystem||"")}</span></article><article><b>Schema</b><span>${esc(d.schemaVersion||"")}</span></article><article><b>Migração</b><span>${esc(d.migrationStatus||"")}</span></article></div></div></details>`;}catch{}}
+async function load(){try{const d=await GV.api("/api/update-log"),entries=d.entries||[],current=d.currentVersion||"0.9915";$("updateLogList").innerHTML=entries.length?entries.map(x=>card(x,current)).join(""):'<div class="gi9915-social-empty">Nenhuma atualização publicada.</div>';const latest=entries.find(x=>publicVersion(x.version)===publicVersion(current))||entries[0];if(latest){$("updateCurrentBanner").innerHTML=`<div class="gi9915-update-summary"><span>Beta ${esc(publicVersion(current))}</span><span>${esc(latest.codename||"Cinematic Update")}</span></div>`;await markSeen(latest.version);}await technical();}catch(e){$("updateLogList").innerHTML=`<div class="gi9915-social-empty">Não foi possível carregar o Update Log.</div>`;}}
+let started=false;function start(){if(started)return;started=true;load();}addEventListener("gv:shell-ready",start);addEventListener("DOMContentLoaded",()=>setTimeout(start,0));
