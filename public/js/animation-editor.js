@@ -64,19 +64,26 @@
       state.canPublish=caps.has("animation_publish");
       $("aePublish").hidden=!state.canPublish;
       [state.catalog,{entries:state.projects}]=await Promise.all([api("/api/animation-editor/catalog"),api("/api/animation-editor/projects?limit=200")]);
-      renderLeft();
-      if(state.projects.length)await openProject(state.projects[0].id);
-      else openNewModal();
+      state.leftTab=state.projects.length?"projects":"layers";
+      renderAll();
+      showWelcome();
       setSaveState("Pronto","ready");
-    }catch(error){setSaveState(error.message,"error");$("aeLeftScroll").innerHTML=`<div class="empty-state"><strong>Animation Editor indisponível.</strong><p>${esc(error.message)}</p></div>`;}
+    }catch(error){setSaveState(error.message,"error");$("aeLeftScroll").innerHTML=`<div class="empty-state"><strong>Cinematic Editor indisponível.</strong><p>${esc(error.message)}</p></div>`;}
   }
 
+  function showWelcome(){const welcome=$("aeWelcome");if(welcome)welcome.hidden=false;}
+  function hideWelcome(){const welcome=$("aeWelcome");if(welcome)welcome.hidden=true;}
+  function syncSelectedPreview(){
+    document.querySelectorAll("#aePreviewShell [data-track-id]").forEach(el=>el.classList.toggle("gi9915-selected-preview-element",el.dataset.trackId===state.selectedTrackId));
+  }
+  function fitPreview(){const shell=$("aePreviewShell");if(!shell)return;shell.style.width="min(100%,1000px)";shell.style.maxHeight="100%";shell.scrollIntoView({block:"nearest",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
+  async function fullscreenPreview(){const shell=$("aePreviewShell");if(!shell)return;try{if(document.fullscreenElement)await document.exitFullscreen();else await shell.requestFullscreen();}catch{}}
   async function refreshProjects(){const d=await api("/api/animation-editor/projects?limit=200");state.projects=d.entries||[];renderLeft();}
   async function openProject(id){
     const d=await api("/api/animation-editor/projects/"+encodeURIComponent(id));
     state.details=d;state.definition=clone(d.current?.definition||{name:d.project.name,type:d.project.type,durationMs:d.project.durationMs,background:{mode:"GAMEINDEX_DARK"},tracks:[]});
     state.selectedTrackId=state.definition.tracks?.[0]?.id||null;state.selectedFrameIndex=null;state.undo=[];state.redo=[];state.dirty=false;state.playhead=0;
-    setSaveState("Salvo","saved");renderAll();
+    hideWelcome();setSaveState("Salvo","saved");renderAll();
   }
   async function saveProject({silent=false}={}){
     const p=currentProject();if(!p||!state.definition||state.saving||!state.dirty)return;
@@ -115,7 +122,7 @@
     try{const d=await api("/api/animation-editor/projects/"+encodeURIComponent(p.id)+"/rollback",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({revision})});state.details=d;setSaveState(`Rollback para r${revision} concluído`,"saved");await refreshProjects();renderAll();}catch(error){setSaveState(error.message,"error");}
   }
 
-  function renderAll(){renderHeader();renderLeft();renderInspector();renderTimeline();renderRuntime(state.definition,state.playhead,false);}
+  function renderAll(){renderHeader();renderLeft();renderInspector();renderTimeline();if(state.definition){hideWelcome();renderRuntime(state.definition,state.playhead,false);}else showWelcome();}
   function renderHeader(){
     const p=currentProject();$("aeProjectTitle").textContent=p?.name||state.definition?.name||"Nenhum projeto";
     $("aeProjectMeta").textContent=p?`${p.type} · ${p.status} · r${p.currentRevision}`:"—";
@@ -188,7 +195,7 @@
     const host=$("aeTimeline");if(!host)return;if(!state.definition){host.innerHTML="";return;}
     const {duration,content}=timelineGeometry(),seconds=Math.ceil(duration/1000);
     let ruler=`<div class="ae-time-ruler" style="width:${content}px">`;for(let i=0;i<=seconds;i++)ruler+=`<span class="ae-ruler-label" style="left:${(i*1000/duration)*100}%">${i}s</span>`;ruler+="</div>";
-    const rows=(state.definition.tracks||[]).map(t=>`<div class="ae-track-row"><div class="ae-track-label">${esc(t.name||t.component)}</div><div class="ae-track-canvas" data-track-canvas="${esc(t.id)}" style="width:${content}px">${(t.keyframes||[]).map((f,i)=>`<button class="ae-keyframe ${state.selectedTrackId===t.id&&state.selectedFrameIndex===i?"selected":""}" data-kf-track="${esc(t.id)}" data-kf-index="${i}" title="${f.time}ms" style="left:${(f.time/duration)*100}%"></button>`).join("")}</div></div>`).join("");
+    const rows=(state.definition.tracks||[]).map(t=>`<div class="ae-track-row ${state.selectedTrackId===t.id?"active":""}"><div class="ae-track-label">${esc(t.name||t.component)}</div><div class="ae-track-canvas" data-track-canvas="${esc(t.id)}" style="width:${content}px">${(t.keyframes||[]).map((f,i)=>`<button class="ae-keyframe ${state.selectedTrackId===t.id&&state.selectedFrameIndex===i?"selected":""}" data-kf-track="${esc(t.id)}" data-kf-index="${i}" title="${f.time}ms" style="left:${(f.time/duration)*100}%"></button>`).join("")}</div></div>`).join("");
     const left=150+(state.playhead/duration)*content;host.style.width=`${150+content}px`;host.innerHTML=ruler+rows+`<div class="ae-playhead" style="left:${left}px"></div>`;
     host.querySelectorAll("[data-track-canvas]").forEach(canvas=>canvas.addEventListener("click",e=>{if(e.target.closest(".ae-keyframe"))return;const rect=canvas.getBoundingClientRect();state.playhead=Math.round(Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width))*duration/50)*50;seekPreview();renderTimeline();}));
     host.querySelectorAll(".ae-keyframe").forEach(marker=>bindKeyframeDrag(marker));
@@ -217,7 +224,7 @@
     const old=state.controller?.getState?.();state.controller?.destroy?.();state.controller=window.GameIndexAnimationRuntime?.create(host,definition)||null;
     if(!state.controller)return;
     state.controller.setLoop(Boolean($("aeLoop")?.checked));state.controller.onState(s=>{state.playhead=s.time;$("aeCurrentTime").textContent=(s.time/1000).toFixed(2);if(s.playing)requestAnimationFrame(()=>renderPlayheadOnly());});
-    state.controller.seek(Math.min(time,definition.durationMs));if(play)state.controller.play(time);else if(old?.playing)state.controller.play(Math.min(time,definition.durationMs));
+    state.controller.seek(Math.min(time,definition.durationMs));syncSelectedPreview();if(play)state.controller.play(time);else if(old?.playing)state.controller.play(Math.min(time,definition.durationMs));
   }
   function renderPlayheadOnly(){const ph=$("aeTimeline")?.querySelector(".ae-playhead");if(!ph||!state.definition)return;const {duration,content}=timelineGeometry();ph.style.left=`${150+(state.playhead/duration)*content}px`;if(state.controller?.getState().playing)requestAnimationFrame(renderPlayheadOnly);}
 
@@ -238,9 +245,9 @@
 
   function bind(){
     document.querySelectorAll("[data-left-tab]").forEach(b=>b.onclick=()=>{state.leftTab=b.dataset.leftTab;renderLeft();});
-    $("aeNewProject").onclick=openNewModal;$("aeModalClose").onclick=closeModal;$("aeModal").addEventListener("click",e=>{if(e.target===$("aeModal"))closeModal();});
+    $("aeNewProject").onclick=openNewModal;$("aeNewProjectTop").onclick=openNewModal;$("aeWelcomeNew").onclick=openNewModal;$("aeWelcomePreset").onclick=openNewModal;$("aeModalClose").onclick=closeModal;$("aeModal").addEventListener("click",e=>{if(e.target===$("aeModal"))closeModal();});
     $("aeSave").onclick=()=>saveProject().catch(()=>{});$("aePublish").onclick=()=>publish();$("aeDuplicate").onclick=duplicate;$("aeUndo").onclick=undo;$("aeRedo").onclick=redo;
-    $("aePlay").onclick=validatePreviewAndPlay;$("aePause").onclick=()=>state.controller?.pause();$("aeRestart").onclick=()=>{state.playhead=0;state.controller?.restart();renderTimeline();};$("aeLoop").onchange=e=>state.controller?.setLoop(e.target.checked);
+    $("aePlay").onclick=validatePreviewAndPlay;$("aePause").onclick=()=>state.controller?.pause();$("aeRestart").onclick=()=>{state.playhead=0;state.controller?.restart();renderTimeline();};$("aeFitPreview").onclick=fitPreview;$("aeFullscreen").onclick=fullscreenPreview;$("aeLoop").onchange=e=>state.controller?.setLoop(e.target.checked);
     $("aeDurationInput").onchange=e=>{const value=Math.max(250,Math.min(30000,Number(e.target.value)||4200));mutate(()=>{state.definition.durationMs=value;for(const t of state.definition.tracks||[])for(const f of t.keyframes||[])f.time=Math.min(f.time,value);});};
     $("aeTimelineZoom").onchange=e=>{state.zoom=Number(e.target.value)||1;renderTimeline();};$("aeAddKeyframe").onclick=addKeyframe;$("aeDeleteKeyframe").onclick=deleteKeyframe;
     document.querySelectorAll("[data-mobile-panel]").forEach(b=>b.onclick=()=>{let target=b.dataset.mobilePanel;if(target==="library"){target="left";state.leftTab="library";renderLeft();}document.querySelectorAll("[data-mobile-panel]").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll("[data-mobile-id]").forEach(x=>x.classList.toggle("mobile-active",x.dataset.mobileId===target));});

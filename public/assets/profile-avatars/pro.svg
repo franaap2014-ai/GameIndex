@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="t d">
+ <title id="t">GameIndex PRO avatar placeholder</title><desc id="d">Placeholder visual for the Beta 0.9915 profile avatar library. Final profile art is not included yet.</desc>
+ <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#080b10"/><stop offset="1" stop-color="#151b24"/></linearGradient><radialGradient id="g"><stop stop-color="#63e69a" stop-opacity=".34"/><stop offset="1" stop-color="#63e69a" stop-opacity="0"/></radialGradient></defs>
+ <rect width="1024" height="1024" rx="220" fill="url(#bg)"/><circle cx="760" cy="230" r="310" fill="url(#g)"/>
+ <path d="M130 760 L260 180 L815 115 L902 665 L730 904 L220 890 Z" fill="none" stroke="#63e69a" stroke-width="22" opacity=".42"/>
+ <path d="M180 700 L420 520 L650 610 L850 350" fill="none" stroke="#1d6b43" stroke-width="14" opacity=".34"/>
+ <circle cx="420" cy="520" r="28" fill="#63e69a" opacity=".72"/><circle cx="650" cy="610" r="18" fill="#1d6b43" opacity=".84"/>
+ <text x="512" y="485" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="250" font-weight="900" fill="#63e69a">GI</text>
+ <text x="512" y="665" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="74" font-weight="800" letter-spacing="16" fill="#f5f7fa">PRO</text>
+ <text x="512" y="735" text-anchor="middle" font-family="system-ui,Segoe UI,sans-serif" font-size="28" letter-spacing="8" fill="#9aa5b2">PLACEHOLDER</text>
+ </svg>
