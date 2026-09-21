@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { currentAuth } from "../auth/auth-service.mjs";
-import { requireCapability, requireSameOriginMutation } from "../access/capability-service.mjs";
+import { CAPABILITIES, accessSnapshotForUser, requireCapability, requireSameOriginMutation } from "../access/capability-service.mjs";
 import { db, databaseStorageState, json, nowIso, productionStorageSafety } from "../database/connection.mjs";
 import { CINEMATIC_EVENTS, cinematicQueueForUser, resolvePrimaryIdentity } from "../identity/cinematic-service.mjs";
 import { listCinematicEvents, resetCinematicEvent } from "../database/repositories/cinematic-event-repository.mjs";
@@ -21,6 +21,20 @@ function audit(actor,target,eventKey,actionType,metadata={}){
 }
 
 export function registerBeta0991I1Routes(app){
+  app.get("/api/admin/i1/authority",requireCapability("creator_control"),(req,res)=>{
+    const actor=userId(req);if(!actor)return fail(res,401,"AUTH_REQUIRED","Faça login.");
+    const access=accessSnapshotForUser(actor),primaryCreator=String(db.prepare(`SELECT value FROM meta WHERE key='primary_creator_user_id'`).get()?.value||"");
+    return noStore(res).json({ok:true,authority:{
+      staffRole:access.staffRole||"NONE",
+      suspended:Boolean(access.suspended),
+      roleTheme:access.roleTheme||"FREE",
+      adminConnection:access.adminConnection||null,
+      capabilityCount:(access.capabilities||[]).length,
+      capabilityTotal:CAPABILITIES.length,
+      primaryCreator:Boolean(primaryCreator&&primaryCreator===actor)
+    }});
+  });
+
   app.get("/api/admin/i1/storage",requireCapability("creator_control"),(req,res)=>{
     const state=databaseStorageState({includePath:false,probeWrite:false}),safety=productionStorageSafety();
     return noStore(res).json({ok:true,storage:{status:state.status,origin:state.origin,provider:state.provider,persistent:state.persistent,read:state.read,write:state.write,readOnly:state.readOnly,sizeBytes:state.sizeBytes,modifiedAt:state.modifiedAt,remote:state.remote||null},safety});
