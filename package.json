@@ -13,7 +13,7 @@
     "check": "node scripts/check.mjs",
     "test": "node tests/beta09915-cinematic-update.mjs",
     "test:0986": "node tests/beta0986-production-consolidation.mjs",
-    "smoke": "node tests/http-smoke-0991-hf1.mjs",
+    "smoke": "node tests/http-smoke-09915-i1-hf1.mjs",
     "test:hf2": "node tests/hf2-ai-slim-game-experiences.mjs",
     "test:0987": "node tests/beta0987-final-personalization.mjs",
     "test:09875": "node tests/beta09875-full-page-personalization.mjs",
@@ -33,7 +33,10 @@
     "test:0991i1": "node tests/beta0991-i1-reliability-navigation-diagnostics.mjs",
     "test:0991i1hf1": "node tests/beta0991-i1-hf1-neon-persistence.mjs",
     "test:0991i1hf2": "node tests/beta0991-i1-hf2-creator-animation-editor.mjs",
-    "test:09915": "node tests/beta09915-cinematic-update.mjs"
+    "test:09915": "node tests/beta09915-cinematic-update.mjs",
+    "test:09915hf1": "node tests/beta09915-i1-hf1-full-recovery.mjs",
+    "smoke:0991hf1": "node tests/http-smoke-0991-hf1.mjs",
+    "smoke:09915hf1": "node tests/http-smoke-09915-i1-hf1.mjs"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
