@@ -21,11 +21,11 @@ const updateLog=read("public/js/update-log.js");
 const pkg=JSON.parse(read("package.json"));
 
 assert.match(release,/PUBLIC_VERSION="0\.9915"/);
-assert.match(release,/INTERNAL_RELEASE="0\.9915"/);
+assert.match(release,/INTERNAL_RELEASE="0\.9915 I1 HF1"/);
 assert.match(release,/BETA_0_9915_I1_HF1_FULL_RECOVERY/);
 assert.match(release,/TARGET_SCHEMA=46/);
 assert.match(connection,/045_beta_09915_cinematic_update\.sql/);
-assert.match(connection,/GAMEINDEX_TARGET_SCHEMA\|\|45/);
+assert.match(connection,/GAMEINDEX_TARGET_SCHEMA\|\|46/);
 assert.match(connection,/Render production requires DATABASE_URL/);
 
 assert.match(capabilities,/"cinematic_test"/);
