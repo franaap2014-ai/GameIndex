@@ -1,8 +1,8 @@
 export const PUBLIC_VERSION="0.9915";
 export const PUBLIC_VERSION_LABEL=`Beta ${PUBLIC_VERSION}`;
-export const INTERNAL_RELEASE="0.9915";
-export const INTERNAL_RELEASE_LABEL="GameIndex Beta 0.9915 Cinematic Update";
-export const INTERNAL_RELEASE_CODE="BETA_0_9915_CINEMATIC_UPDATE";
+export const INTERNAL_RELEASE="0.9915 I1 HF1";
+export const INTERNAL_RELEASE_LABEL="GameIndex Beta 0.9915 I1 HF1 Full Recovery Hotfix";
+export const INTERNAL_RELEASE_CODE="BETA_0_9915_I1_HF1_FULL_RECOVERY";
 export const TARGET_SCHEMA=45;
 export const ARCHITECTURE="LOCAL_FIRST_NO_API_KEY";
 
