@@ -2,47 +2,35 @@
 
 ## Status
 
-**Automated execution:** NOT RUN in the GitHub connector editing environment at the time this report was created.
+**Automated execution: PASS in GitHub Actions before merge.**
 
-No PASS claim is made without execution.
+Workflow: `GameIndex 0.9915 HF1 Recovery`
 
-## Added regression command
+Validated stages:
 
-```
-npm run test:09915hf1
-```
+- `npm run check`
+- `npm run test:09915hf1`
+- `npm run test:09915`
+- `npm run smoke`
 
-This runs:
+The CI run validates Node 22.13.1, syntax across the JavaScript/MJS tree, the HF1 source regression contract, the 0.9915 cinematic migration contract, and a production-mode HTTP smoke against a temporary schema 46 database.
 
-```
-node tests/beta09915-i1-hf1-full-recovery.mjs
-```
-
-## Source assertions covered
+## Verified recovery behavior
 
 - public version remains 0.9915;
 - internal recovery release identity is 0.9915 I1 HF1;
-- target schema is 46;
-- favorite/profile-avatar schema guards exist;
-- Roblox parent hub resolves child experiences;
-- medium header no longer contains the forced row-2 regression;
-- form recovery tokens exist;
-- Cinematic Test Lab contains the simplified workflow;
-- migration 046 includes all five starter Roblox experiences and uses additive insertion;
-- migration 46 is registered;
-- Admin navigation contains the new grouped information architecture.
+- migration 045 executes successfully and creates the avatar catalog;
+- target schema reaches 46 on a fresh database;
+- profile endpoints remain protected without producing a server crash;
+- protected Creator/Admin pages retain backend authorization;
+- the Roblox hub exposes Blox Fruits, DOORS, Fisch, Work at a Pizza Place and Prison Life;
+- each planned Roblox child route resolves successfully;
+- medium header/form/Test Lab/Admin source regressions are covered by the HF1 contract.
 
-## Required before merge/deploy
+## Historical failures found by CI
 
-Run at minimum:
+The first CI passes exposed stale test expectations plus two real initialization defects: the 045 avatar insert column mismatch and the first-boot migration-before-seed ordering for Roblox starter experiences. Both were corrected before merge.
 
-```
-npm run check
-npm run test:09915hf1
-npm run test:09915
-npm run smoke
-```
+## Merge condition
 
-Then perform authenticated profile, public profile, Roblox child-route, Cinematic Test Lab and Admin capability smoke tests against a migrated test database.
-
-Production readiness must not be declared until those commands and smoke flows are actually executed.
+Only a green workflow for the current PR head should be used as the final merge gate.
