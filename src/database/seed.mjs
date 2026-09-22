@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { db, migrateDatabase, schemaVersion, verifyDatabase } from "./connection.mjs";
 import { GAME_SEEDS, ENTITY_SEEDS, GAME_KNOWLEDGE_SEEDS, ENTITY_KNOWLEDGE_SEEDS } from "./seed-data.mjs";
 import { upsertGame, getGameBySlug, findGameByNameOrAlias } from "./repositories/game-repository.mjs";
@@ -25,6 +26,12 @@ function gameSeedSource(game) {
 
 function seededClaim(text, sourceId, confidence=.72, canonStatus="NOT_APPLICABLE", status="CURRENT") {
   return { text, sourceIds:[sourceId], confidence, canonStatus, status };
+}
+
+function applyPostSeedRecovery(){
+  if(schemaVersion()<46)return;
+  const recoverySql=readFileSync(new URL("./migrations/046_beta_09915_i1_hf1_full_recovery.sql",import.meta.url),"utf8");
+  db.exec(recoverySql);
 }
 
 export function initializeDatabase() {
@@ -141,4 +148,8 @@ export function seedDatabase({skipMigration=false}={}) {
   // Beta 0.705: never blanket-downgrade previously approved images at startup.
   // Legacy verified remote assets remain displayable through the central resolver
   // until Image Memory can migrate them safely.
+  // On a brand-new database migrations run before the curated game seed. Reapply
+  // the idempotent 0.9915 HF1 recovery once Roblox exists so starter experiences
+  // are also present on first boot.
+  applyPostSeedRecovery();
 }
