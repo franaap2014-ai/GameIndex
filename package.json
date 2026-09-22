@@ -33,7 +33,8 @@
     "test:0991i1": "node tests/beta0991-i1-reliability-navigation-diagnostics.mjs",
     "test:0991i1hf1": "node tests/beta0991-i1-hf1-neon-persistence.mjs",
     "test:0991i1hf2": "node tests/beta0991-i1-hf2-creator-animation-editor.mjs",
-    "test:09915": "node tests/beta09915-cinematic-update.mjs"
+    "test:09915": "node tests/beta09915-cinematic-update.mjs",
+    "test:09915hf1": "node tests/beta09915-i1-hf1-full-recovery.mjs"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
