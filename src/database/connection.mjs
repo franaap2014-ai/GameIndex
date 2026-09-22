@@ -394,15 +394,16 @@ export function migrateDatabase() {
     {version:42,file:"042_beta_0991_i1.sql",name:"beta-0.991-i1-reliability-navigation-diagnostics",toVersion:"0.991-I1"},
     {version:43,file:"043_beta_0991_i1_hf1.sql",name:"beta-0.991-i1-hf1-neon-persistence",toVersion:"0.991-I1-HF1"},
     {version:44,file:"044_beta_0991_i1_hf2.sql",name:"beta-0.991-i1-hf2-creator-animation-editor",toVersion:"0.991-I1-HF2"},
-    {version:45,file:"045_beta_09915_cinematic_update.sql",name:"beta-0.9915-cinematic-update",toVersion:"0.9915"}
+    {version:45,file:"045_beta_09915_cinematic_update.sql",name:"beta-0.9915-cinematic-update",toVersion:"0.9915"},
+    {version:46,file:"046_beta_09915_i1_hf1_full_recovery.sql",name:"beta-0.9915-i1-hf1-full-recovery",toVersion:"0.9915-I1-HF1"}
   ];
 
-  const targetSchema=Math.min(45,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||45)||45));
+  const targetSchema=Math.min(46,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||46)||46));
 
   for (const step of steps) {
     if(step.version>targetSchema)break;
     if (version >= step.version) continue;
-    const from=version===1?"0.5":version===2?"0.6":version===3?"0.65":version===4?"0.67":version===5?"0.675":version===6?"0.7":version===7?"0.705":version===8?"0.8":version===9?"0.85":version===10?"0.86":version===11?"0.87":version===12?"0.88":version===13?"0.885":version===14?"0.89":version===15?"0.9":version===16?"0.91":version===17?"0.92":version===18?"0.95":version===19?"0.96":version===20?"0.97":version===21?"0.97-BF":version===22?"0.975-BF":version===23?"0.975-BF-PRE-PUBLIC":version===24?"0.98":version===25?"0.985":version===26?"0.985-HF2":version===27?"0.985-HF3":version===28?"0.985-HF4":version===29?"0.986":version===30?"0.986-HF2":version===31?"0.986-HF2":version===32?"0.987":version===33?"0.9875":version===34?"0.99-I1":version===35?"0.99-I2":version===36?"0.99-I3":version===37?"0.99-I4":version===38?"0.99-I5":version===39?"0.99-I6":version===40?"0.99-I6-HF1":version===41?"0.991-HF1":version===42?"0.991-I1":version===43?"0.991-I1-HF1":version===44?"0.991-I1-HF2":"unknown";
+    const from=version===1?"0.5":version===2?"0.6":version===3?"0.65":version===4?"0.67":version===5?"0.675":version===6?"0.7":version===7?"0.705":version===8?"0.8":version===9?"0.85":version===10?"0.86":version===11?"0.87":version===12?"0.88":version===13?"0.885":version===14?"0.89":version===15?"0.9":version===16?"0.91":version===17?"0.92":version===18?"0.95":version===19?"0.96":version===20?"0.97":version===21?"0.97-BF":version===22?"0.975-BF":version===23?"0.975-BF-PRE-PUBLIC":version===24?"0.98":version===25?"0.985":version===26?"0.985-HF2":version===27?"0.985-HF3":version===28?"0.985-HF4":version===29?"0.986":version===30?"0.986-HF2":version===31?"0.986-HF2":version===32?"0.987":version===33?"0.9875":version===34?"0.99-I1":version===35?"0.99-I2":version===36?"0.99-I3":version===37?"0.99-I4":version===38?"0.99-I5":version===39?"0.99-I6":version===40?"0.99-I6-HF1":version===41?"0.991-HF1":version===42?"0.991-I1":version===43?"0.991-I1-HF1":version===44?"0.991-I1-HF2":version===45?"0.9915":"unknown";
     createDatabaseBackup({fromVersion:from,toVersion:step.toVersion,label:step.name});
     try {
       db.exec("BEGIN IMMEDIATE");
@@ -429,7 +430,7 @@ export function latestBackup() {
   } catch { return null; }
 }
 
-export async function startDurablePersistence({release="BETA_0_9915_CINEMATIC_UPDATE"}={}){
+export async function startDurablePersistence({release="BETA_0_9915_I1_HF1_FULL_RECOVERY"}={}){
   if(!neonRemotePersistenceConfigured())return {enabled:false,provider:"NONE",safety:productionStorageSafety()};
   return startNeonSnapshotRuntime({
     databasePath,

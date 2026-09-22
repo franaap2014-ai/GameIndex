@@ -1,0 +1,21 @@
+GameIndex Beta 0.9915 I1 HF1 — UPDATE ONLY
+
+Substitua/adicione estes arquivos na base Beta 0.9915 mantendo a estrutura de pastas:
+
+.env.example
+package.json
+server.mjs
+public/cinematic-test-lab.html
+public/css/gameindex-09915.css
+public/js/shell-0986.js
+src/config/release-099i6.mjs
+src/database/connection.mjs
+src/database/seed.mjs
+src/database/migrations/045_beta_09915_cinematic_update.sql
+src/database/migrations/046_beta_09915_i1_hf1_full_recovery.sql
+src/database/repositories/favorite-game-repository.mjs
+src/database/repositories/profile-avatar-repository.mjs
+
+Public version: Beta 0.9915
+Internal release: 0.9915 I1 HF1
+Target schema: 46
