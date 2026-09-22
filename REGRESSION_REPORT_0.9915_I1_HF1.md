@@ -4,9 +4,9 @@
 
 **Symptom:** profile requests could fail after the 0.9915 update.
 
-**Root cause:** new favorite/avatar repositories assumed migration 045 tables were always present. Profile composition calls favorite queries directly, so a missing/partially-restored schema could turn optional profile features into a full profile failure.
+**Root cause:** migration 045 declared 14 columns for `profile_avatar_catalog` but supplied only 13 values per avatar row. On a real migration run this aborted the 0.9915 schema step before the new profile tables were fully available. The new favorite/avatar repositories then exposed the incomplete schema as profile failures.
 
-**Fix:** guarded optional read paths; writes return explicit service-unavailable errors until schema exists. Schema 46 remains the normal production target.
+**Fix:** repaired all 50 avatar rows in migration 045 by restoring the missing `placeholder` value, kept guarded optional read paths as defense in depth, and retained schema 46 as the recovery target.
 
 ## HEADER_LAYOUT_REGRESSION
 
@@ -34,9 +34,9 @@
 
 **Symptom:** Roblox could show no useful child experiences.
 
-**Root cause:** parent game related-content lookup fell back to franchise games while EXPERIENCE entities are intentionally excluded from that query. Starter child rows also were not guaranteed to exist.
+**Root cause:** parent game related-content lookup fell back to franchise games while EXPERIENCE entities are intentionally excluded from that query. On a brand-new database, migrations also run before the curated game seed, so migration 046 could execute before the Roblox parent existed.
 
-**Fix:** parent hubs prefer child EXPERIENCE entities; migration 046 creates missing starter rows and repairs classification for Blox Fruits, DOORS, Fisch, Work at a Pizza Place and Prison Life.
+**Fix:** parent hubs prefer child EXPERIENCE entities; migration 046 creates/repairs the starter rows for existing databases; and the idempotent recovery is reapplied after the initial seed so first-boot databases also receive Blox Fruits, DOORS, Fisch, Work at a Pizza Place and Prison Life.
 
 ## ADMIN_INFORMATION_ARCHITECTURE
 
