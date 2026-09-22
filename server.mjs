@@ -1,5 +1,5 @@
 import "dotenv/config";
-// Current release metadata: version:"0.99-I6-HF1" · release:"BETA_0_99_I6_HF1_BUILD_RELIABILITY"
+// Current internal release: 0.9915 I1 HF1 · public product remains Beta 0.9915
 // Release lineage compatibility: version:"0.9875" · release:"BETA_0_9875_FULL_PAGE_PERSONALIZATION"
 import express from "express";
 import path from "node:path";
