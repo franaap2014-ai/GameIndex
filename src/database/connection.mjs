@@ -394,10 +394,11 @@ export function migrateDatabase() {
     {version:42,file:"042_beta_0991_i1.sql",name:"beta-0.991-i1-reliability-navigation-diagnostics",toVersion:"0.991-I1"},
     {version:43,file:"043_beta_0991_i1_hf1.sql",name:"beta-0.991-i1-hf1-neon-persistence",toVersion:"0.991-I1-HF1"},
     {version:44,file:"044_beta_0991_i1_hf2.sql",name:"beta-0.991-i1-hf2-creator-animation-editor",toVersion:"0.991-I1-HF2"},
-    {version:45,file:"045_beta_09915_cinematic_update.sql",name:"beta-0.9915-cinematic-update",toVersion:"0.9915"}
+    {version:45,file:"045_beta_09915_cinematic_update.sql",name:"beta-0.9915-cinematic-update",toVersion:"0.9915"},
+    {version:46,file:"046_beta_09915_i1_hf1_full_recovery.sql",name:"beta-0.9915-i1-hf1-full-recovery",toVersion:"0.9915-I1-HF1"}
   ];
 
-  const targetSchema=Math.min(45,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||45)||45));
+  const targetSchema=Math.min(46,Math.max(1,Number(process.env.GAMEINDEX_TARGET_SCHEMA||46)||46));
 
   for (const step of steps) {
     if(step.version>targetSchema)break;
@@ -429,7 +430,7 @@ export function latestBackup() {
   } catch { return null; }
 }
 
-export async function startDurablePersistence({release="BETA_0_9915_CINEMATIC_UPDATE"}={}){
+export async function startDurablePersistence({release="BETA_0_9915_I1_HF1_FULL_RECOVERY"}={}){
   if(!neonRemotePersistenceConfigured())return {enabled:false,provider:"NONE",safety:productionStorageSafety()};
   return startNeonSnapshotRuntime({
     databasePath,
