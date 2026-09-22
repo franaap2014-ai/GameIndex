@@ -59,7 +59,7 @@ try{
 
   const health=await waitFor(`${base}/api/health`,child);
   const h=await health.json();
-  assert.equal(h.status,"ok");
+  assert.equal(h.status,"healthy");
   assert.equal(h.version,"0.9915");
 
   const release=await request(`${base}/api/release/public`);
