@@ -1,0 +1,32 @@
+name: GameIndex 0.9915 HF1 Recovery
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recovery-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.13.1"
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Syntax check
+        run: npm run check
+      - name: HF1 source regression
+        run: npm run test:09915hf1
+      - name: 0.9915 cinematic regression
+        run: npm run test:09915
+      - name: HTTP smoke
+        run: npm run smoke
