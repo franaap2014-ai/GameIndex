@@ -39,9 +39,10 @@ export async function researchGameVault({game,query,entity=null,intent="overview
 
   // Beta 0.99 source policy: Wiki means a game/experience-specific Wiki, NOT Wikipedia.
   // No API key is required by any adapter. All adapters fail closed/gracefully.
+  const diagnostics=[];
   const jobs=[
-    researchGameWiki({query:searchQuery,timeoutMs,limit:4}),
-    researchFandom({query:searchQuery,timeoutMs,limit:4}),
+    researchGameWiki({game,diagnostics,query:searchQuery,timeoutMs,limit:4}),
+    researchFandom({game,diagnostics,query:searchQuery,timeoutMs,limit:4}),
     researchTrello({query:searchQuery,timeoutMs,limit:3}),
     researchYouTube({query:searchQuery,timeoutMs,limit:4})
   ];
@@ -70,5 +71,5 @@ export async function researchGameVault({game,query,entity=null,intent="overview
   const conflicts=detectConflicts(evidence);
   const validation=validateEvidence({evidence,conflicts,intent});
   const sourceFamilies=Object.fromEntries(UNIVERSE_RESEARCH_SOURCE_FAMILIES.map(key=>[key,ranked.filter(doc=>familyFor(doc)===key).length]));
-  return {query:searchQuery,sources:ranked,evidence,conflicts,validation,sourceFamilies,sourcePolicy:"GAME_WIKI_FANDOM_TRELLO_YOUTUBE_NO_API_KEY"};
+  return {query:searchQuery,diagnostics,sources:ranked,evidence,conflicts,validation,sourceFamilies,sourcePolicy:"GAME_WIKI_FANDOM_TRELLO_YOUTUBE_NO_API_KEY"};
 }

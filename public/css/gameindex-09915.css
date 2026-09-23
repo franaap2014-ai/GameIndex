@@ -329,3 +329,10 @@ select option{background:#0b1118;color:#f4f6f8}
   .site-header .header-left-region{gap:6px!important}
 }
 @media(max-width:480px){.site-header .gi-brand-copy,.site-header .gi-i1-logo-copy{display:none!important}}
+
+/* HF3: one brand renderer; inherited masks must not paint over the monogram. */
+.gi-brand-mark::after,.gi-brand-mark b::after{display:none!important;content:none!important}
+.gi-brand-mark b{font:800 15px/1 system-ui,sans-serif!important;letter-spacing:-1px;color:var(--gi-classification-accent)}
+.gi-brand-mark{display:grid!important;place-items:center!important;flex:0 0 34px!important}
+#globalUiLayer [hidden]{display:none!important}
+#giContextCompass{display:none!important}

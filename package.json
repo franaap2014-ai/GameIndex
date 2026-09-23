@@ -37,7 +37,8 @@
     "test:09915hf1": "node tests/beta09915-i1-hf1-full-recovery.mjs",
     "smoke:0991hf1": "node tests/http-smoke-0991-hf1.mjs",
     "smoke:09915hf1": "node tests/http-smoke-09915-i1-hf1.mjs",
-    "test:audit": "node tests/audit-09915-hf2-regression.mjs && node tests/audit-09915-hf2-persistence.mjs"
+    "test:audit": "node tests/audit-09915-hf2-regression.mjs && node tests/audit-09915-hf2-persistence.mjs",
+    "test:hf3": "node tests/hf3-builder-regression.mjs"
   },
   "dependencies": {
     "dotenv": "^17.2.2",

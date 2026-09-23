@@ -35,26 +35,18 @@
     }
   };
 
-  function logoSvg(){
-    return '<span class="gi-i1-logo-mark" aria-hidden="true"><svg viewBox="0 0 44 44" focusable="false"><path class="gi-i1-logo-frame" d="M9 8h18l8 8v20H17l-8-8V8Z"/><path class="gi-i1-logo-index" d="M15 14h12M15 21h16M15 28h10"/><circle class="gi-i1-logo-node" cx="30" cy="28" r="3"/></svg></span>';
-  }
-
   function upgradeBrand(){
-    document.querySelectorAll(".gi-brand-lockup").forEach((link,index)=>{
-      link.classList.add("gi-i1-brand");
-      link.href="/";
-      link.setAttribute("aria-label","Game Index — Home");
-      link.innerHTML=logoSvg()+'<span class="gi-i1-logo-copy"><strong>GAME INDEX</strong><small data-gi-brand-classification hidden></small></span>'+(index===0?'<span class="brand-badge gi-i1-version">BETA 0.991 I1</span>':"");
+    document.querySelectorAll(".gi-brand-lockup").forEach(link=>{
+      if(link.dataset.giHomeBound)return;
+      link.dataset.giHomeBound="1";
       link.addEventListener("click",event=>{
         const home=location.pathname==="/"||/\/index\.html$/i.test(location.pathname);
         if(home){event.preventDefault();scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});return;}
         const dirty=root.dataset.unsaved==="1"||document.body?.dataset?.unsaved==="1"||window.GameIndexUnsaved?.hasChanges?.()===true;
-        const navEvent=new CustomEvent("gameindex:navigate-home-request",{cancelable:true,detail:{source:"brand"}});
-        if(!dispatchEvent(navEvent)){event.preventDefault();return;}
+        if(!dispatchEvent(new CustomEvent("gameindex:navigate-home-request",{cancelable:true,detail:{source:"brand"}}))){event.preventDefault();return;}
         if(dirty&&!confirm("Há alterações não salvas. Sair e voltar para a Home?"))event.preventDefault();
       });
     });
-    window.GV?.applyBrand?.({...window.GV?.auth?.theme,staffRole:window.GV?.auth?.user?.staffRole,plan:window.GV?.auth?.user?.tier});
   }
 
   function context(){
@@ -73,15 +65,8 @@
   }
 
   function upgradeCompass(){
-    const header=document.querySelector(".site-header-inner"),nav=document.querySelector(".header-nav"),search=document.querySelector(".header-search");
-    if(!header||!nav)return;
-    const ctx=context();let compass=document.getElementById("giContextCompass");
-    if(!compass){compass=document.createElement("div");compass.id="giContextCompass";compass.className="gi-i1-context-compass";(search||nav).before(compass);}
-    compass.innerHTML='<span>'+GV.safe(ctx.area)+'</span>'+(ctx.sub?'<i>/</i><strong>'+GV.safe(ctx.sub)+'</strong>':"");
-    const sound=nav.querySelector("#gameIndexSoundToggle"),profile=nav.querySelector("#topProfileLink");
-    sound?.remove();profile?.remove();
-    nav.innerHTML=ctx.actions.slice(0,4).map(([href,label])=>'<a class="nav-link gi-i1-context-action '+(location.pathname===href?"active":"")+'" href="'+href+'">'+label+'</a>').join("");
-    if(sound)nav.appendChild(sound);if(profile)nav.appendChild(profile);
+    // The shell owns navigation. Do not replace its controls after binding.
+    document.getElementById("giContextCompass")?.remove();
   }
 
   function updateReportLink(){document.querySelectorAll('a[href^="/report-bug.html"]').forEach(a=>{if(location.pathname!=="/report-bug.html")a.href="/report-bug.html?from="+encodeURIComponent(location.pathname);});}

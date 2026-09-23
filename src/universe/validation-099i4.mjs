@@ -31,11 +31,11 @@ export function evaluateBuilderValidationI4(entityGameId,{revisionId=null,langua
     STRUCTURE_STATUS:base.domains?.STRUCTURE_STATUS||"NOT_STARTED",
     RESEARCH_STATUS:base.domains?.RESEARCH_STATUS||"NOT_STARTED",
     CONTENT_STATUS:base.domains?.CONTENT_STATUS||"NOT_STARTED",
-    IMAGES_STATUS:!variables.length?"FAILED":unresolvedRequired.length?"PARTIAL":"READY",
+    IMAGES_STATUS:!Number(base.content?.pages)?"NOT_STARTED":!variables.length?"FAILED":unresolvedRequired.length?"PARTIAL":"READY",
     MEDIA_STATUS:base.domains?.MEDIA_STATUS||"NOT_STARTED",
     VISUAL_GROUNDING_STATUS:visualScore>=richMinimum&&!unresolvedRequired.length?"VALIDATED":base.visual?.status||"INCOMPLETE",
     INTERACTION_STATUS:base.domains?.INTERACTION_STATUS||"NOT_STARTED",
-    PREVIEW_STATUS:!preview?"NOT_STARTED":preview.status,
+    PREVIEW_STATUS:!Number(base.content?.pages)?"NOT_STARTED":!preview?"NOT_STARTED":preview.status,
     PERFORMANCE_STATUS:base.domains?.PERFORMANCE_STATUS||"READY",
     PUBLICATION_STATUS:"READY"
   };
