@@ -1,3 +1,11 @@
+# Atualização vigente: 0.9915 I2
+
+Mobile, continuidade de música, boas-vindas por sessão e retomada do Universe Builder. Release interna `BETA_0_9915_I2_MOBILE`, versão pública 0.9915 e schema 47 mantidos. Aplique o UPDATE ONLY sobre **0.9915 I1 HF3**.
+
+Leia `UPDATE_ONLY_README_0.9915_I2.md` e `BUG_FIX_REPORT_0.9915_I2.md`. Estas instruções prevalecem sobre o histórico abaixo. Validação adicional: `npm run test:i2`. Não há alteração manual no Neon.
+
+---
+
 # Atualização vigente: 0.9915 I1 HF3
 
 Correção de navegação e recuperação do Universe Builder após o HF2. Schema 47 mantido. A release interna vigente é `BETA_0_9915_I1_HF3_BUILDER`. Consulte `UPDATE_ONLY_README_0.9915_I1_HF3.md` e `BUG_FIX_REPORT_0.9915_I1_HF3.md`; estas instruções prevalecem sobre identificadores do histórico abaixo. Execute também `npm run test:hf3`.

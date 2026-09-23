@@ -1,0 +1,104 @@
+{
+  "release": "BETA_0_9915_I2_MOBILE",
+  "base": "0.9915 I1 HF3",
+  "github_base": "8c622feb3edc36410d3074232425f8b52026d7b5",
+  "schema": 47,
+  "delete": [],
+  "files": [
+    {
+      "path": "BUG_FIX_REPORT_0.9915_I2.md",
+      "change": "new",
+      "sha256": "61bcb6a4e978db7c0e0ac4cec2d13030b0cebdd641f40b1c8fab627c4ea4f189"
+    },
+    {
+      "path": "README.md",
+      "change": "modified",
+      "sha256": "3c585930e3e15162b65f76c8379c38c54f8542469057a8835cd8a0911c3a49b1"
+    },
+    {
+      "path": "UPDATE_ONLY_README_0.9915_I2.md",
+      "change": "new",
+      "sha256": "a393470512ede00643704b6eeab47969cdbab78d34f0e63fe4f69b431e1d379a"
+    },
+    {
+      "path": "package.json",
+      "change": "modified",
+      "sha256": "cb0c89934e558cd85c43da23b66c5c83ab0c4080bcf13773e15e28f6313c906d"
+    },
+    {
+      "path": "public/css/cinematic-0991-hf1.css",
+      "change": "modified",
+      "sha256": "6a659954e7f93e2d350a15600230d981ee4d99ad02a7f95df5fea08d91a179bd"
+    },
+    {
+      "path": "public/css/gameindex-mobile-i2.css",
+      "change": "new",
+      "sha256": "4059dc452d334e3a53c6882488a11daa46e2ff790495a974b8aa262811f580ff"
+    },
+    {
+      "path": "public/js/cinematic-0991-hf1.js",
+      "change": "modified",
+      "sha256": "891f4b12ccb8b8dc51b05ff4f82215374aa5bf7c8b3021073d6735ba05e3db39"
+    },
+    {
+      "path": "public/js/mobile-i2.js",
+      "change": "new",
+      "sha256": "a89f446a8cd419653e905cde77edb57f2bcec12975f3da1f3cf1ab899d81416a"
+    },
+    {
+      "path": "public/js/shell-0986.js",
+      "change": "modified",
+      "sha256": "c88e4043acaaed3b8326ea74a50cd876c713563acb92e97318285fd55f5cf612"
+    },
+    {
+      "path": "public/js/universe-builder.js",
+      "change": "modified",
+      "sha256": "6ca7e32f8bf709686073060c46d90a4b4e31802ad3f150dfb7556b538b899c86"
+    },
+    {
+      "path": "server.mjs",
+      "change": "modified",
+      "sha256": "4210faf17ef04dda1126ef1340286693959758c4cc6e1e97b3bdcfdbd6706d1f"
+    },
+    {
+      "path": "src/api/beta0991-hf1-routes.mjs",
+      "change": "modified",
+      "sha256": "7a9d421be5b13b80a5969a4c675a198be972540e377b2697435c043ef3272ae5"
+    },
+    {
+      "path": "src/config/release-099i6.mjs",
+      "change": "modified",
+      "sha256": "5921306059ee6b79a203752e71bd55052c5fc041a340089e0c2869ac48ebbdc4"
+    },
+    {
+      "path": "src/database/connection.mjs",
+      "change": "modified",
+      "sha256": "455c621391ce19123571a2b2b5d3069e3267a23e6befdeb8cdd466b8b618fa28"
+    },
+    {
+      "path": "src/identity/cinematic-service.mjs",
+      "change": "modified",
+      "sha256": "6d9504dbf74c3a3e8b6129f6f78c412b6475fee47ff0fe2639d4b2f8cfd3edcd"
+    },
+    {
+      "path": "src/universe/universe-builder-099.mjs",
+      "change": "modified",
+      "sha256": "f1b3cc786e191902349c8d662052c637bf018715be030f37f4f16fb77ee7ea6a"
+    },
+    {
+      "path": "tests/beta09915-cinematic-update.mjs",
+      "change": "modified",
+      "sha256": "a7f7fb776d2bece75be219ad366beec08bdc34454f672cf2865d39a76d3045ae"
+    },
+    {
+      "path": "tests/beta09915-i1-hf1-full-recovery.mjs",
+      "change": "modified",
+      "sha256": "f471c4100481f6774cd95995db561a61274ab664799f0d31109a4c7a49b69a95"
+    },
+    {
+      "path": "tests/i2-mobile-session-regression.mjs",
+      "change": "new",
+      "sha256": "f739951a91d0a7ad1b157e2a062dfd58d4788bcb05ac40402f0b297d73f80f18"
+    }
+  ]
+}

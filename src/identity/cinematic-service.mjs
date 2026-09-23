@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { ensureProfile } from "../database/repositories/profile-repository.mjs";
 import { accessSnapshotForUser } from "../access/capability-service.mjs";
 import { cinematicEvent, completeCinematicEvent, ensureCinematicEvent, startCinematicEvent } from "../database/repositories/cinematic-event-repository.mjs";
 import { getPreference, setPreference } from "../database/repositories/user-repository.mjs";
@@ -24,10 +26,13 @@ export function resolvePrimaryIdentity(userId){
 function clientEvent(def,state){return {eventKey:def.eventKey,eventType:def.eventType,identity:def.identity,version:def.version,titleKey:def.titleKey,fallbackTitle:def.fallbackTitle,color:def.color,theme:def.theme||null,status:state?.status||"ELIGIBLE"};}
 function recentlyStarted(state){if(!state||state.status!=="STARTED"||!state.updatedAt)return false;return Date.now()-Date.parse(state.updatedAt)<90_000;}
 
-export function cinematicQueueForUser(userId){
+function welcomeDefinition(sessionKey){return sessionKey?{...CINEMATIC_EVENTS.WELCOME,eventKey:"welcome_session_"+createHash("sha256").update(String(sessionKey)).digest("hex").slice(0,24)}:CINEMATIC_EVENTS.WELCOME;}
+
+export function cinematicQueueForUser(userId,{sessionKey=null}={}){
   const user=String(userId),identity=resolvePrimaryIdentity(user),queue=[];
-  const welcome=ensureCinematicEvent(user,{...CINEMATIC_EVENTS.WELCOME,metadata:{release:"0.991-I1"}});
-  if(welcome.status!=="COMPLETED"&&welcome.status!=="SKIPPED"&&!recentlyStarted(welcome))queue.push(clientEvent(CINEMATIC_EVENTS.WELCOME,welcome));
+  const welcomeDef=welcomeDefinition(sessionKey),username=ensureProfile(user)?.username||"";
+  const welcome=ensureCinematicEvent(user,{...welcomeDef,metadata:{release:"0.9915-I2"}});
+  if(welcome.status!=="COMPLETED"&&welcome.status!=="SKIPPED"&&!recentlyStarted(welcome))queue.push({...clientEvent(welcomeDef,welcome),username});
   if(identity!=="FREE"){
     const def=CINEMATIC_EVENTS[identity],state=ensureCinematicEvent(user,{...def,metadata:{identity,release:"0.991-I1"}});
     if(state.status!=="COMPLETED"&&state.status!=="SKIPPED"&&!recentlyStarted(state))queue.push(clientEvent(def,state));
@@ -35,14 +40,14 @@ export function cinematicQueueForUser(userId){
   return {identity,queue,theme:themePublicState(user,getPreference(user).theme)};
 }
 
-export function startAccountCinematic(userId,eventKey){
-  const queue=cinematicQueueForUser(userId),allowed=[CINEMATIC_EVENTS.WELCOME,...Object.values(CINEMATIC_EVENTS).filter(x=>x.identity===queue.identity)].find(x=>x.eventKey===eventKey);
+export function startAccountCinematic(userId,eventKey,{sessionKey=null}={}){
+  const queue=cinematicQueueForUser(userId,{sessionKey}),allowed=[welcomeDefinition(sessionKey),...Object.values(CINEMATIC_EVENTS).filter(x=>x.identity===queue.identity)].find(x=>x.eventKey===eventKey);
   if(!allowed)throw Object.assign(new Error("CINEMATIC_NOT_ELIGIBLE"),{code:"CINEMATIC_NOT_ELIGIBLE"});
   const state=startCinematicEvent(userId,eventKey);if(!state)throw Object.assign(new Error("CINEMATIC_EVENT_NOT_FOUND"),{code:"CINEMATIC_EVENT_NOT_FOUND"});return clientEvent(allowed,state);
 }
 
-export function completeAccountCinematic(userId,eventKey){
-  const def=Object.values(CINEMATIC_EVENTS).find(x=>x.eventKey===String(eventKey));if(!def)throw Object.assign(new Error("CINEMATIC_EVENT_UNKNOWN"),{code:"CINEMATIC_EVENT_UNKNOWN"});
+export function completeAccountCinematic(userId,eventKey,{sessionKey=null}={}){
+  const def=[welcomeDefinition(sessionKey),...Object.values(CINEMATIC_EVENTS).filter(x=>x.eventType!=="WELCOME")].find(x=>x.eventKey===String(eventKey));if(!def)throw Object.assign(new Error("CINEMATIC_EVENT_UNKNOWN"),{code:"CINEMATIC_EVENT_UNKNOWN"});
   const current=cinematicEvent(userId,eventKey);if(!current)throw Object.assign(new Error("CINEMATIC_EVENT_NOT_FOUND"),{code:"CINEMATIC_EVENT_NOT_FOUND"});
   const primary=resolvePrimaryIdentity(userId);
   if(def.eventType==="IDENTITY"&&def.identity!==primary)throw Object.assign(new Error("CINEMATIC_IDENTITY_CHANGED"),{code:"CINEMATIC_IDENTITY_CHANGED"});

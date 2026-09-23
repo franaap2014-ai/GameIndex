@@ -6,8 +6,8 @@ function includes(path,text){assert.ok(read(path).includes(text),`${path} missin
 
 const release=read("src/config/release-099i6.mjs");
 assert.match(release,/PUBLIC_VERSION="0\.9915"/);
-assert.match(release,/INTERNAL_RELEASE="0\.9915 I1 HF3"/);
-assert.match(release,/INTERNAL_RELEASE_CODE="BETA_0_9915_I1_HF3_BUILDER"/);
+assert.match(release,/INTERNAL_RELEASE="0\.9915 I2"/);
+assert.match(release,/INTERNAL_RELEASE_CODE="BETA_0_9915_I2_MOBILE"/);
 assert.match(release,/TARGET_SCHEMA=47/);
 
 includes("src/database/repositories/favorite-game-repository.mjs","function favoriteTableReady()");
@@ -37,4 +37,4 @@ const shell=read("public/js/shell-0986.js");
 for(const group of ["OVERVIEW","CONTENT & GAMES","CINEMATICS","SYSTEM & DIAGNOSTICS"]) assert.ok(shell.includes(group),`Admin group missing: ${group}`);
 assert.ok(shell.includes("/css/gameindex-09915.css?v=09915hf3"));
 
-console.log("Beta 0.9915 I1 HF3 recovery source regression checks passed.");
+console.log("Beta 0.9915 I2 recovery source regression checks passed.");

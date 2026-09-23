@@ -13,7 +13,7 @@
     const loaded=[...document.styleSheets].some(sheet=>String(sheet.href||"").includes("/css/cinematic-0991-hf1.css"));
     if(loaded||document.querySelector('link[data-gi-cinematic-style]'))return;
     const link=document.createElement("link");
-    link.rel="stylesheet";link.href="/css/cinematic-0991-hf1.css?v=0991i1";link.dataset.giCinematicStyle="1";
+    link.rel="stylesheet";link.href="/css/cinematic-0991-hf1.css?v=09915i2";link.dataset.giCinematicStyle="1";
     document.head.appendChild(link);
   }
 
@@ -37,7 +37,7 @@
     el.dataset.preview=preview?"1":"0";
     el.setAttribute("role","presentation");
     el.setAttribute("aria-hidden","true");
-    el.innerHTML='<div class="gi-cinematic-dark"></div><div class="gi-cinematic-stage"><div class="gi-cinematic-details">'+detailMarkup()+'</div><h1 class="gi-cinematic-title">'+GV.safe(translatedTitle(event))+'</h1><small class="gi-cinematic-status">GAME INDEX · '+GV.safe(event.identity||"WELCOME")+'</small></div>';
+    el.innerHTML='<div class="gi-cinematic-dark"></div><div class="gi-cinematic-stage"><div class="gi-cinematic-details">'+detailMarkup()+'</div><div class="gi-cinematic-greeting"><h1 class="gi-cinematic-title">'+GV.safe(translatedTitle(event))+'</h1>'+(event.eventType==='WELCOME'&&event.username?'<p class="gi-cinematic-username">@'+GV.safe(event.username)+'</p>':'')+'</div><small class="gi-cinematic-status">GAME INDEX · '+GV.safe(event.identity||"WELCOME")+'</small></div>';
     return el;
   }
 

@@ -2,6 +2,8 @@
   if(!document.querySelector('link[data-gi09915-polish]')){
     const link=document.createElement("link");link.rel="stylesheet";link.href="/css/gameindex-09915.css?v=09915hf3";link.dataset.gi09915Polish="1";document.head.appendChild(link);
   }
+  const mobileStyle=document.createElement('link');mobileStyle.rel='stylesheet';mobileStyle.href='/css/gameindex-mobile-i2.css?v=09915i2';document.head.appendChild(mobileStyle);
+  const mobileScript=document.createElement('script');mobileScript.src='/js/mobile-i2.js?v=09915i2';mobileScript.defer=true;document.head.appendChild(mobileScript);
 })();
 const GV={
   lang:localStorage.getItem("gv_lang")||"pt-BR",translations:{},auth:null,
@@ -93,7 +95,7 @@ initShell();
     if(child)return{type:'game',slug:child.toLowerCase(),parent:'roblox'};
     if(/^\/game\/roblox\/?$/i.test(location.pathname))return{type:'game',slug:'roblox'};
     if(location.pathname==='/'||/\/index(?:\.html)?$/.test(location.pathname))return{type:'home'};
-    return null;
+    return {type:'home'};
   }
   function contextKey(c){return c?.type==='game'?`game:${c.slug}`:c?.type==='home'?'home':'';}
   function selectedRobloxVariant(){const raw=localStorage.getItem(robloxExperienceKey);return raw==='roblox-og'?'roblox-og':'main';}
@@ -140,13 +142,15 @@ initShell();
     if(!player)return;
     try{player.setVolume(effectiveVolume());player.setLoop?.(true);isMuted()?player.mute():player.unMute();if(play&&isEnabled())player.playVideo();}catch{}
   }
+  function savePlayback(){try{if(player&&activeVideoId&&!current()?.preview)sessionStorage.setItem('gi_audio_resume',JSON.stringify({videoId:activeVideoId,time:Math.max(0,Number(player.getCurrentTime())||0),at:Date.now()}));}catch{}}
+  function resumeTime(id){try{const r=JSON.parse(sessionStorage.getItem('gi_audio_resume')||'null');return r?.videoId===id&&Date.now()-r.at<28800000&&Number.isFinite(r.time)?Math.max(0,r.time):0;}catch{return 0;}}
   function loadActiveTrack({play=true}={}){
     if(!player||!activeVideoId)return false;
     try{
       // Keep the same iframe, but replace its one-item playlist so YouTube's native
       // loop fallback follows the currently selected Game Index music context.
-      if(play&&isEnabled()&&typeof player.loadPlaylist==='function')player.loadPlaylist([activeVideoId],0,0);
-      else if(typeof player.cuePlaylist==='function')player.cuePlaylist([activeVideoId],0,0);
+      if(play&&isEnabled()&&typeof player.loadPlaylist==='function')player.loadPlaylist([activeVideoId],0,resumeTime(activeVideoId));
+      else if(typeof player.cuePlaylist==='function')player.cuePlaylist([activeVideoId],0,resumeTime(activeVideoId));
       else player.loadVideoById(activeVideoId);
       player.setLoop?.(true);syncPlayer({play});return true;
     }catch{try{player.loadVideoById(activeVideoId);syncPlayer({play});return true;}catch{return false;}}
@@ -179,7 +183,7 @@ initShell();
     playerPromise=(async()=>{
       const YT=await loadIframeApi();
       const initialId=activeVideoId;
-      player=new YT.Player(node,{width:'240',height:'135',videoId:initialId,playerVars:{autoplay:play&&isEnabled()?1:0,playsinline:1,controls:1,loop:1,playlist:initialId,rel:0,origin:location.origin},events:{onReady:()=>{playerInstances=1;try{player.setLoop?.(true);}catch{}syncPlayer({play});setTimeout(()=>syncPlayer({play}),250);render();},onStateChange:onPlayerState,onError:onPlayerError}});
+      player=new YT.Player(node,{width:'240',height:'135',videoId:initialId,playerVars:{start:Math.floor(resumeTime(initialId)),autoplay:play&&isEnabled()?1:0,playsinline:1,controls:1,loop:1,playlist:initialId,rel:0,origin:location.origin},events:{onReady:()=>{playerInstances=1;try{player.setLoop?.(true);}catch{}syncPlayer({play});setTimeout(()=>syncPlayer({play}),250);render();},onStateChange:onPlayerState,onError:onPlayerError,onAutoplayBlocked:()=>{musicState="BLOCKED_BY_AUTOPLAY";render();}}});
       return player;
     })().catch(error=>{lastError='UNAVAILABLE';musicState='UNAVAILABLE';console.warn('[GameIndex Music]',error?.message||error);return null;}).finally(()=>{playerPromise=null;});
     await playerPromise;render();return Boolean(player);
@@ -207,11 +211,13 @@ initShell();
   }
   function setVolume(value){const raw=Number(value),v=Math.max(0,Math.min(100,Math.round(Number.isFinite(raw)?raw:30)));localStorage.setItem(volumeKey,String(v));try{player?.setVolume(v);}catch{}if(v===0){localStorage.setItem(mutedKey,'1');localStorage.setItem(zeroMuteKey,'1');try{player?.mute();}catch{}}else if(localStorage.getItem(zeroMuteKey)==='1'){localStorage.removeItem(zeroMuteKey);localStorage.setItem(mutedKey,'0');sessionStorage.setItem(enabledKey,'1');try{player?.unMute();player?.playVideo();}catch{}}render();return v;}
   function toggleMute(){const next=!isMuted();localStorage.removeItem(zeroMuteKey);localStorage.setItem(mutedKey,next?'1':'0');if(next){try{player?.mute();}catch{}}else{sessionStorage.setItem(enabledKey,'1');if(current()?.youtubeVideoId&&!player)ensurePlayer(current().youtubeVideoId,{play:true});try{player?.unMute();player?.setVolume(effectiveVolume());player?.playVideo();}catch{}}render();}
-  function togglePlay(){sessionStorage.setItem(enabledKey,'1');localStorage.setItem(mutedKey,'0');localStorage.removeItem(zeroMuteKey);lastError='';const profile=current();if(!profile?.youtubeVideoId){musicState='IDLE';render();return false;}if(!player){ensurePlayer(profile.youtubeVideoId,{play:true});return true;}if(playerState===1){try{player.pauseVideo();}catch{}playerState=2;musicState='PAUSED';}else{try{player.unMute();player.setVolume(effectiveVolume());player.playVideo();}catch{}musicState='READY';}render();return true;}
+  function togglePlay(){sessionStorage.setItem(enabledKey,'1');localStorage.setItem(mutedKey,'0');localStorage.removeItem(zeroMuteKey);lastError='';const profile=current();if(!profile?.youtubeVideoId){musicState='IDLE';render();return false;}if(!player){ensurePlayer(profile.youtubeVideoId,{play:true});return true;}if(playerState===1){sessionStorage.setItem(enabledKey,'0');savePlayback();try{player.pauseVideo();}catch{}playerState=2;musicState='PAUSED';}else{try{player.unMute();player.setVolume(effectiveVolume());player.playVideo();}catch{}musicState='READY';}render();return true;}
   function preview(videoId,defaultVolume=30){resolvedProfile={youtubeVideoId:String(videoId),defaultVolume:Number.isFinite(Number(defaultVolume))?Number(defaultVolume):30,preview:true,label:'Preview'};activeVariant='main';sessionStorage.setItem(enabledKey,'1');localStorage.setItem(mutedKey,'0');localStorage.removeItem(zeroMuteKey);popoverOpen=true;ensurePlayer(resolvedProfile.youtubeVideoId,{play:true});render();return true;}
   function mountGameControls(host){if(!host)return;host.innerHTML=`<div class="game-music-control"><button type="button" data-game-music="open">♫ Música</button><div class="game-music-current" data-game-music-label>${GV.safe(trackLabel())}</div></div>`;host.addEventListener('click',e=>{if(e.target.closest('[data-game-music="open"]')){popoverOpen=true;render();}});const sync=()=>{const label=host.querySelector('[data-game-music-label]');if(label)label.textContent=trackLabel();};addEventListener('gameindex:music-state',sync);sync();}
   function bind(){
     setContext(contextFromLocation());
+    addEventListener('pagehide',savePlayback);
+    setInterval(()=>{if(playerState===1)savePlayback();},5000);
     button()?.addEventListener('click',()=>{popoverOpen=!popoverOpen;render();});
     document.getElementById('giMusicClose')?.addEventListener('click',()=>{popoverOpen=false;render();});
     document.getElementById('giMusicMute')?.addEventListener('click',toggleMute);
