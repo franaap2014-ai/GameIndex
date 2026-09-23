@@ -43,12 +43,13 @@ export function favoriteGameCount(userId){
 }
 export function listFavoriteGames(userId,{limit=20,offset=0}={}){
   if(!favoriteTableReady())return [];
-  const n=Math.max(1,Math.min(100,Number(limit)||20)),o=Math.max(0,Number(offset)||0);
+  const n=Math.trunc(Math.max(1,Math.min(100,Number(limit)||20))),o=Math.trunc(Math.max(0,Math.min(100000,Number(offset)||0)));
   return db.prepare(`SELECT g.*,f.created_at,f.sort_order FROM user_favorite_games f JOIN games g ON g.id=f.game_id WHERE f.user_id=? AND g.status='PUBLISHED' ORDER BY f.sort_order ASC,f.created_at DESC LIMIT ? OFFSET ?`).all(String(userId),n,o).map(mapGame);
 }
 export function reorderFavoriteGames(userId,gameIds=[]){
   requireFavoriteTable();
-  const ids=[...new Set((gameIds||[]).map(String))].slice(0,100);
+  if(!Array.isArray(gameIds))throw Object.assign(new Error("Envie uma lista de jogos."),{status:422,code:"FAVORITES_LIST_INVALID"});
+  const ids=[...new Set(gameIds.map(String))].slice(0,100);
   const stmt=db.prepare(`UPDATE user_favorite_games SET sort_order=? WHERE user_id=? AND game_id=?`);
   ids.forEach((id,index)=>stmt.run(index,String(userId),id));
   return listFavoriteGames(userId,{limit:100});

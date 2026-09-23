@@ -11,6 +11,8 @@ const WATCH_INTERVAL_MS=Math.max(1000,Math.min(30000,Number(process.env.GAMEINDE
 
 let schemaReady=false;
 let activeUpload=null;
+let uploadRequested=false;
+let pendingUploadOptions={};
 let scheduledTimer=null;
 let watcherTimer=null;
 let runtimeConfig=null;
@@ -44,6 +46,7 @@ async function neonHttpQuery(query,params=[]){
   const endpoint=`https://${url.hostname}/sql`;
   const response=await fetch(endpoint,{
     method:"POST",
+    signal:AbortSignal.timeout(15000),
     headers:{
       "content-type":"application/json",
       "Neon-Connection-String":connectionString,
@@ -108,7 +111,7 @@ export async function restoreLatestNeonSnapshot({databasePath,verifyDatabase}={}
     const row=meta.rows[0];
     if(!row){state.reason="REMOTE_EMPTY";return state;}
     const chunkCount=toInt(row.chunk_count);
-    if(chunkCount<1||toInt(row.size_bytes)<1)throw new Error("REMOTE_SNAPSHOT_METADATA_INVALID");
+    if(chunkCount<1||toInt(row.size_bytes)<1||toInt(row.size_bytes)>MAX_SNAPSHOT_BYTES||chunkCount>Math.ceil(MAX_SNAPSHOT_BYTES/(64*1024)))throw new Error("REMOTE_SNAPSHOT_METADATA_INVALID");
     const chunks=await neonHttpQuery(`SELECT chunk_index,payload_base64
       FROM gameindex_runtime_snapshot_chunks
       WHERE snapshot_id=$1
@@ -128,7 +131,10 @@ export async function restoreLatestNeonSnapshot({databasePath,verifyDatabase}={}
     writeFileSync(temp,buffer,{flag:"wx"});
     const validation=verifyDatabase(temp);
     if(!validation?.ok){rmSync(temp,{force:true});throw new Error(`REMOTE_SNAPSHOT_SQLITE_INVALID:${validation?.reason||validation?.integrity||"UNKNOWN"}`);}
-    renameSync(temp,databasePath);
+    try{
+      for(const suffix of ["-wal","-shm"])rmSync(databasePath+suffix,{force:true});
+      renameSync(temp,databasePath);
+    }finally{rmSync(temp,{force:true});}
     lastUploadedSha=String(row.sha256||"");
     latestSnapshotId=String(row.snapshot_id||"");
     lastRestoreAt=new Date().toISOString();
@@ -179,7 +185,8 @@ async function performUpload({force=false,reason="runtime"}={}){
   const {databasePath,getSchemaVersion,release,checkpoint,verifyDatabase}=runtimeConfig;
   if(!existsSync(databasePath))return {ok:false,skipped:true,reason:"LOCAL_DATABASE_MISSING"};
   try{
-    try{checkpoint?.();}catch{}
+    checkpoint?.();
+    const capturedSignature=currentFileSignature(databasePath);
     const validation=verifyDatabase?.(databasePath);
     if(validation&&!validation.ok)throw new Error(`LOCAL_SQLITE_INVALID:${validation.reason||validation.integrity||"UNKNOWN"}`);
     const buffer=readFileSync(databasePath);
@@ -201,7 +208,7 @@ async function performUpload({force=false,reason="runtime"}={}){
     await neonHttpQuery(`UPDATE gameindex_runtime_snapshots SET complete=TRUE,completed_at=NOW() WHERE snapshot_id=$1`,[snapshotId]);
     lastUploadedSha=sha;latestSnapshotId=snapshotId;lastSyncAt=new Date().toISOString();lastError="";
     await pruneRemoteSnapshots();await countRemoteSnapshots();
-    lastObservedSignature=currentFileSignature(databasePath);
+    lastObservedSignature=capturedSignature;
     return {ok:true,snapshotId,sha256:sha,sizeBytes:buffer.length,chunks:chunks.length,reason};
   }catch(error){
     lastError=safeMessage(error);return {ok:false,error:lastError,reason};
@@ -217,8 +224,26 @@ export function markNeonSnapshotDirty({critical=false,reason="database-write"}={
 }
 
 export async function flushNeonSnapshot(options={}){
+  uploadRequested=true;
+  pendingUploadOptions={...options,force:Boolean(options.force||pendingUploadOptions.force)};
   if(activeUpload)return activeUpload;
-  activeUpload=performUpload(options).finally(()=>{activeUpload=null;});
+  activeUpload=(async()=>{
+    let result;
+    do{
+      uploadRequested=false;
+      const next=pendingUploadOptions;pendingUploadOptions={};
+      result=await performUpload(next);
+      if(!result.ok){
+        if(!stopping){
+          if(scheduledTimer)clearTimeout(scheduledTimer);
+          scheduledTimer=setTimeout(()=>{scheduledTimer=null;void flushNeonSnapshot({reason:"retry-after-failure"});},WATCH_INTERVAL_MS);
+          scheduledTimer.unref?.();
+        }
+        break;
+      }
+    }while(uploadRequested);
+    return result;
+  })().finally(()=>{activeUpload=null;});
   return activeUpload;
 }
 
@@ -244,9 +269,10 @@ export async function startNeonSnapshotRuntime(config={}){
 async function gracefulFlush(signal){
   if(stopping)return;stopping=true;
   if(scheduledTimer){clearTimeout(scheduledTimer);scheduledTimer=null;}
-  const timeout=setTimeout(()=>process.exit(0),8000);timeout.unref?.();
-  try{await flushNeonSnapshot({force:true,reason:`shutdown-${signal}`});}catch{}
-  clearTimeout(timeout);process.exit(0);
+  const timeout=setTimeout(()=>process.exit(1),25000);timeout.unref?.();
+  let exitCode=0;
+  try{const result=await flushNeonSnapshot({force:true,reason:`shutdown-${signal}`});if(result?.error)exitCode=1;}catch{exitCode=1;}
+  clearTimeout(timeout);process.exit(exitCode);
 }
 process.once("SIGTERM",()=>{void gracefulFlush("SIGTERM");});
 process.once("SIGINT",()=>{void gracefulFlush("SIGINT");});

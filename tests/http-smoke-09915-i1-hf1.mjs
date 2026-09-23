@@ -39,11 +39,12 @@ try{
     cwd:root,
     env:{
       ...process.env,
+      DATABASE_URL:"",GAMEINDEX_DATABASE_URL:"",RENDER:"",RENDER_SERVICE_ID:"",RENDER_EXTERNAL_HOSTNAME:"",
       PORT:String(port),
       NODE_ENV:"production",
       PERFORMANCE_MODE:"true",
       GAMEINDEX_DB:dbPath,
-      GAMEINDEX_TARGET_SCHEMA:"46",
+      GAMEINDEX_TARGET_SCHEMA:"47",
       GAMEINDEX_BACKGROUND_WORKERS:"false",
       GAMEINDEX_IMAGE_REPAIR_WORKER:"false",
       GAMEINDEX_STARTUP_VISUAL_SCAN:"false",
@@ -86,7 +87,7 @@ try{
   console.log(JSON.stringify({
     ok:true,
     publicVersion:"0.9915",
-    schema:46,
+    schema:47,
     health:true,
     release:true,
     profileProtected:true,

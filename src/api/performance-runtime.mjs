@@ -10,8 +10,8 @@ export function installPerformanceMiddleware(app){
   app.use((req,res,next)=>{
     res.setHeader("X-GameIndex-Performance-Mode",PERFORMANCE_MODE?"1":"0");
     if(req.method!=="GET"&&req.method!=="HEAD")return next();
-    const accepted=String(req.headers["accept-encoding"]||"");
-    if(!accepted.includes("br")&&!accepted.includes("gzip"))return next();
+    const accepted=req.acceptsEncodings("br","gzip");
+    if(!accepted)return next();
     const originalSend=res.send.bind(res);
     res.send=function compressedSend(body){
       if(res.getHeader("Content-Encoding")||res.statusCode===204||res.statusCode===304)return originalSend(body);
@@ -22,11 +22,11 @@ export function installPerformanceMiddleware(app){
       const done=encoding=>(error,compressed)=>{
         if(error)return originalSend(body);
         res.setHeader("Content-Encoding",encoding);
-        res.setHeader("Vary","Accept-Encoding");
+        res.vary("Accept-Encoding");
         res.removeHeader("Content-Length");
         return originalSend(compressed);
       };
-      if(accepted.includes("br")){brotliCompress(source,done("br"));return res;}
+      if(accepted==="br"){brotliCompress(source,done("br"));return res;}
       gzip(source,done("gzip"));return res;
     };
     next();

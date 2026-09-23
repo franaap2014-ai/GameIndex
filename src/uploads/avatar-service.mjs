@@ -1,7 +1,7 @@
-import { existsSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, unlinkSync, writeFileSync, readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import path from "node:path";
-import { avatarsDir } from "../database/connection.mjs";
+import { avatarsDir, db, nowIso } from "../database/connection.mjs";
 
 const MAX=2*1024*1024;
 const MAX_DIMENSION=4096;
@@ -30,7 +30,7 @@ function webpDimensions(buffer){
   const kind=buffer.toString("ascii",12,16);
   if(kind==="VP8X"&&buffer.length>=30){return {width:1+buffer.readUIntLE(24,3),height:1+buffer.readUIntLE(27,3)};}
   if(kind==="VP8 "&&buffer.length>=30){return {width:buffer.readUInt16LE(26)&0x3fff,height:buffer.readUInt16LE(28)&0x3fff};}
-  if(kind==="VP8L"&&buffer.length>=25){const b0=buffer[21],b1=buffer[22],b2=buffer[23],b3=buffer[24];return {width:1+(((b2&0x3f)<<8)|b1),height:1+((b3<<6)|((b2&0xc0)>>6)|((b0&0x0f)<<10))};}
+  if(kind==="VP8L"&&buffer.length>=25&&buffer[20]===0x2f){const b0=buffer[21],b1=buffer[22],b2=buffer[23],b3=buffer[24];return {width:1+(b0|((b1&0x3f)<<8)),height:1+((b1>>6)|(b2<<2)|((b3&0x0f)<<10))};}
   return {width:0,height:0};
 }
 function validateDimensions(dim){
@@ -50,7 +50,7 @@ function avatarFilenameFromUrl(url=""){
 export function deleteAvatarByUrl(url=""){
   const name=avatarFilenameFromUrl(url);if(!name)return false;
   const file=path.join(avatarsDir,name);
-  try{if(existsSync(file))unlinkSync(file);return true;}catch{return false;}
+  try{db.prepare(`DELETE FROM uploaded_avatar_assets WHERE filename=?`).run(name);if(existsSync(file))unlinkSync(file);return true;}catch{return false;}
 }
 export function saveAvatarDataUrl(dataUrl){
   const match=String(dataUrl||"").match(/^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/);
@@ -63,5 +63,26 @@ export function saveAvatarDataUrl(dataUrl){
   const dimensions=validateDimensions(meta.dimensions(buffer));
   const name=`${randomUUID()}.${meta.ext}`;
   writeFileSync(path.join(avatarsDir,name),buffer,{mode:0o644,flag:"wx"});
+  try{db.prepare(`INSERT INTO uploaded_avatar_assets(filename,mime_type,payload,created_at) VALUES(?,?,?,?)`).run(name,type,buffer,nowIso());}catch(error){unlinkSync(path.join(avatarsDir,name));throw error;}
   return {url:`/user-content/avatars/${name}`,mimeType:type,sizeBytes:buffer.length,...dimensions};
+}
+
+export function readDurableAvatar(filename){
+  if(!/^[a-f0-9-]+\.(?:png|jpg|webp)$/i.test(String(filename)))return null;
+  const row=db.prepare(`SELECT mime_type,payload FROM uploaded_avatar_assets WHERE filename=?`).get(filename);
+  return row?{mimeType:row.mime_type,bytes:Buffer.from(row.payload)}:null;
+}
+export function preserveExistingAvatars(){
+  if(!db.prepare(`SELECT 1 FROM sqlite_master WHERE name='uploaded_avatar_assets'`).get())return {saved:0};
+  let saved=0;
+  const insert=db.prepare(`INSERT OR IGNORE INTO uploaded_avatar_assets(filename,mime_type,payload,created_at) VALUES(?,?,?,?)`);
+  for(const row of db.prepare(`SELECT DISTINCT avatar_url FROM user_profiles WHERE avatar_url LIKE '/user-content/avatars/%'`).all()){
+    const name=avatarFilenameFromUrl(row.avatar_url);if(!name)continue;
+    if(db.prepare(`SELECT 1 FROM uploaded_avatar_assets WHERE filename=?`).get(name))continue;
+    const file=path.join(avatarsDir,name);if(!existsSync(file))continue;
+    const bytes=readFileSync(file),type=name.endsWith('.png')?'image/png':name.endsWith('.webp')?'image/webp':'image/jpeg';
+    if(bytes.length<32||bytes.length>MAX||!TYPES[type].magic(bytes))continue;
+    insert.run(name,type,bytes,nowIso());saved++;
+  }
+  return {saved};
 }

@@ -59,6 +59,8 @@ export function requireSameOriginMutation(req,res,next){
   const origin=String(req.headers.origin||"");
   const forwardedHost=String(req.headers["x-forwarded-host"]||req.headers.host||"").split(",")[0].trim();
   if(origin){try{if(new URL(origin).host!==forwardedHost)return res.status(403).json({ok:false,error:{code:"ORIGIN_DENIED",message:"Origem da solicitação não permitida.",component:"REQUEST_SECURITY",retryable:false}});}catch{return res.status(403).json({ok:false,error:{code:"ORIGIN_INVALID",message:"Origem inválida.",component:"REQUEST_SECURITY",retryable:false}});}}
+  if(req.headers["sec-fetch-site"]==="cross-site")return res.status(403).json({ok:false,error:{code:"ORIGIN_DENIED",message:"Origem da solicitação não permitida."}});
+  if(req.method==="DELETE"&&!req.headers["transfer-encoding"]&&!Number(req.headers["content-length"]||0))return next();
   if(req.is?.("application/json")||req.is?.("application/x-www-form-urlencoded"))return next();
   return res.status(415).json({ok:false,error:{code:"CONTENT_TYPE_REQUIRED",message:"Envie dados estruturados pelo próprio GameIndex.",component:"REQUEST_SECURITY",retryable:false}});
 }

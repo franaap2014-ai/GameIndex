@@ -42,7 +42,7 @@ export function registerBeta09915Routes(app){
   app.delete("/api/profile/favorites/:game",requireSameOriginMutation,login,route((req,res)=>{const game=resolveGame(req.params.game);if(!game)return res.status(404).json({ok:false,error:{code:"GAME_NOT_FOUND",message:"Jogo não encontrado."}});unfavoriteGame(req.gameIndexUserId,game.id);return noStore(res).json({ok:true,gameId:game.id,favorite:false,count:favoriteGameCount(req.gameIndexUserId)});}));
   app.put("/api/profile/favorites",requireSameOriginMutation,login,route((req,res)=>noStore(res).json({ok:true,entries:reorderFavoriteGames(req.gameIndexUserId,req.body?.gameIds||[])})));
 
-  app.get("/api/games/:game/entry-cutscene",route((req,res)=>noStore(res).json({ok:true,...gameEntryCutscene(req.params.game)})));
+  app.get("/api/games/:game/entry-cutscene",route((req,res)=>{const game=resolveGame(req.params.game);if(!game||game.status!=="PUBLISHED")return noStore(res).status(404).json({ok:false,error:{code:"GAME_NOT_FOUND",message:"Jogo não encontrado."}});return noStore(res).json({ok:true,...gameEntryCutscene(game.id)});}));
 
   app.get("/api/cinematic-test/catalog",requireCapability("cinematic_test"),route((req,res)=>{
     const access=accessSnapshotForUser(actor(req));

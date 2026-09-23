@@ -1,3 +1,5 @@
+import { readDurableGameMedia, preserveExistingGameMedia } from "./src/images/game-media-service.mjs";
+import { readDurableAvatar, preserveExistingAvatars } from "./src/uploads/avatar-service.mjs";
 import "dotenv/config";
 // Current internal release: 0.9915 I1 HF1 · public product remains Beta 0.9915
 // Release lineage compatibility: version:"0.9875" · release:"BETA_0_9875_FULL_PAGE_PERSONALIZATION"
@@ -74,6 +76,8 @@ import { startCore98Workers } from "./src/core98/worker-runtime.mjs";
 import { startGenerationRecoveryWorker } from "./src/pages/generation-runner.mjs";
 
 const startupDatabase=initializeDatabase();
+preserveExistingAvatars();
+preserveExistingGameMedia();
 const startupPersistence=await startDurablePersistence({release:INTERNAL_RELEASE_CODE});
 const startupUniverseBuildRecovery=recoverInterruptedFoundationBuilds();
 const startupAssets=startupPrerequisites();
@@ -91,7 +95,9 @@ app.disable("x-powered-by");
 app.set("trust proxy",1);
 app.use(express.json({limit:"12mb"}));
 installPerformanceMiddleware(app);
+app.get("/user-content/avatars/:filename",(req,res,next)=>{const asset=readDurableAvatar(req.params.filename);if(!asset)return next();res.setHeader("Cache-Control","public, max-age=86400");res.setHeader("X-Content-Type-Options","nosniff");return res.type(asset.mimeType).send(asset.bytes);});
 app.use("/user-content/avatars",express.static(avatarsDir,{maxAge:"1d",immutable:false,index:false,fallthrough:false}));
+app.get("/user-content/game-media/:filename",(req,res,next)=>{const asset=readDurableGameMedia(req.params.filename);if(!asset)return next();res.setHeader("Cache-Control","public, max-age=604800");res.setHeader("X-Content-Type-Options","nosniff");return res.type(asset.mimeType).send(asset.bytes);});
 app.use("/user-content/game-media",express.static(gameMediaDir,{maxAge:"7d",immutable:false,index:false,fallthrough:false}));
 
 // Admin HTML is protected by the backend. Hiding a link is never authorization.

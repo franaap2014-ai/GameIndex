@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdirSync, writeFileSync, unlinkSync, existsSync } from "node:fs";
+import { mkdirSync, writeFileSync, unlinkSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { db, nowIso, persistentRoot } from "../database/connection.mjs";
 import { fetchPublicBinary } from "../security/url-safety.mjs";
@@ -77,8 +77,8 @@ export async function previewImageFromUrl(imageUrl=""){
 
 function parseDataUrl(value){const m=String(value||"").match(/^data:(image\/(?:webp|png|jpeg));base64,([A-Za-z0-9+/=\r\n]+)$/i);if(!m)return null;return validateBinary(Buffer.from(m[2].replace(/\s+/g,""),"base64"),m[1].toLowerCase());}
 function extensionFor(mime){return mime==="image/png"?"png":mime==="image/jpeg"?"jpg":"webp";}
-function writeLocal(gameId,slotKey,binary){const ext=extensionFor(binary.mime),hash=createHash("sha256").update(binary.bytes).digest("hex").slice(0,16),name=`${String(gameId).replace(/[^a-zA-Z0-9_-]/g,"_")}-${slotKey.toLowerCase()}-${hash}-${randomUUID().slice(0,8)}.${ext}`;writeFileSync(path.join(gameMediaDir,name),binary.bytes,{flag:"wx"});return `/user-content/game-media/${name}`;}
-function deleteLocal(profile){if(profile?.storageType!=="LOCAL"||!profile.imageUrl)return;try{const p=path.join(gameMediaDir,path.basename(profile.imageUrl));if(existsSync(p))unlinkSync(p);}catch{}}
+function writeLocal(gameId,slotKey,binary){const ext=extensionFor(binary.mime),hash=createHash("sha256").update(binary.bytes).digest("hex").slice(0,16),name=`${String(gameId).replace(/[^a-zA-Z0-9_-]/g,"_")}-${slotKey.toLowerCase()}-${hash}-${randomUUID().slice(0,8)}.${ext}`;writeFileSync(path.join(gameMediaDir,name),binary.bytes,{flag:"wx"});if(tableExists("uploaded_game_media_assets")){try{db.prepare(`INSERT INTO uploaded_game_media_assets(filename,mime_type,payload,created_at) VALUES(?,?,?,?)`).run(name,binary.mime,Buffer.from(binary.bytes),nowIso());}catch(error){unlinkSync(path.join(gameMediaDir,name));throw error;}}return `/user-content/game-media/${name}`;}
+function deleteLocal(profile){if(profile?.storageType!=="LOCAL"||!profile.imageUrl)return;try{const name=path.basename(profile.imageUrl);for(const table of ["game_media_overrides","game_experience_media_overrides","game_era_media_overrides"]){if(tableExists(table)&&db.prepare(`SELECT 1 FROM ${table} WHERE image_url=?`).get(profile.imageUrl))return;}const p=path.join(gameMediaDir,name);if(tableExists("uploaded_game_media_assets"))db.prepare(`DELETE FROM uploaded_game_media_assets WHERE filename=?`).run(name);if(existsSync(p))unlinkSync(p);}catch{}}
 function map(row){return row?{gameId:row.game_id,slot:row.slot_key,storageType:row.storage_type,imageUrl:row.image_url,altText:row.alt_text||"",mimeType:row.mime_type||"",width:Number(row.width||0),height:Number(row.height||0),byteSize:Number(row.byte_size||0),fitMode:row.fit_mode||"COVER",quality:Number(row.quality||86),updatedAt:row.updated_at}:null;}
 function mapExperience(row){const base=map(row);return base?{...base,experienceKey:row.experience_key}:null;}
 function mapEra(row){const base=map(row);return base?{...base,experienceKey:row.experience_key,eraKey:row.era_key}:null;}
@@ -107,7 +107,7 @@ function persistExperience({gameId,experienceKey:experienceKeyValue="main",slotK
     const safe=validateBinary(binary.bytes,binary.mime);storageType="LOCAL";mime=safe.mime;size=safe.bytes.length;width=safe.width;height=safe.height;url=writeLocal(gameId,`${k}-${s}`,safe);
   }else{
     url=cleanUrl(imageUrl);
-    if(url.startsWith("/user-content/game-media/")){storageType="LOCAL";const localPath=path.join(gameMediaDir,path.basename(url));if(!existsSync(localPath))throw new Error("LOCAL_IMAGE_NOT_FOUND");}
+    if(url.startsWith("/user-content/game-media/")){storageType="LOCAL";const localPath=path.join(gameMediaDir,path.basename(url));if(!existsSync(localPath)&&!readDurableGameMedia(path.basename(url)))throw new Error("LOCAL_IMAGE_NOT_FOUND");}
   }
   try{
     db.prepare(`INSERT INTO game_experience_media_overrides(game_id,experience_key,slot_key,storage_type,image_url,alt_text,mime_type,width,height,byte_size,fit_mode,quality,updated_by,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(game_id,experience_key,slot_key) DO UPDATE SET storage_type=excluded.storage_type,image_url=excluded.image_url,alt_text=excluded.alt_text,mime_type=excluded.mime_type,width=excluded.width,height=excluded.height,byte_size=excluded.byte_size,fit_mode=excluded.fit_mode,quality=excluded.quality,updated_by=excluded.updated_by,updated_at=excluded.updated_at`).run(String(gameId),k,s,storageType,url,String(altText||"").trim().slice(0,180),mime,width,height,size,f,q,userId,now,now);
@@ -155,7 +155,7 @@ function persistEra({gameId,experienceKey:experienceKeyValue="main",eraKey:eraKe
   const exp=experienceKey(experienceKeyValue),era=eraKey(eraKeyValue),s=experienceSlot(slotKey),f=fit(fitMode),q=Math.max(20,Math.min(100,Math.round(Number(quality)||86))),previous=eraMediaProfile(gameId,exp,era,s),now=nowIso();
   let storageType="URL",url="",mime="",size=0,width=0,height=0;
   if(binary){const safe=validateBinary(binary.bytes,binary.mime);storageType="LOCAL";mime=safe.mime;size=safe.bytes.length;width=safe.width;height=safe.height;url=writeLocal(gameId,`${exp}-${era}-${s}`,safe);}
-  else{url=cleanUrl(imageUrl);if(url.startsWith("/user-content/game-media/")){storageType="LOCAL";const localPath=path.join(gameMediaDir,path.basename(url));if(!existsSync(localPath))throw new Error("LOCAL_IMAGE_NOT_FOUND");}}
+  else{url=cleanUrl(imageUrl);if(url.startsWith("/user-content/game-media/")){storageType="LOCAL";const localPath=path.join(gameMediaDir,path.basename(url));if(!existsSync(localPath)&&!readDurableGameMedia(path.basename(url)))throw new Error("LOCAL_IMAGE_NOT_FOUND");}}
   try{
     db.prepare(`INSERT INTO game_era_media_overrides(game_id,experience_key,era_key,slot_key,storage_type,image_url,alt_text,mime_type,width,height,byte_size,fit_mode,quality,updated_by,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(game_id,experience_key,era_key,slot_key) DO UPDATE SET storage_type=excluded.storage_type,image_url=excluded.image_url,alt_text=excluded.alt_text,mime_type=excluded.mime_type,width=excluded.width,height=excluded.height,byte_size=excluded.byte_size,fit_mode=excluded.fit_mode,quality=excluded.quality,updated_by=excluded.updated_by,updated_at=excluded.updated_at`).run(String(gameId),exp,era,s,storageType,url,String(altText||"").trim().slice(0,180),mime,width,height,size,f,q,userId,now,now);
   }catch(error){if(storageType==="LOCAL"&&url!==previous?.imageUrl)deleteLocal({storageType:"LOCAL",imageUrl:url});throw error;}
@@ -182,7 +182,7 @@ export function removeEraMedia(gameId,experienceKeyValue="main",eraKeyValue="",s
 function persist({gameId,slotKey,binary=null,imageUrl="",altText="",fitMode="COVER",quality=86,userId=null}={}){
   if(!gameId)throw new Error("GAME_REQUIRED");const s=slot(slotKey),f=fit(fitMode),q=Math.max(20,Math.min(100,Math.round(Number(quality)||86))),previous=gameMediaProfile(gameId,s),now=nowIso();
   let storageType="URL",url="",mime="",size=0,width=0,height=0;
-  if(binary){const safe=validateBinary(binary.bytes,binary.mime);storageType="LOCAL";mime=safe.mime;size=safe.bytes.length;width=safe.width;height=safe.height;url=writeLocal(gameId,s,safe);}else{url=cleanUrl(imageUrl);if(url.startsWith("/user-content/game-media/")){storageType="LOCAL";const localPath=path.join(gameMediaDir,path.basename(url));if(!existsSync(localPath))throw new Error("LOCAL_IMAGE_NOT_FOUND");}}
+  if(binary){const safe=validateBinary(binary.bytes,binary.mime);storageType="LOCAL";mime=safe.mime;size=safe.bytes.length;width=safe.width;height=safe.height;url=writeLocal(gameId,s,safe);}else{url=cleanUrl(imageUrl);if(url.startsWith("/user-content/game-media/")){storageType="LOCAL";const localPath=path.join(gameMediaDir,path.basename(url));if(!existsSync(localPath)&&!readDurableGameMedia(path.basename(url)))throw new Error("LOCAL_IMAGE_NOT_FOUND");}}
   try{
     db.prepare(`INSERT INTO game_media_overrides(game_id,slot_key,storage_type,image_url,alt_text,mime_type,width,height,byte_size,fit_mode,quality,updated_by,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(game_id,slot_key) DO UPDATE SET storage_type=excluded.storage_type,image_url=excluded.image_url,alt_text=excluded.alt_text,mime_type=excluded.mime_type,width=excluded.width,height=excluded.height,byte_size=excluded.byte_size,fit_mode=excluded.fit_mode,quality=excluded.quality,updated_by=excluded.updated_by,updated_at=excluded.updated_at`).run(String(gameId),s,storageType,url,String(altText||"").trim().slice(0,180),mime,width,height,size,f,q,userId,now,now);
   }catch(error){if(storageType==="LOCAL"&&url!==previous?.imageUrl)deleteLocal({storageType:"LOCAL",imageUrl:url});throw error;}
@@ -206,3 +206,24 @@ export async function setGameMediaFromUrl({gameId,slotKey="COVER",imageUrl="",al
 }
 
 export function removeGameMedia(gameId,slotKey="COVER"){const s=slot(slotKey),previous=gameMediaProfile(gameId,s);db.prepare(`DELETE FROM game_media_overrides WHERE game_id=? AND slot_key=?`).run(String(gameId||""),s);deleteLocal(previous);return true;}
+
+export function readDurableGameMedia(filename){
+  if(!/^[a-zA-Z0-9_-]+\.(png|jpg|webp)$/.test(String(filename))||!tableExists("uploaded_game_media_assets"))return null;
+  const row=db.prepare(`SELECT mime_type,payload FROM uploaded_game_media_assets WHERE filename=?`).get(filename);
+  return row?{mimeType:row.mime_type,bytes:Buffer.from(row.payload)}:null;
+}
+export function preserveExistingGameMedia(){
+  if(!tableExists("uploaded_game_media_assets"))return {saved:0};
+  let saved=0;const seen=new Set();
+  for(const table of ["game_media_overrides","game_experience_media_overrides","game_era_media_overrides"]){
+    if(!tableExists(table))continue;
+    for(const row of db.prepare(`SELECT DISTINCT image_url FROM ${table} WHERE storage_type='LOCAL'`).all()){
+      const filename=path.basename(row.image_url||"");if(seen.has(filename)||readDurableGameMedia(filename))continue;seen.add(filename);
+      const file=path.join(gameMediaDir,filename);if(!existsSync(file))continue;
+      const bytes=readFileSync(file),mime=filename.endsWith('.png')?'image/png':filename.endsWith('.jpg')?'image/jpeg':'image/webp';
+      if(bytes.length>MAX_BYTES||!signature(bytes,mime))continue;
+      db.prepare(`INSERT OR IGNORE INTO uploaded_game_media_assets(filename,mime_type,payload,created_at) VALUES(?,?,?,?)`).run(filename,mime,bytes,nowIso());saved++;
+    }
+  }
+  return {saved};
+}

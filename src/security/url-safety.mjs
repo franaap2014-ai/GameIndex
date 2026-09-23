@@ -4,18 +4,25 @@ import net from "node:net";
 function ipv4Private(address) {
   const p = address.split(".").map(Number);
   if (p.length !== 4) return false;
-  return p[0]===10 || p[0]===127 || (p[0]===169&&p[1]===254) || (p[0]===172&&p[1]>=16&&p[1]<=31) || (p[0]===192&&p[1]===168) || p[0]===0 || p[0]>=224;
+  return p[0]===10 || p[0]===127 || (p[0]===169&&p[1]===254) || (p[0]===172&&p[1]>=16&&p[1]<=31) || (p[0]===192&&p[1]===168) || p[0]===0 || (p[0]===100&&p[1]>=64&&p[1]<=127) || (p[0]===198&&(p[1]===18||p[1]===19)) || p[0]>=224;
 }
 function ipv6Private(address) {
-  const a = address.toLowerCase();
-  return a==="::1" || a==="::" || a.startsWith("fe80:") || a.startsWith("fc") || a.startsWith("fd") || a.startsWith("::ffff:127.") || a.startsWith("::ffff:10.") || a.startsWith("::ffff:192.168.");
+  const a = address.toLowerCase().split("%")[0];
+  if(a.startsWith("::ffff:")){
+    const mapped=a.slice(7);
+    if(net.isIP(mapped)===4)return ipv4Private(mapped);
+    const parts=mapped.split(":");
+    if(parts.length===2){const n=parseInt(parts[0],16)*65536+parseInt(parts[1],16);return ipv4Private([n>>>24,(n>>>16)&255,(n>>>8)&255,n&255].join("."));}
+  }
+  return a==="::1" || a==="::" || /^fe[89ab]/.test(a) || a.startsWith("fc") || a.startsWith("fd") || a.startsWith("ff");
 }
 function isPrivateIp(address) { return net.isIP(address)===4 ? ipv4Private(address) : net.isIP(address)===6 ? ipv6Private(address) : true; }
 
 export async function assertPublicUrl(value) {
   const url = new URL(value);
   if (!["http:","https:"].includes(url.protocol)) throw new Error("Protocolo de URL não permitido.");
-  const host = url.hostname.toLowerCase();
+  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g,"");
+  if(url.username||url.password)throw new Error("Credenciais na URL não são permitidas.");
   if (["localhost","localhost.localdomain"].includes(host) || host.endsWith(".local")) throw new Error("Host local bloqueado.");
   if (net.isIP(host) && isPrivateIp(host)) throw new Error("IP privado bloqueado.");
   const addresses = await dns.lookup(host,{all:true,verbatim:true});
@@ -23,11 +30,11 @@ export async function assertPublicUrl(value) {
   return url;
 }
 
-async function readLimited(response,maxBytes) {
+async function readLimitedBytes(response,maxBytes) {
   const length = Number(response.headers.get("content-length") || 0);
   if (length && length > maxBytes) throw new Error("Resposta externa excede o limite permitido.");
   const reader = response.body?.getReader();
-  if (!reader) return "";
+  if (!reader) return new Uint8Array();
   const chunks=[]; let total=0;
   while (true) {
     const {done,value}=await reader.read();
@@ -38,7 +45,7 @@ async function readLimited(response,maxBytes) {
   }
   const all = new Uint8Array(total); let offset=0;
   for (const chunk of chunks) { all.set(chunk,offset); offset+=chunk.byteLength; }
-  return new TextDecoder().decode(all);
+  return all;
 }
 
 export async function fetchPublicText(value,{timeoutMs=8000,maxBytes=1_500_000,maxRedirects=3,headers={}}={}) {
@@ -48,11 +55,11 @@ export async function fetchPublicText(value,{timeoutMs=8000,maxBytes=1_500_000,m
     if ([301,302,303,307,308].includes(response.status)) {
       const location=response.headers.get("location");
       if (!location) throw new Error("Redirecionamento inválido.");
-      current=await assertPublicUrl(new URL(location,current).toString());
+      await response.body?.cancel();current=await assertPublicUrl(new URL(location,current).toString());
       continue;
     }
     if (!response.ok) throw new Error(`Fonte respondeu HTTP ${response.status}.`);
-    return {url:current.toString(),contentType:response.headers.get("content-type")||"",text:await readLimited(response,maxBytes)};
+    return {url:current.toString(),contentType:response.headers.get("content-type")||"",text:new TextDecoder().decode(await readLimitedBytes(response,maxBytes))};
   }
   throw new Error("Muitos redirecionamentos externos.");
 }
@@ -76,11 +83,11 @@ export async function fetchPublicBinary(value,{timeoutMs=9000,maxBytes=4_000_000
   let current=await assertPublicUrl(value);
   for(let i=0;i<=maxRedirects;i++){
     const response=await fetch(current,{redirect:"manual",signal:AbortSignal.timeout(timeoutMs),headers:{"user-agent":"GameIndex-Beta/0.99 (+local image memory)",accept}});
-    if([301,302,303,307,308].includes(response.status)){const location=response.headers.get("location");if(!location)throw new Error("Redirecionamento inválido.");current=await assertPublicUrl(new URL(location,current).toString());continue;}
+    if([301,302,303,307,308].includes(response.status)){const location=response.headers.get("location");if(!location)throw new Error("Redirecionamento inválido.");await response.body?.cancel();current=await assertPublicUrl(new URL(location,current).toString());continue;}
     if(!response.ok)throw new Error(`Imagem respondeu HTTP ${response.status}.`);
     const contentType=String(response.headers.get("content-type")||"").split(";")[0].trim().toLowerCase();if(!contentType.startsWith("image/"))throw new Error("O recurso retornado não é uma imagem.");
     const length=Number(response.headers.get("content-length")||0);if(length&&length>maxBytes)throw new Error("Imagem excede o limite permitido.");
-    const ab=await response.arrayBuffer();if(ab.byteLength>maxBytes)throw new Error("Imagem excede o limite permitido.");const bytes=new Uint8Array(ab);if(!validImageSignature(bytes,contentType))throw new Error("Assinatura binária de imagem inválida.");
+    const bytes=await readLimitedBytes(response,maxBytes);if(!validImageSignature(bytes,contentType))throw new Error("Assinatura binária de imagem inválida.");
     return {url:current.toString(),contentType,bytes};
   }
   throw new Error("Muitos redirecionamentos externos.");

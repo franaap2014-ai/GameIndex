@@ -12,12 +12,14 @@ const ELIGIBILITY=Object.freeze({
 
 function identityFor(userId){
   const access=accessSnapshotForUser(userId);
+  if(access.suspended)return access.plan||"FREE";
   if(access.staffRole&&access.staffRole!=="NONE")return access.staffRole;
   return access.plan||"FREE";
 }
 export function profileAvatarLibraryForUser(userId){
   const identity=identityFor(userId),classes=ELIGIBILITY[identity]||ELIGIBILITY.FREE;
-  return {identity,eligibleClasses:classes,selected:selectedProfileAvatar(userId),entries:listProfileAvatars({classes})};
+  const seen=new Set(),entries=listProfileAvatars({classes}).filter(a=>{if(!a.placeholder)return true;const key=`${a.class}:${a.assetUrl}`;if(seen.has(key))return false;seen.add(key);return true;});
+  return {identity,eligibleClasses:classes,selected:selectedProfileAvatar(userId),entries};
 }
 export function chooseProfileAvatar(userId,avatarKey){
   const identity=identityFor(userId),classes=ELIGIBILITY[identity]||ELIGIBILITY.FREE,avatar=getProfileAvatar(avatarKey);

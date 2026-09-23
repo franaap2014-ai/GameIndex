@@ -36,7 +36,11 @@ async function init(){
     `;
     $("profileLogout")?.addEventListener("click",async()=>{await GV.api("/api/auth/logout",{method:"POST"});location.href="/";});
   }catch(error){
-    view.innerHTML=`<section class="simple-hero centered"><p class="section-eyebrow">PERFIL</p><h1>Faça login para abrir seu perfil.</h1><p>${esc(error.message)}</p><a class="button primary-button" href="/login.html">Login</a></section>`;
+    const signedOut=error.status===401||error.status===403;
+    view.innerHTML=signedOut
+      ?`<section class="simple-hero centered"><p class="section-eyebrow">PERFIL</p><h1>Faça login para abrir seu perfil.</h1><a class="button primary-button" href="/login.html">Login</a></section>`
+      :`<section class="simple-hero centered"><p class="section-eyebrow">PERFIL</p><h1>Não foi possível carregar seu perfil.</h1><p>Tente novamente em alguns instantes.</p><button class="button primary-button" id="profileRetry" type="button">Tentar novamente</button></section>`;
+    $("profileRetry")?.addEventListener("click",init);
   }
 }
 addEventListener("DOMContentLoaded",init);

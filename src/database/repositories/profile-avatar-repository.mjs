@@ -1,4 +1,4 @@
-import { db, nowIso, parseJson, json } from "../connection.mjs";
+import { db, nowIso, parseJson, json, transaction } from "../connection.mjs";
 
 function avatarTablesReady(){
   try{
@@ -43,8 +43,8 @@ export function selectProfileAvatar(userId,avatarId){
   requireAvatarTables();
   const avatar=getProfileAvatar(avatarId);if(!avatar||!avatar.enabled)throw Object.assign(new Error("Avatar indisponível."),{code:"PROFILE_AVATAR_NOT_FOUND"});
   const now=nowIso();
-  db.prepare(`INSERT INTO user_profile_avatar_selections(user_id,avatar_id,selected_at) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET avatar_id=excluded.avatar_id,selected_at=excluded.selected_at`).run(String(userId),avatar.id,now);
-  db.prepare(`UPDATE user_profiles SET avatar_url=?,updated_at=? WHERE user_id=?`).run(avatar.assetUrl,now,String(userId));
+  transaction(()=>{db.prepare(`INSERT INTO user_profile_avatar_selections(user_id,avatar_id,selected_at) VALUES(?,?,?) ON CONFLICT(user_id) DO UPDATE SET avatar_id=excluded.avatar_id,selected_at=excluded.selected_at`).run(String(userId),avatar.id,now);
+  db.prepare(`UPDATE user_profiles SET avatar_url=?,updated_at=? WHERE user_id=?`).run(avatar.assetUrl,now,String(userId));});
   return avatar;
 }
 export function clearSelectedProfileAvatar(userId){

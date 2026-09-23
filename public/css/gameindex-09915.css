@@ -15,7 +15,7 @@
 
 /* First impression: integrated navigation, not a hardware/chip motif. */
 .site-header{
-  position:sticky!important;
+  position:fixed!important;
   top:0;
   z-index:240;
   background:linear-gradient(180deg,rgba(7,9,13,.94),rgba(7,9,13,.78))!important;
@@ -26,9 +26,10 @@
 .site-header::before,.site-header::after{display:none!important}
 .site-header-inner{
   width:min(1440px,calc(100% - 28px))!important;
-  min-height:68px!important;
+  min-height:var(--gv-topbar-height)!important;
+  height:var(--gv-topbar-height)!important;
   margin:0 auto!important;
-  padding:8px 0!important;
+  padding:0!important;
   display:grid!important;
   grid-template-columns:auto minmax(220px,1fr) auto!important;
   align-items:center!important;
@@ -233,6 +234,9 @@ body[data-page="animation-editor"] .ae-preview-shell{width:min(100%,1000px)!impo
 .gi9915-testlab{width:min(1480px,calc(100% - 28px));margin:0 auto;padding:24px 0 70px}
 .gi9915-testlab-grid{display:grid;grid-template-columns:290px minmax(0,1fr);gap:14px}
 .gi9915-testlab-controls{padding:18px;display:grid;gap:12px;align-self:start;position:sticky;top:86px}
+.gi9915-testlab-preview-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px;border-bottom:1px solid var(--gi9915-border)}
+.gi9915-testlab-preview-head .gi9915-kicker{margin:0}
+.gi9915-testlab-preview-head .gi9915-profile-actions{display:flex;gap:8px;flex-wrap:wrap}
 .gi9915-testlab-controls label{display:grid;gap:5px;font-size:11px;color:var(--gi9915-muted)}
 .gi9915-testlab-controls select,.gi9915-testlab-controls input{border:1px solid var(--gi9915-border);border-radius:9px;background:#0b1118;color:#fff;padding:9px}
 .gi9915-testlab-stage-wrap{min-height:650px;display:grid;place-items:center;padding:18px;overflow:hidden}
@@ -299,7 +303,7 @@ select option{background:#0b1118;color:#f4f6f8}
   body[data-page="animation-editor"] .ae-workspace{grid-template-columns:190px minmax(390px,1fr)!important}
 }
 @media(max-width:720px){
-  .site-header-inner{width:min(100% - 18px,1440px)!important}.header-nav .nav-link{display:none!important}.brand-badge{display:none!important}.header-search{grid-column:1/3}
+  .site-header-inner{width:min(100% - 18px,1440px)!important;grid-template-columns:auto minmax(0,1fr) auto!important;gap:8px!important}.header-nav .nav-link{display:none!important}.brand-badge{display:none!important}.header-search{grid-column:2!important;grid-row:1!important;min-width:0!important}.header-left-region{min-width:0!important}.brand-name{font-size:clamp(10px,2.4vw,13px)!important;letter-spacing:.04em!important}
   .gi9915-page{width:min(100% - 18px,1280px)}.gi9915-profile-hero{grid-template-columns:1fr;text-align:center}.gi9915-profile-avatar{margin:auto;width:118px;height:118px}.gi9915-profile-title,.gi9915-profile-counts,.gi9915-profile-actions{justify-content:center}
   .gi9915-messages{grid-template-columns:1fr}.gi9915-conversation-list{max-height:220px;border-right:0;border-bottom:1px solid var(--gi9915-border)}.gi9915-chat{min-height:520px}
   .gi9915-update-head{display:block}.gi9915-update-version{margin-top:10px}
@@ -308,3 +312,20 @@ select option{background:#0b1118;color:#f4f6f8}
 @media(prefers-reduced-motion:reduce){
   .gi9915-game-tile,.header-nav .nav-link::after,.gi9915-testlab-stage{transition:none!important}
 }
+
+/* Keep the sandbox runtime in its preview card; the shared runtime uses an overlay elsewhere. */
+.gi9915-testlab-stage.gi-animation-runtime-stage{position:relative!important;inset:auto!important}
+.gi9915-testlab-grid>section.gi9915-card{align-self:start;position:sticky;top:86px;min-width:0}
+@media(max-width:980px){.gi9915-testlab-grid>section.gi9915-card{position:static}}
+
+/* Override inherited mobile column/hiding rules from earlier shell releases. */
+.site-header .header-left-region{grid-column:1!important;grid-row:1!important}
+.site-header .header-search{display:flex!important;grid-column:2!important;grid-row:1!important;min-width:0!important}
+.site-header .header-search input{width:100%;min-width:0!important}
+.site-header .header-nav{grid-column:3!important;grid-row:1!important}
+@media(max-width:760px){
+  .site-header-inner{grid-template-columns:auto minmax(0,1fr) auto!important;gap:8px!important}
+  .site-header .header-search{padding:0 8px!important}
+  .site-header .header-left-region{gap:6px!important}
+}
+@media(max-width:480px){.site-header .gi-brand-copy,.site-header .gi-i1-logo-copy{display:none!important}}
