@@ -40,7 +40,7 @@ export function registerBeta0991I1Routes(app){
     return noStore(res).json({ok:true,storage:{status:state.status,origin:state.origin,provider:state.provider,persistent:state.persistent,read:state.read,write:state.write,readOnly:state.readOnly,sizeBytes:state.sizeBytes,modifiedAt:state.modifiedAt,remote:state.remote||null},safety});
   });
 
-  app.get("/api/admin/i1/cinematics",requireCapability("creator_control"),(req,res)=>{
+  app.get("/api/admin/i1/cinematics",requireCapability("cinematic_test"),(req,res)=>{
     const actor=userId(req);if(!actor)return fail(res,401,"AUTH_REQUIRED","Faça login.");
     const queue=cinematicQueueForUser(actor);
     return noStore(res).json({

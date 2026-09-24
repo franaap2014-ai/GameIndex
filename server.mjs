@@ -1,7 +1,7 @@
 import { readDurableGameMedia, preserveExistingGameMedia } from "./src/images/game-media-service.mjs";
 import { readDurableAvatar, preserveExistingAvatars } from "./src/uploads/avatar-service.mjs";
 import "dotenv/config";
-// Current internal release: 0.9915 I1 HF1 · public product remains Beta 0.9915
+// Current delivery release: Beta 0.992 · presentation/stability build
 // Release lineage compatibility: version:"0.9875" · release:"BETA_0_9875_FULL_PAGE_PERSONALIZATION"
 import express from "express";
 import path from "node:path";
@@ -70,7 +70,7 @@ import { degradedAIResponse, PRODUCT_CODENAME, PRODUCT_LABEL, publicHealthSnapsh
 import { firstAdminSetupState, setupFirstAdmin } from "./src/auth/first-admin-setup.mjs";
 import { adminRecoveryStatus } from "./src/auth/admin-recovery.mjs";
 import { startConstructionWorker } from "./src/construction/construction-runner.mjs";
-import { requireCapability } from "./src/access/capability-service.mjs";
+import { requireAnyCapability, requireCapability } from "./src/access/capability-service.mjs";
 import { startPrePublicWorker } from "./src/prepublic/pre-public-service.mjs";
 import { startCore98Workers } from "./src/core98/worker-runtime.mjs";
 import { startGenerationRecoveryWorker } from "./src/pages/generation-runner.mjs";
@@ -103,7 +103,7 @@ app.use("/user-content/game-media",express.static(gameMediaDir,{maxAge:"7d",immu
 // Admin HTML is protected by the backend. Hiding a link is never authorization.
 app.get(["/setup-admin","/setup-admin.html"],(req,res)=>res.sendFile(path.join(publicDir,"setup-admin.html")));
 app.get(["/admin-recovery","/admin-recovery.html"],(req,res)=>res.sendFile(path.join(publicDir,"admin-recovery.html")));
-app.get(["/admin","/admin.html"],requireCapability("creator_control"),(req,res)=>res.sendFile(path.join(publicDir,"admin.html")));
+app.get(["/admin","/admin.html"],requireAnyCapability(["creator_control","universe_build","image_management","music_management","animation_edit","cinematic_test"]),(req,res)=>res.sendFile(path.join(publicDir,"admin.html")));
 app.get(["/music-manager","/music-manager.html"],requireCapability("music_management"),(req,res)=>res.sendFile(path.join(publicDir,"music-manager.html")));
 app.get(["/add-game","/add-game.html"],requireCapability("creator_control"),(req,res)=>res.sendFile(path.join(publicDir,"add-game.html")));
 app.get(["/generate-page","/generate-page.html"],requireCapability("page_generation"),(req,res)=>res.redirect(302,"/universe-builder.html?mode=page-create"));
@@ -244,7 +244,7 @@ app.listen(PORT,()=>{
   let generationRecovery={enabled:false,recovered:0};try{if(!PERFORMANCE_MODE||String(process.env.GAMEINDEX_BACKGROUND_WORKERS||"false").toLowerCase()==="true")generationRecovery=startGenerationRecoveryWorker();else generationRecovery={enabled:false,recovered:0,deferred:true};}catch(error){runtimeLog("generation_recovery_start_failed",{error:String(error.message||error)});}
   runtimeLog("server_started",{port:PORT,environment:runtimeEnvironment(),schema:schemaVersion(),games:gameCount(),storageOrigin,database:startupDatabase,assets:startupAssets,startupDurationMs:Math.max(0,Date.now()-Date.parse(startedAt)),autogenEnabled:Boolean(autogen.enabled),constructionWorker:Boolean(construction.enabled),constructionRecovered:Number(construction.recovered||0),externalAiConfigured:false,aiMode:"LOCAL_FIRST_NO_API_KEY",prePublicWorker:Boolean(prePublic.enabled),core98Worker:Boolean(core98.enabled),generationRecoveryWorker:Boolean(generationRecovery.enabled),generationRecovered:Number(generationRecovery.recovered||0),universeBuildsRecovered:Number(startupUniverseBuildRecovery.recovered||0),version:PUBLIC_VERSION,release:INTERNAL_RELEASE_CODE,persistence:startupPersistence,aiRuntime:"LOCAL_SHARED_LAZY"});
   const endpoint=typeof PORT==="string"&&!/^\d+$/.test(PORT)?"Azure IIS named pipe":`http://localhost:${PORT}`;
-  console.log(`\n================================================\n GAMEINDEX BETA 0.9915 — CINEMATIC UPDATE ONLINE\n================================================\n ${endpoint}\n Ambiente: ${runtimeEnvironment()}\n AI Slim Runtime: Ollama gemma3:4b · shared lazy runtime · optional\n Modo sem API externa: SUPORTADO\n Universe Builder 2.0 + Visual Grounding Engine 2.1 + GI Core 8.5: ACTIVE
+  console.log(`\n================================================\n GAMEINDEX BETA 0.992 — DELIVERY BUILD ONLINE\n================================================\n ${endpoint}\n Ambiente: ${runtimeEnvironment()}\n AI Slim Runtime: Ollama gemma3:4b · shared lazy runtime · optional\n Modo sem API externa: SUPORTADO\n Universe Builder 2.0 + Visual Grounding Engine 2.1 + GI Core 8.5: ACTIVE
  Pre-Public Worker: ${prePublic.enabled?"ACTIVE":"OFFLINE"}\n GI Core 8.5: ${core98.enabled?"ACTIVE":"OFFLINE"}\n Social: ACTIVE\n Mega Simulator: ACTIVE\n Legacy AI Systems: REMOVED\n Construction Worker: ${construction.enabled?"ACTIVE":"OFFLINE"}\n Billing: ${billingStatus().provider}\n Auto Page Builder: ${String(process.env.GAMEVAULT_PAGE_GENERATION_ENABLED??"true").toLowerCase()==="true"?"ACTIVE":"OFFLINE"}\n Generation Recovery: ${generationRecovery.enabled?"ACTIVE":"OFFLINE"} · recovered=${generationRecovery.recovered||0}\n Schema: ${schemaVersion()}\n Storage: ${storageOrigin}\n Durable persistence: ${startupPersistence?.enabled?"NEON ACTIVE":"LOCAL/NOT CONFIGURED"}\n`);
 });
 

@@ -61,12 +61,12 @@ try{
   const health=await waitFor(`${base}/api/health`,child);
   const h=await health.json();
   assert.equal(h.status,"healthy");
-  assert.equal(h.version,"0.9915");
+  assert.equal(h.version,"0.992");
 
   const release=await request(`${base}/api/release/public`);
   const publicRelease=await release.json();
-  assert.equal(publicRelease.version,"0.9915");
-  assert.match(publicRelease.label,/Beta 0\.9915/);
+  assert.equal(publicRelease.version,"0.992");
+  assert.match(publicRelease.label,/Beta 0\.992/);
 
   await request(`${base}/`);
   await request(`${base}/games.html`);
@@ -86,7 +86,7 @@ try{
 
   console.log(JSON.stringify({
     ok:true,
-    publicVersion:"0.9915",
+    publicVersion:"0.992",
     schema:47,
     health:true,
     release:true,

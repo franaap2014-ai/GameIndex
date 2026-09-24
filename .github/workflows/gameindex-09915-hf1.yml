@@ -1,4 +1,4 @@
-name: GameIndex 0.9915 HF1 Recovery
+name: GameIndex 0.992 Delivery
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  recovery-regression:
+  delivery-regression:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
@@ -24,9 +24,11 @@ jobs:
         run: npm ci
       - name: Syntax check
         run: npm run check
-      - name: HF1 source regression
-        run: npm run test:09915hf1
-      - name: 0.9915 cinematic regression
-        run: npm run test:09915
+      - name: 0.992 delivery contract
+        run: npm run test:0992
+      - name: HF3 builder regression
+        run: npm run test:hf3
+      - name: I2 mobile/music/session regression
+        run: npm run test:i2
       - name: HTTP smoke
         run: npm run smoke
