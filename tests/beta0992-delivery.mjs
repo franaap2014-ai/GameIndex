@@ -51,7 +51,7 @@ assert.match(adminHtml,/data-tool-cap="animation_edit"/);
 assert.match(adminHtml,/data-tool-cap="cinematic_test"/);
 assert.match(adminHtml,/data-tool-cap="image_management"/);
 assert.match(adminHtml,/data-tool-cap="music_management"/);
-assert.match(adminJs,/adminMode=['\"]DEV['\"]/);
+assert.match(adminJs,/adminMode=creator\?'ADMIN':'DEV'/);
 assert.match(adminJs,/toolCaps=\['universe_build','image_management','music_management','animation_edit','cinematic_test'\]/);
 assert.match(routes,/app\.get\("\/api\/admin\/i1\/cinematics",requireCapability\("cinematic_test"\)/);
 
