@@ -22,7 +22,7 @@ const TAB_LIBRARY = {
 
 const TEMPLATE_MAP = {
   sandbox: ["overview","gameplay","items","mobs","maps","lore","guides"],
-  fps: ["overview","gameplay","weapons","maps","ranks","guides"],
+  fps: ["overview","gameplay","weapons","maps","skins","ranks","guides"],
   "battle-royale": ["overview","gameplay","weapons","maps","skins","seasons","lore","guides"],
   "open-world": ["overview","story","characters","weapons","vehicles","maps","missions","guides"],
   platformer: ["overview","gameplay","characters","stages","items","lore","guides"],
