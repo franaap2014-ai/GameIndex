@@ -20,9 +20,9 @@ const testLab=read("public/js/cinematic-test-lab.js");
 const updateLog=read("public/js/update-log.js");
 const pkg=JSON.parse(read("package.json"));
 
-assert.match(release,/PUBLIC_VERSION="0\.9915"/);
-assert.match(release,/INTERNAL_RELEASE="0\.9915 I2"/);
-assert.match(release,/BETA_0_9915_I2_MOBILE/);
+assert.match(release,/PUBLIC_VERSION="0\.992"/);
+assert.match(release,/INTERNAL_RELEASE="0\.992 Delivery"/);
+assert.match(release,/BETA_0_992_DELIVERY/);
 assert.match(release,/TARGET_SCHEMA=47/);
 assert.match(connection,/045_beta_09915_cinematic_update\.sql/);
 assert.match(connection,/GAMEINDEX_TARGET_SCHEMA\|\|47/);
@@ -44,7 +44,7 @@ assert.match(routes,/\/api\/cinematic-test\/preview/);
 assert.match(routes,/\/api\/games\/:game\/entry-cutscene/);
 assert.match(server,/registerBeta09915Routes/);
 assert.match(server,/cinematic-test-lab\.html/);
-assert.match(server,/CINEMATIC UPDATE ONLINE/);
+assert.match(server,/DELIVERY BUILD ONLINE/);
 assert.match(game,/playGameEntryCutscene/);
 assert.match(game,/toggleFavorite/);
 assert.match(social,/data-message-friend/);
@@ -54,8 +54,8 @@ assert.match(editor,/showWelcome/);
 assert.match(testLab,/runSequence/);
 assert.match(routes,/mutatesHistory:false/);
 assert.match(updateLog,/PUBLIC_ORDER/);
-assert.equal(pkg.version,"0.9915.0");
-assert.equal(pkg.scripts.test,"node tests/beta09915-cinematic-update.mjs");
+assert.equal(pkg.version,"0.992.0");
+assert.equal(pkg.scripts.test,"node tests/beta0992-delivery.mjs");
 assert.equal(pkg.scripts["test:09915"],"node tests/beta09915-cinematic-update.mjs");
 
 const db=new DatabaseSync(":memory:");
@@ -90,4 +90,4 @@ for(const table of ["user_favorite_games","game_cutscene_bindings","cinematic_te
 }
 db.close();
 
-console.log(JSON.stringify({ok:true,release:"0.9915",schema:47,avatars:50,favorites:true,cinematicTestLab:true,gameEntryCutscenes:true,migrationIdempotent:true},null,2));
+console.log(JSON.stringify({ok:true,release:"0.992",legacyMigration:"0.9915",schema:47,avatars:50,favorites:true,cinematicTestLab:true,gameEntryCutscenes:true,migrationIdempotent:true},null,2));
