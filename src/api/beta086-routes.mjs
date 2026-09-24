@@ -9,7 +9,7 @@ import { autogenStateMetrics } from "../database/repositories/autogen-state-repo
 import { listGenerationDiagnostics, constructionComponentMetrics, generationFailureClusters } from "../database/repositories/generation-diagnostics-repository.mjs";
 import { researchRecoveryMetrics } from "../database/repositories/research-attempt-repository.mjs";
 import { attributionMetrics } from "../database/repositories/failure-attribution-repository.mjs";
-import { listUpdateLog, getUpdateLog } from "../database/repositories/update-log-repository.mjs";
+import { listUpdateLog, getUpdateLog, upsertUpdateLog } from "../database/repositories/update-log-repository.mjs";
 import { getPreference } from "../database/repositories/user-repository.mjs";
 import { schemaVersion, latestBackup, db } from "../database/connection.mjs";
 import { listKnowledgeGaps } from "../quality/knowledge-gap.mjs";
@@ -24,6 +24,23 @@ function health(){
 }
 function user(req){return currentAuth(req)?.user||null;}
 export function registerBeta086Routes(app){
+  try{
+    if(!getUpdateLog(CURRENT_VERSION))upsertUpdateLog({
+      version:CURRENT_VERSION,
+      title:"GameIndex Beta 0.992",
+      codename:"Delivery Build",
+      releaseDate:"2026-09-24",
+      sections:{
+        RESUMO:["Build de entrega focada em estabilidade, apresentação e uso real em desktop e mobile."],
+        NOVO:["Transições cinematográficas temáticas nas principais rotas do menu lateral.","ADM Panel em modo Developer Tools para DEV, sem liberar poderes administrativos."],
+        MELHORADO:["Universe Builder passa a pesquisar e estruturar conteúdo pelas abas reais de cada jogo/experiência.","Sistema de música tenta iniciar automaticamente e recupera autoplay após a primeira interação válida."],
+        CORRIGIDO:["Cutscene de tema usa a cor antiga no cabo e transfere para a nova cor após a conexão.","Erros do player externo deixam de dominar visualmente a interface."],
+        PERFORMANCE:["Transições têm versão reduzida no mobile e respeitam prefers-reduced-motion."]
+      },
+      tags:["delivery","presentation","mobile","universe-builder","music"],
+      public:true
+    });
+  }catch{}
   app.get("/api/beta086/status",(req,res)=>res.json({product:"GameIndex",version:"Beta 0.986",codename:"Production Consolidation",dexter:"Ollama gemma3:4b optional",intelligence:"GI_CORE_8.5_SCRIPTS",imageRuntime:"IMAGE_ENGINE_3_NATIVE",settings:"2.0",autogen:"GI_CORE_SCRIPT_AUTOGEN",updateLog:true,legacyAI5:"REMOVED",health:health()}));
 
   app.get("/api/update-log",(req,res)=>{const u=user(req),prefs=u?getPreference(u.id):null;res.json({currentVersion:CURRENT_VERSION,lastSeenVersion:prefs?.lastSeenVersion||null,hasUnread:Boolean(u&&prefs?.productUpdates&&prefs.lastSeenVersion!==CURRENT_VERSION),entries:listUpdateLog({includePrivate:false,limit:req.query.limit||40})});});
