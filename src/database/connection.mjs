@@ -431,7 +431,7 @@ export function latestBackup() {
   } catch { return null; }
 }
 
-export async function startDurablePersistence({release="BETA_0_9915_I2_MOBILE"}={}){
+export async function startDurablePersistence({release="BETA_0_992_DELIVERY"}={}){
   if(!neonRemotePersistenceConfigured())return {enabled:false,provider:"NONE",safety:productionStorageSafety()};
   return startNeonSnapshotRuntime({
     databasePath,

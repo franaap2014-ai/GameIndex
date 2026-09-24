@@ -33,7 +33,7 @@ function familyFor(doc){
 export async function researchGameVault({game,query,entity=null,intent="overview",language="pt-BR",signal=null}={}) {
   const timeoutMs=Math.max(2500,Number(process.env.GAMEVAULT_RESEARCH_TIMEOUT_MS||9000));
   const maxSources=Math.max(2,Math.min(16,Number(process.env.GAMEVAULT_MAX_RESEARCH_SOURCES||8)));
-  const subject=entity?.name || query;
+  const subject=entity?.name || game?.nome || game?.name || query;
   const searchQuery=buildResearchSearchQuery({game,query,entity});
   if(signal?.aborted)throw Object.assign(new Error("RESEARCH_CANCELLED"),{code:"RESEARCH_CANCELLED"});
 

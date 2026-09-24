@@ -47,7 +47,10 @@ export function extractEvidence(doc,{gameId,entityId=null,query,entityName="",ga
 }
 
 export function extractEvidenceFromSources(docs,context) {
-  return docs.flatMap(doc=>extractEvidence(doc,context))
-    .sort((a,b)=>(b.relevance+b.sourceQuality)-(a.relevance+a.sourceQuality))
-    .slice(0,16);
+  const ranked=docs.flatMap(doc=>extractEvidence(doc,context))
+    .sort((a,b)=>(b.relevance+b.sourceQuality)-(a.relevance+a.sourceQuality));
+  // Repeated claims from mirror pages must not crowd out distinct useful facts.
+  const seen=new Set(),unique=[],corroborating=[];
+  for(const item of ranked){const key=normalizeText(item.claim);if(seen.has(key))corroborating.push(item);else{seen.add(key);unique.push(item);}}
+  return [...unique,...corroborating].slice(0,16);
 }

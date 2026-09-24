@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+const handlers={},timers=new Map(),overlays=[];let reduced=false,mobile=false,nextId=0,navigation='',focused=false;
+const node=()=>({setAttribute(){},append(){},remove(){overlays.pop();}});
+const document={documentElement:{dataset:{},classList:{add(){},remove(){}}},body:{append(x){overlays.push(x);}},createElement:node,addEventListener:(k,f)=>handlers[k]=f};
+const context={window:{},document,location:{href:'https://example.test/',origin:'https://example.test',pathname:'/',search:'',assign:u=>navigation=u},URL,matchMedia:q=>({matches:q.includes('reduce')?reduced:mobile}),setTimeout:(fn,ms)=>{timers.set(++nextId,{fn,ms});return nextId;},clearTimeout:id=>timers.delete(id),addEventListener:(k,f)=>handlers[k]=f};
+const source=readFileSync(new URL('../public/js/delivery-0992.js',import.meta.url),'utf8');vm.runInNewContext(source,context);
+const click=(sidebar=true,extra={})=>{const a={href:'https://example.test/settings.html',textContent:'Configurações',focus(){focused=true;}};const e={button:0,target:{closest:()=>sidebar?a:null},preventDefault(){this.defaultPrevented=true;},...extra};handlers.click(e);return e;};
+assert.ok(!click(false).defaultPrevented);assert.ok(!click(true,{ctrlKey:true}).defaultPrevented);
+assert.ok(click().defaultPrevented);assert.equal(overlays.length,1);assert.equal([...timers.values()][0].ms,700);click();assert.equal(overlays.length,1);
+handlers.keydown({key:'Escape'});assert.equal(overlays.length,0);assert.equal(timers.size,0);assert.ok(focused);
+reduced=true;assert.ok(!click().defaultPrevented);reduced=false;mobile=true;click();assert.equal([...timers.values()][0].ms,500);[...timers.values()][0].fn();assert.equal(navigation,'https://example.test/settings.html');assert.equal(overlays.length,0);
+click();handlers.pageshow();assert.equal(overlays.length,0);
+console.log('PASS sidebar scope, modifiers, duplicate click, Escape, reduced motion, mobile timing, navigation and cleanup');

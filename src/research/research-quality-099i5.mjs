@@ -1,3 +1,4 @@
+import {tabDefinition} from "../games/templates.mjs";
 import { createHash, randomUUID } from "node:crypto";
 import { db, nowIso } from "../database/connection.mjs";
 
@@ -18,9 +19,16 @@ const BOILERPLATE_PATTERNS=[
 ];
 const NAV_PATTERNS=[/^(home|menu|navigation|search|login|register|games|community|wiki|about)$/i,/\bprevious\s+page\b|\bnext\s+page\b/i];
 const TOPIC_TERMS={
+  WEAPONS:['weapon','weapons','rifle','rifles','pistol','damage','ammo','armas'],
+  MAPS:['map','maps','location','locations','area','region','mapa'],
+  SKINS:['skin','skins','cosmetic','collection','rarity','cosmeticos'],
+  RANKS:['rank','ranks','ranking','competitive','rating','tier','patente'],
+  GUIDES:['guide','guides','strategy','tips','progression','tutorial','guia'],
+  ITEMS:['item','items','fruit','weapon','inventory','equipment','itens'],
+  MOBS:['mob','mobs','creature','enemy','boss','monsters'],
   OVERVIEW:["game","experience","released","developer","developed","history","overview","roblox","play","players","world"],
   TECHNICAL:["platform","release","developer","engine","id","universe","place","server","device","version","interface","system"],
-  GAMEPLAY:["gameplay","mechanic","combat","ability","abilities","quest","level","movement","fight","boss","progress","skill","system"],
+  GAMEPLAY:["gameplay","mechanics","progression","mechanic","combat","ability","abilities","quest","level","movement","fight","boss","progress","skill","system"],
   UPDATES:["update","patch","version","change","added","removed","rework","release","event","season"],
   COLLECTIONS:["item","items","fruit","weapon","collection","collect","rarity","chance","drop","inventory","equipment","probability"]
 };
@@ -39,7 +47,7 @@ export function classifyResearchText(text,{topic="",gameName="",sourceTitle=""}=
   if(NAV_PATTERNS.some(r=>r.test(raw)))return {contentClass:"NAVIGATION",accepted:false,rejectionReason:"SOURCE_NAVIGATION"};
   if(raw.length<24)return {contentClass:"BOILERPLATE",accepted:false,rejectionReason:"TOO_SHORT_TO_BE_FACT"};
 
-  const tokenSet=words(raw),entityTokens=[...words(gameName)].filter(x=>x.length>=3),topicTerms=TOPIC_TERMS[topicKey]||TOPIC_TERMS.OVERVIEW;
+  const tokenSet=words(raw),entityTokens=[...words(gameName)].filter(x=>x.length>=3),topicTerms=TOPIC_TERMS[topicKey]||[...words(topicKey+' '+tabDefinition(topicKey.toLowerCase()).description)];
   const topicHits=topicTerms.filter(t=>tokenSet.has(t)).length;
   const entityHits=entityTokens.filter(t=>tokenSet.has(t)).length;
   let contentClass="GAME_FACT";

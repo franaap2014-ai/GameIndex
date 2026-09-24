@@ -1,3 +1,4 @@
+import {originalHomeTrack} from "./original-home-track.mjs";
 import { db, nowIso } from "../database/connection.mjs";
 
 const cache=new Map(),CACHE_TTL_MS=60_000,CACHE_MAX_ENTRIES=256;
@@ -14,7 +15,7 @@ function rowToAltProfile(row){return row?{gameId:row.game_id,slotKey:row.slot_ke
 function getByKey(key){const cached=cacheGet(key);if(cached!==undefined)return cached;const row=db.prepare("SELECT context_key,context_type,game_id,youtube_video_id,youtube_url,enabled,default_volume,updated_at FROM gi_youtube_music WHERE context_key=? LIMIT 1").get(key);return cacheSet(key,rowToProfile(row));}
 function setByKey({key,type,gameId=null,youtubeUrl,userId=null,defaultVolume=30}){const videoId=parseYouTubeVideoId(youtubeUrl);if(!videoId)throw new Error("INVALID_YOUTUBE_URL");const now=nowIso();db.prepare(`INSERT INTO gi_youtube_music(context_key,context_type,game_id,youtube_video_id,youtube_url,enabled,default_volume,updated_by,created_at,updated_at) VALUES(?,?,?,?,?,1,?,?,?,?) ON CONFLICT(context_key) DO UPDATE SET context_type=excluded.context_type,game_id=excluded.game_id,youtube_video_id=excluded.youtube_video_id,youtube_url=excluded.youtube_url,enabled=1,default_volume=excluded.default_volume,updated_by=excluded.updated_by,updated_at=excluded.updated_at`).run(key,type,gameId,videoId,canonicalUrl(videoId),volume(defaultVolume),userId,now,now);cacheDelete(key);return getByKey(key);}
 function removeByKey(key){db.prepare("DELETE FROM gi_youtube_music WHERE context_key=?").run(key);cacheDelete(key);return true;}
-export function homeMusicProfile(){return getByKey("home");}
+export function homeMusicProfile(){const fallback=getByKey("home"),original=originalHomeTrack();return original?{...original,fallback}:fallback;}
 export function gameMusicProfile(gameId){return getByKey(keyForGame(gameId));}
 export function setHomeMusic(input={}){return setByKey({key:"home",type:"HOME",...input});}
 export function setGameMusic({gameId,...input}={}){if(!gameId)throw new Error("GAME_REQUIRED");return setByKey({key:keyForGame(gameId),type:"GAME",gameId:String(gameId),...input});}

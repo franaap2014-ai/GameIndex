@@ -64,7 +64,7 @@
     const container=$('foundationUniverse099');if(!container||state.entity?.entityType!=='EXPERIENCE')return;
     container.classList.remove('hidden');const parent=state.entity.parent,crumb=$('gi099Breadcrumb');
     crumb.innerHTML=parent?`<a href="/game/${esc(parent.slug)}">${esc(parent.name)}</a><span>›</span><strong>${esc(state.entity.name)}</strong>`:`<strong>${esc(state.entity.name)}</strong>`;
-    $('gi099EntityBadge').textContent='EXPERIENCE';$('gi099SourceBadge').textContent='Universe Builder · Beta 0.99';
+    $('gi099EntityBadge').textContent='EXPERIENCE';$('gi099SourceBadge').textContent='Universe Builder · Beta 0.992';
     const nav=$('gi099PageNav');nav.innerHTML='<button class="active" type="button" role="tab" aria-selected="true" data-page-key="technical" data-gi-element-key="PAGE_NAV:technical">Technical Information</button>';
     const out=$('gi099PageContent');out.innerHTML=`<div class="gi099-page-heading" data-gi-element-key="PAGE:technical"><h2>${esc(locale()==='pt-BR'?'Informações Técnicas':locale()==='es-ES'?'Información Técnica':'Technical Information')}</h2><p>${esc(parent?`Experience on ${parent.name}`:'Structured technical profile')}</p></div><section class="gi099-section" data-section-key="technical-information" data-gi-element-key="SECTION:technical-information"><div class="gi099-section-body">${technicalMarkup(state.technical)}</div></section>`;
     refreshI3(out);
@@ -75,7 +75,7 @@
     container.classList.remove('hidden');const parent=state.entity?.parent,crumb=$('gi099Breadcrumb');
     crumb.innerHTML=parent?`<a href="/game/${esc(parent.slug)}">${esc(parent.name)}</a><span>›</span><strong>${esc(state.entity.name)}</strong>`:`<strong>${esc(state.entity?.name||'')}</strong>`;
     $('gi099EntityBadge').textContent=state.entity?.entityType||'GAME';
-    $('gi099SourceBadge').textContent=`Beta 0.99 · Revision ${state.revision?.revisionNumber||'—'}`;
+    $('gi099SourceBadge').textContent=`Beta 0.992 · Revision ${state.revision?.revisionNumber||'—'}`;
     const nav=$('gi099PageNav');
     nav.innerHTML=pages.map((p,i)=>`<button type="button" role="tab" aria-selected="${i===0?'true':'false'}" class="${i===0?'active':''}" data-page-key="${esc(p.canonicalKey)}" data-gi-element-key="PAGE_NAV:${esc(p.canonicalKey)}">${esc(p.titleText||localized(p.title,p.canonicalKey))}</button>`).join('')+`<a class="gi099-community-link" href="/social.html?entityGameId=${encodeURIComponent(state.entity?.id||'')}">Comunidade</a>`;
     nav.querySelectorAll('[data-page-key]').forEach(button=>button.addEventListener('click',()=>renderPage(button.dataset.pageKey)));

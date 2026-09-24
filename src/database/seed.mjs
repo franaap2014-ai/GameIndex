@@ -1,3 +1,4 @@
+import {registerDeliveryRelease} from "./delivery-release.mjs";
 import { readFileSync } from "node:fs";
 import { db, migrateDatabase, schemaVersion, verifyDatabase } from "./connection.mjs";
 import { GAME_SEEDS, ENTITY_SEEDS, GAME_KNOWLEDGE_SEEDS, ENTITY_KNOWLEDGE_SEEDS } from "./seed-data.mjs";
@@ -40,8 +41,10 @@ export function initializeDatabase() {
   let games=0;
   try{games=Number(db.prepare(`SELECT COUNT(*) count FROM games`).get()?.count||0);}catch{}
   if(migrationError&&(!verifyDatabase().ok||games===0))throw migrationError;
+  if(!migrationError)registerDeliveryRelease();
   if(games>0)return {ready:true,seeded:false,degraded:Boolean(migrationError),migrationError:migrationError?String(migrationError.message||migrationError):"",schema:schemaVersion(),games};
   seedDatabase({skipMigration:true});
+  registerDeliveryRelease();
   games=Number(db.prepare(`SELECT COUNT(*) count FROM games`).get()?.count||0);
   return {ready:true,seeded:true,degraded:false,migrationError:"",schema:schemaVersion(),games};
 }

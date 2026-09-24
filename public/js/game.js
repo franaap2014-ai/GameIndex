@@ -117,7 +117,7 @@ function setHero(){
   $("gameName").textContent=game.nome;
   $("gameDescription").textContent=basicGameDescription(game);
   const facts=$("gameBasicFacts");if(facts){const rows=basicGameFacts(game);facts.innerHTML=rows.map(item=>`<span>${esc(item)}</span>`).join("");facts.hidden=!rows.length;}
-  $("gameStatus").textContent=game.status==="PUBLISHED"?"BETA 0.9915":"RASCUNHO";
+  $("gameStatus").textContent=game.status==="PUBLISHED"?"BETA 0.992":"RASCUNHO";
   $("gameFranchiseTop").textContent=game.franquia||"";
   const relationLabel=$("relatedRelationshipLabel");if(relationLabel)relationLabel.textContent=game.slug==="roblox"?GV.t("relationship.experiences","EXPERIÊNCIAS"):GV.t("relationship.franchise","FRANQUIA");
   $("gameInitials").textContent=initials(game.nome);
