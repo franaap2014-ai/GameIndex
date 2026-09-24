@@ -1,9 +1,9 @@
 {
-  "name": "gameindex-beta-09915-cinematic-update",
-  "version": "0.9915.0",
+  "name": "gameindex-beta-0992-delivery",
+  "version": "0.992.0",
   "private": true,
   "type": "module",
-  "description": "GameIndex Beta 0.9915 Cinematic Update: final visual polish, cinematics, profiles and social experience.",
+  "description": "GameIndex Beta 0.992 Delivery / Presentation Build: stability, presentation, navigation, music, roles and tab-driven Universe Builder.",
   "engines": {
     "node": ">=22.13"
   },
@@ -11,7 +11,7 @@
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
     "check": "node scripts/check.mjs",
-    "test": "node tests/beta09915-cinematic-update.mjs",
+    "test": "node tests/beta0992-delivery.mjs",
     "test:0986": "node tests/beta0986-production-consolidation.mjs",
     "smoke": "node tests/http-smoke-09915-i1-hf1.mjs",
     "test:hf2": "node tests/hf2-ai-slim-game-experiences.mjs",
@@ -39,7 +39,8 @@
     "smoke:09915hf1": "node tests/http-smoke-09915-i1-hf1.mjs",
     "test:audit": "node tests/audit-09915-hf2-regression.mjs && node tests/audit-09915-hf2-persistence.mjs",
     "test:hf3": "node tests/hf3-builder-regression.mjs",
-    "test:i2": "node tests/i2-mobile-session-regression.mjs"
+    "test:i2": "node tests/i2-mobile-session-regression.mjs",
+    "test:0992": "node tests/beta0992-delivery.mjs"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
