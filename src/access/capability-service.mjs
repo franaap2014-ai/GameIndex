@@ -18,7 +18,7 @@ export function rankPower(snapshot={}){const rank=snapshot.staffRole&&snapshot.s
 
 const ROLE_CAPABILITIES=Object.freeze({
   CREATOR:new Set(CAPABILITIES),
-  DEV:new Set(["page_generation","universe_build","creator_studio_edit","image_management","music_management","game_submission","bug_triage","ai_diagnostics","cinematic_test"]),
+  DEV:new Set(["page_generation","universe_build","creator_studio_edit","image_management","music_management","game_submission","bug_triage","ai_diagnostics","animation_edit","cinematic_test"]),
   TESTER:new Set(["game_submission","tester_preview","tester_feedback","social_lab_access","social_group_create","social_community_access","social_report","simulator_run_safe","cinematic_test"]),
   NONE:new Set()
 });
@@ -50,6 +50,16 @@ export function requireCapability(capability){
     const snapshot=accessSnapshot(req);req.gameIndexAccess=snapshot;
     if(!snapshot.authenticated)return res.status(401).json({ok:false,error:{code:"AUTH_REQUIRED",message:"Faça login para continuar.",component:"CAPABILITY_AUTH",retryable:false}});
     if(!hasCapability(snapshot,capability))return res.status(403).json({ok:false,error:{code:"CAPABILITY_DENIED",message:"Sua conta não possui autorização para esta área.",component:"CAPABILITY_AUTH",capability,retryable:false}});
+    next();
+  };
+}
+
+export function requireAnyCapability(capabilities=[]){
+  const required=[...new Set((Array.isArray(capabilities)?capabilities:[capabilities]).map(String).filter(Boolean))];
+  return function(req,res,next){
+    const snapshot=accessSnapshot(req);req.gameIndexAccess=snapshot;
+    if(!snapshot.authenticated)return res.status(401).json({ok:false,error:{code:"AUTH_REQUIRED",message:"Faça login para continuar.",component:"CAPABILITY_AUTH",retryable:false}});
+    if(!required.some(capability=>hasCapability(snapshot,capability)))return res.status(403).json({ok:false,error:{code:"CAPABILITY_DENIED",message:"Sua conta não possui autorização para esta área.",component:"CAPABILITY_AUTH",capabilities:required,retryable:false}});
     next();
   };
 }
