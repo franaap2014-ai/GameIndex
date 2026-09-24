@@ -11,7 +11,7 @@ import { experienceProfile, listExperiences, setExperience, listChildExperiences
 import { localAIRuntimeStatus } from "../ai/runtime/local-ai-runtime.mjs";
 import { basicGameOverview } from "../universe/basic-overview.mjs";
 import { twoFactorStatus, requestLoginChallenge, requestEnableChallenge, resendChallenge, verifyChallenge, enableTwoFactor, disableTwoFactor } from "../security/two-factor-service.mjs";
-import { INTERNAL_RELEASE, INTERNAL_RELEASE_CODE } from "../config/release-099i5.mjs";
+import { INTERNAL_RELEASE, INTERNAL_RELEASE_CODE } from "../config/release-099i6.mjs";
 
 function gameFrom(value){return getGameById(String(value||""))||getGameBySlug(String(value||""));}
 function actor(req){return currentAuth(req)?.user?.id||null;}
