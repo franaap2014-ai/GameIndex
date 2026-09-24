@@ -5,6 +5,7 @@ import { getGameById, getGameBySlug, listGames, listGamesPage } from "../databas
 import { accessSnapshot, hasCapability, requireCapability, requireSameOriginMutation } from "../access/capability-service.mjs";
 import { adminConnectionForUser, listAdminConnections, setAdminConnection } from "../access/admin-connection-service.mjs";
 import { homeMusicProfile, gameMusicProfile, setHomeMusic, setGameMusic, removeHomeMusic, removeGameMusic, listGameMusicProfiles, gameAltMusicProfile, setGameAltMusic, removeGameAltMusic, listGameAltMusicProfiles } from "../music/youtube-music-service.mjs";
+import { originalHomeTrack } from "../music/original-home-track.mjs";
 import { gameMediaProfile, listGameMedia, listGameMediaForGames, setGameMedia, setGameMediaFromUrl, removeGameMedia, listAllExperienceMedia, listExperienceMedia, setExperienceMedia, setExperienceMediaFromUrl, removeExperienceMedia, listAllEraMedia, previewImageFromUrl } from "../images/game-media-service.mjs";
 import { gamePublicVisual } from "../images/public-visual.mjs";
 import { experienceProfile, listExperiences, setExperience, listChildExperiences, parentExperienceForGame, robloxExperienceHub, experienceByChildSlug } from "../games/game-experience-service.mjs";
@@ -28,7 +29,7 @@ export function registerBeta0986Routes(app,{authLimiter=null}={}){
   app.get("/api/game-options",(req,res)=>gameOptions(req,res,{includeDrafts:false}));
   app.get("/api/staff/game-options",requireCapability("universe_build"),(req,res)=>gameOptions(req,res,{includeDrafts:true}));
 
-  app.get("/api/music/home",(req,res)=>publicCache(res).json({ok:true,profile:homeMusicProfile()}));
+  app.get("/api/music/home",(req,res)=>publicCache(res).json({ok:true,profile:homeMusicProfile(),originalTrack:originalHomeTrack()}));
   app.put("/api/music/home",requireSameOriginMutation,requireCapability("music_management"),(req,res)=>{try{return noStore(res).json({ok:true,profile:setHomeMusic({youtubeUrl:req.body?.youtubeUrl,defaultVolume:req.body?.defaultVolume,userId:actor(req)})});}catch{return fail(res,400,"INVALID_YOUTUBE_URL","Invalid YouTube URL.");}});
   app.delete("/api/music/home",requireSameOriginMutation,requireCapability("music_management"),(req,res)=>{removeHomeMusic();return noStore(res).json({ok:true});});
   app.get("/api/games/:game/music",(req,res)=>{const game=gameFrom(req.params.game);if(!game)return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");return publicCache(res).json({ok:true,game:{id:game.id,slug:game.slug,name:game.nome},profile:gameMusicProfile(game.id)});});
