@@ -61,10 +61,27 @@ function researchQuestions(game,scope){
   if(scope==="MEDIA_REFRESH"||scope==="IMAGE_REFRESH")selected=tabs.slice(0,Math.min(2,tabs.length));
   else if(scope==="INTERACTION_REFRESH"){const preferred=new Set(["gameplay","items","weapons","maps","skins","abilities","guides"]);selected=tabs.filter(tab=>preferred.has(String(tab.id).toLowerCase()));if(!selected.length)selected=tabs.slice(0,2);}
   else if(scope==="TRANSLATION_REFRESH"||scope==="STRUCTURE_REVIEW"||scope==="IDENTITY_RESEARCH")selected=tabs.slice(0,1);
+  const researchHints={
+    overview:"overview history developer release date platforms technical information",
+    gameplay:"gameplay mechanics systems progression guide",
+    weapons:"weapons weapon categories equipment stats",
+    maps:"maps locations modes objectives",
+    skins:"skins cosmetics collections items",
+    ranks:"ranks ranking competitive rating system",
+    guides:"guide beginner progression mechanics tips",
+    items:"items collection rarity probability chances inventory rewards",
+    lore:"lore story characters world history",
+    story:"story lore characters chapters",
+    characters:"characters abilities roles",
+    mobs:"mobs enemies creatures drops",
+    biomes:"biomes locations resources",
+    blocks:"blocks materials uses",
+    crafting:"crafting recipes materials"
+  };
   return selected.map((tab,index)=>{
-    const id=String(tab.id).trim().toLowerCase(),topic=canonicalKey(id),firstSection=tab.sections?.[0]||null,label=clean(tab.label||id,120),description=clean(tab.description||"",240);
+    const id=String(tab.id).trim().toLowerCase(),topic=canonicalKey(id),firstSection=tab.sections?.[0]||null,label=clean(tab.label||id,120),description=clean(tab.description||"",240),hints=researchHints[id]||`${id} mechanics systems guide`;
     const intent=id==="overview"?"overview":id==="gameplay"?"gameplay":id==="guides"?"guide":id==="maps"?"location":id==="lore"||id==="story"?"lore":"mechanic";
-    return {topic,intent,tabId:id,label,description,sectionId:String(firstSection?.id||"content"),sectionLabel:String(firstSection?.label||label||"Conteúdo"),order:index+1,query:`${n} ${platform} ${label} ${description} official wiki guide`.replace(/\s+/g," ").trim()};
+    return {topic,intent,tabId:id,label,description,sectionId:String(firstSection?.id||"content"),sectionLabel:String(firstSection?.label||label||"Conteúdo"),order:index+1,query:`${n} ${platform} ${hints} ${label} ${description} official wiki`.replace(/\s+/g," ").trim()};
   });
 }
 function topicPlan(topic,game=null){
