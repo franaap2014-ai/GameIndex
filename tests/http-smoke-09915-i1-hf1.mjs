@@ -66,7 +66,7 @@ try{
   const release=await request(`${base}/api/release/public`);
   const publicRelease=await release.json();
   assert.equal(publicRelease.version,"0.992");
-  assert.match(publicRelease.label,/Beta 0\.9915/);
+  assert.match(publicRelease.label,/Beta 0\.992/);
 
   await request(`${base}/`);
   await request(`${base}/games.html`);
