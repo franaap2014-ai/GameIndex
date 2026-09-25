@@ -5,28 +5,29 @@
   <title>Universe Builder | GameIndex Beta 0.992</title>
   <script src="/js/theme-bootstrap.js"></script>
   <link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/beta095.css"><link rel="stylesheet" href="/css/beta096.css"><link rel="stylesheet" href="/css/gameindex-0986.css?v=0991"><link rel="stylesheet" href="/css/final-foundation-099.css?v=099i6">
-<link rel="stylesheet" href="/css/gameindex-0991-hf1.css?v=0991hf1"><link rel="stylesheet" href="/css/universe-builder-v3.css?v=0991hf1"></head>
+<link rel="stylesheet" href="/css/gameindex-0991-hf1.css?v=0991hf1"><link rel="stylesheet" href="/css/universe-builder-v3.css?v=0991hf1"><link rel="stylesheet" href="/css/stability-0992-i1.css?v=0992i1"><link rel="icon" type="image/svg+xml" href="/assets/brand/index-emblem.svg"></head>
 <body><div id="siteShell"></div><main class="beta95-main gi099i5-builder">
   <section class="beta95-hero gi099i5-hero">
     <p class="beta95-kicker">GAMEINDEX · Beta 0.992</p><h1>Universe Builder</h1>
-    <p>Construa o conteúdo, resolva as imagens, ajuste a aparência, teste as interações e veja a Preview antes de publicar.</p>
+    <p>Construa o conteúdo, resolva as imagens, ajuste a aparência, teste as interações e veja a Prévia antes de publicar.</p>
   </section>
 
   <section class="gi099i5-topbar" aria-label="Controles do Universe Builder">
     <div class="beta95-toolbar gi099i5-toolbar">
       <label>Jogo / Experience<select id="universeGame"></select></label>
       <label>Idioma<select id="universeLanguage"><option>pt-BR</option><option>en-US</option><option>es-ES</option></select></label>
-      <label class="gi099i5-advanced-control">Tipo de construção<select id="foundationScope"><option>FULL_ENTITY_BUILD</option><option>RESEARCH_REFRESH</option><option>CONTENT_REFRESH</option><option>IMAGE_REFRESH</option><option>INTERACTION_REFRESH</option><option>STRUCTURE_REVIEW</option><option>TRANSLATION_REFRESH</option><option>IDENTITY_RESEARCH</option><option>TECHNICAL_REFRESH</option><option>TOPIC_REFRESH</option><option>MEDIA_REFRESH</option></select></label>
+      <label class="gi099i5-advanced-control">Tipo de construção<select id="foundationScope"><option value="FULL_ENTITY_BUILD">Construir tudo</option><option value="RESEARCH_REFRESH">Pesquisa</option><option value="CONTENT_REFRESH">Conteúdo</option><option value="IMAGE_REFRESH">Imagens</option><option value="INTERACTION_REFRESH">Interações</option><option value="STRUCTURE_REVIEW">Organização</option><option value="TRANSLATION_REFRESH">Idioma</option><option value="IDENTITY_RESEARCH">Identidade</option><option value="TECHNICAL_REFRESH">Dados do jogo</option><option value="TOPIC_REFRESH">Assuntos</option><option value="MEDIA_REFRESH">Mídias</option></select></label>
       <button id="loadUniverse" data-ub-action="open" class="b95-button secondary" type="button">Abrir</button>
     </div>
     <div class="gi099i5-command-strip">
       <div class="gi099i5-context"><div id="foundationContext" class="b95-list"><p class="beta95-muted">Selecione um jogo ou Experience.</p></div><div id="i4TopStatus" class="gi099i4-status-strip" aria-live="polite"></div></div>
-      <div class="b95-actions gi099i5-primary-actions"><button id="foundationBuild" data-ub-action="build" class="b95-button" type="button">Construir</button><button id="enhanceI6" data-ub-action="enhance" class="b95-button secondary" type="button">Aprimorar</button><button id="foundationPreview" data-ub-action="preview" class="b95-button secondary" type="button" disabled>Ver Preview</button><button id="foundationPublish" data-ub-action="publish" class="b95-button gi099i4-publish" type="button" disabled>PUBLICAR</button><button id="foundationResume" data-ub-action="resume" class="b95-button secondary" type="button" hidden>Retomar construção</button><button id="foundationCancel" data-ub-action="cancel" class="b95-button secondary gi099i5-advanced-control" type="button" disabled>Cancelar</button></div>
+      <div class="b95-actions gi099i5-primary-actions"><button id="foundationBuild" data-ub-action="build" class="b95-button" type="button">Construir</button><button id="enhanceI6" data-ub-action="enhance" class="b95-button secondary" type="button">Aprimorar</button><button id="foundationPreview" data-ub-action="preview" class="b95-button secondary" type="button" disabled>Ver Prévia</button><button id="foundationPublish" data-ub-action="publish" class="b95-button gi099i4-publish" type="button" disabled>PUBLICAR</button><button id="foundationResume" data-ub-action="resume" class="b95-button secondary" type="button" hidden>Retomar construção</button><button id="foundationCancel" data-ub-action="cancel" class="b95-button secondary gi099i5-advanced-control" type="button" disabled>Cancelar</button></div>
     </div>
     <div id="foundationProgress" class="b95-list"><p class="beta95-muted">Nenhuma construção iniciada.</p></div>
     <div id="universeMessage" class="beta95-message" role="status" aria-live="polite"></div>
   </section>
 
+  <details id="builderSources" class="beta95-card"><summary>Fontes da pesquisa</summary><p>Se a pesquisa automática não encontrar conteúdo, indique uma página pública da wiki deste jogo. O conteúdo ainda será verificado antes de ser usado.</p><label for="builderSourceUrl">Endereço da wiki</label><input id="builderSourceUrl" type="url" placeholder="https://…" maxlength="1500"><button id="builderSaveSource" type="button" class="b95-button">Salvar fonte e retomar</button><p id="builderSourceMessage" role="status"></p></details>
   <section id="ub9915Cinematic" class="beta95-card wide" hidden>
     <div class="b95-row-head"><div><p class="beta95-kicker">GAME ENTRY</p><h2>Cutscene de entrada</h2><p class="beta95-muted">Associe uma cutscene publicada ao jogo atual. O editor de cinematics continua separado do editor de páginas.</p></div><a class="b95-button secondary" href="/cinematic-test-lab.html">Abrir Test Lab</a></div>
     <div class="beta95-toolbar"><label>Cutscene publicada<select id="ub9915CutsceneProject"></select></label><label>Limite<select id="ub9915CutsceneLimit"><option value="1200">1,2 s</option><option value="1600">1,6 s</option><option value="2000" selected>2,0 s</option><option value="2500">2,5 s</option></select></label><button id="ub9915BindCutscene" class="b95-button" type="button">Usar nesta página</button><button id="ub9915FallbackCutscene" class="b95-button secondary" type="button">Usar transição padrão</button></div>
@@ -35,22 +36,22 @@
 
   <section id="universeBuilderV3" class="gi-ub3" data-mobile-panel="preview" aria-label="Universe Builder V3">
     <header class="gi-ub3-head">
-      <div><p class="beta95-kicker">UNIVERSE BUILDER V3 · 0.9915</p><h2>Workspace do universo</h2><p>Estrutura real, Preview ao vivo, Inspector, recuperação e prontidão no mesmo ambiente.</p></div>
+      <div><p class="beta95-kicker">UNIVERSE BUILDER · Beta 0.992</p><h2>Seu universo</h2><p>Estrutura real, Prévia ao vivo, Inspector, recuperação e prontidão no mesmo ambiente.</p></div>
       <div id="ub3PipelineStages" class="gi-ub3-stage" aria-label="Pipeline de construção"><span data-stage="RESEARCH">PESQUISA</span><span data-stage="STRUCTURE">ESTRUTURA</span><span data-stage="CONTENT">CONTEÚDO</span><span data-stage="IMAGES">IMAGENS</span><span data-stage="IDENTITY">IDENTIDADE</span><span data-stage="INTERACTIONS">INTERAÇÕES</span><span data-stage="VALIDATION">VALIDAÇÃO</span></div>
     </header>
-    <nav class="gi-ub3-mobile-tabs" aria-label="Áreas do Builder"><button class="b95-button secondary" type="button" data-ub3-mobile="structure">Estrutura</button><button class="b95-button" type="button" data-ub3-mobile="preview">Preview</button><button class="b95-button secondary" type="button" data-ub3-mobile="inspector">Inspector</button></nav>
+    <nav class="gi-ub3-mobile-tabs" aria-label="Áreas do Builder"><button class="b95-button secondary" type="button" data-ub3-mobile="structure">Estrutura</button><button class="b95-button" type="button" data-ub3-mobile="preview">Prévia</button><button class="b95-button secondary" type="button" data-ub3-mobile="inspector">Inspector</button></nav>
     <div class="gi-ub3-workspace">
       <aside class="gi-ub3-panel gi-ub3-tree-panel">
         <div class="gi-ub3-panel-head"><h3>Universo</h3><small id="ub3TreeCount">0</small></div>
         <div id="ub3UniverseTree" class="gi-ub3-tree"><div class="gi-ub3-tree-empty">Abra um universo para carregar a estrutura.</div></div>
       </aside>
       <section class="gi-ub3-panel gi-ub3-preview gi-ub3-preview-panel">
-        <div class="gi-ub3-panel-head gi-ub3-preview-tools"><h3>Preview ao vivo</h3><div class="b95-actions" role="group" aria-label="Viewport"><button type="button" class="b95-button secondary active" data-ub3-viewport="DESKTOP">Desktop</button><button type="button" class="b95-button secondary" data-ub3-viewport="TABLET">Tablet</button><button type="button" class="b95-button secondary" data-ub3-viewport="MOBILE">Mobile</button><button type="button" class="b95-button secondary" data-ub3-action="preview-refresh">Atualizar</button></div></div>
-        <div id="ub3PreviewMount"><p class="gi-ub3-tree-empty">A Preview real será carregada aqui.</p></div>
+        <div class="gi-ub3-panel-head gi-ub3-preview-tools"><h3>Prévia ao vivo</h3><div class="b95-actions" role="group" aria-label="Viewport"><button type="button" class="b95-button secondary active" data-ub3-viewport="DESKTOP">Desktop</button><button type="button" class="b95-button secondary" data-ub3-viewport="TABLET">Tablet</button><button type="button" class="b95-button secondary" data-ub3-viewport="MOBILE">Mobile</button><button type="button" class="b95-button secondary" data-ub3-action="preview-refresh">Atualizar</button></div></div>
+        <div id="ub3PreviewMount"><p class="gi-ub3-tree-empty">A Prévia real será carregada aqui.</p></div>
       </section>
       <aside class="gi-ub3-panel gi-ub3-inspector-panel">
         <div class="gi-ub3-panel-head"><h3>Inspector</h3><small id="ub3InspectorType">—</small></div>
-        <div id="ub3Inspector" class="gi-ub3-inspector"><div class="gi-ub3-inspector-empty">Selecione uma página, aba ou seção na árvore ou na Preview.</div></div>
+        <div id="ub3Inspector" class="gi-ub3-inspector"><div class="gi-ub3-inspector-empty">Selecione uma página, aba ou seção na árvore ou na Prévia.</div></div>
       </aside>
     </div>
     <div class="gi-ub3-bottom">
@@ -80,10 +81,10 @@
   </section>
 
   <section class="beta95-card wide gi099i5-preview-card" id="i4PreviewStage">
-    <div class="b95-row-head"><div><p class="beta95-kicker">7 · PREVIEW</p><h2>Veja como a página vai ficar</h2><p class="beta95-muted">A Preview usa o mesmo estado de conteúdo, imagens, composição e interações validado para publicação.</p></div><span id="editorClassification" class="b95-badge">Beta 0.992</span></div>
-    <div class="gi099i4-preview-controls"><div class="b95-actions" role="group" aria-label="Tamanho da Preview"><button class="b95-button secondary active" type="button" data-i4-preview-mode="DESKTOP">Desktop</button><button class="b95-button secondary" type="button" data-i4-preview-mode="TABLET">Tablet</button><button class="b95-button secondary" type="button" data-i4-preview-mode="MOBILE">Mobile</button></div><div class="b95-actions"><button id="i4RegeneratePreview" data-ub-action="preview-refresh" class="b95-button" type="button">Atualizar Preview</button><button id="i4ReloadPreviewData" data-ub-action="reload" class="b95-button secondary" type="button">Recarregar dados</button></div></div>
+    <div class="b95-row-head"><div><p class="beta95-kicker">7 · PREVIEW</p><h2>Veja como a página vai ficar</h2><p class="beta95-muted">A Prévia usa o mesmo estado de conteúdo, imagens, composição e interações validado para publicação.</p></div><span id="editorClassification" class="b95-badge">Beta 0.992</span></div>
+    <div class="gi099i4-preview-controls"><div class="b95-actions" role="group" aria-label="Tamanho da Preview"><button class="b95-button secondary active" type="button" data-i4-preview-mode="DESKTOP">Desktop</button><button class="b95-button secondary" type="button" data-i4-preview-mode="TABLET">Tablet</button><button class="b95-button secondary" type="button" data-i4-preview-mode="MOBILE">Mobile</button></div><div class="b95-actions"><button id="i4RegeneratePreview" data-ub-action="preview-refresh" class="b95-button" type="button">Atualizar Prévia</button><button id="i4ReloadPreviewData" data-ub-action="reload" class="b95-button secondary" type="button">Recarregar dados</button></div></div>
     <div id="i4PreviewMeta" class="gi099i4-status-strip"></div>
-    <div id="i4PreviewViewport" class="gi099i4-preview-viewport" data-mode="DESKTOP"><div id="experiencePreview" class="gi099i4-preview-canvas"><p class="beta95-muted">Abra um universo para ver a Preview.</p></div></div>
+    <div id="i4PreviewViewport" class="gi099i4-preview-viewport" data-mode="DESKTOP"><div id="experiencePreview" class="gi099i4-preview-canvas"><p class="beta95-muted">Abra um universo para ver a Prévia.</p></div></div>
   </section>
 
   <section class="beta95-card wide gi099i5-publish-check"><div class="b95-row-head"><div><p class="beta95-kicker">8 · PUBLICAR</p><h2 id="simplePublishTitle">Verificando...</h2></div><span id="publicationStatusI3" class="b95-badge">NOT STARTED</span></div><div id="simplePublishChecklist" class="b95-list"><p class="beta95-muted">Abra um universo para verificar o que falta.</p></div></section>
@@ -111,4 +112,4 @@
   </details>
 
   <section class="beta95-card wide gi099i5-report-card" id="i4ReportStage"><div class="b95-row-head"><div><p class="beta95-kicker">RELATÓRIO FINAL</p><h2>O que está pronto e o que falta</h2></div></div><div id="i4FinalReport" class="b95-list"><p class="beta95-muted">Nenhum relatório ainda.</p></div></section>
-</main><script src="/js/shell-0986.js?v=09915" defer></script><script src="/js/cinematic-0991-hf1.js?v=09915" defer></script><script src="/js/gameindex-0991.js?v=09915" defer></script><script src="/js/universe-builder.js?v=09915" defer></script><script src="/js/universe-builder-09915.js?v=09915" defer></script></body></html>
+</main><script src="/js/shell-0986.js?v=09915" defer></script><script src="/js/cinematic-0991-hf1.js?v=09915" defer></script><script src="/js/gameindex-0991.js?v=09915" defer></script><script src="/js/builder-labels.js?v=0992i1"></script><script src="/js/universe-builder.js?v=09915" defer></script><script src="/js/universe-builder-09915.js?v=09915" defer></script></body></html>

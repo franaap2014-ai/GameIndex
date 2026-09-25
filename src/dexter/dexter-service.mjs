@@ -27,6 +27,7 @@ function validateResult(type,result){
   const c=contract(type);if(!result||typeof result!=="object"||Array.isArray(result))return {ok:false,reason:"RESULT_NOT_OBJECT"};
   for(const key of c.required)if(!(key in result))return {ok:false,reason:`MISSING_${key.toUpperCase()}`};
   if("confidence" in result){const n=Number(result.confidence);if(!Number.isFinite(n)||n<0||n>1)return {ok:false,reason:"CONFIDENCE_OUT_OF_RANGE"};}
+  if(type==="PUBLIC_ANSWER"&&(typeof result.directAnswer!=="string"||!result.directAnswer.trim()||!Array.isArray(result.details)||result.details.some(x=>typeof x!=="string")))return {ok:false,reason:"INVALID_ANSWER_FIELDS"};
   return {ok:true};
 }
 function taskRow(id){const r=db.prepare(`SELECT * FROM dexter_tasks WHERE id=?`).get(id);return r?{id:r.id,taskType:r.task_type,schemaVersion:r.schema_version,gameId:r.game_id,entityId:r.entity_id,provider:r.provider,model:r.model,status:r.status,timeoutClass:r.timeout_class,inputDigest:r.input_digest,result:parseJson(r.result_json,{}),reasonCode:r.reason_code,durationMs:Number(r.duration_ms||0),createdAt:r.created_at,startedAt:r.started_at,completedAt:r.completed_at}:null;}
@@ -42,7 +43,7 @@ export async function runDexterTask({taskType,schemaVersion="1",gameId=null,enti
   await acquire();const started=Date.now();
   try{
     db.prepare(`UPDATE dexter_tasks SET status='RUNNING',started_at=? WHERE id=?`).run(nowIso(),id);
-    const requestPrompt=prompt||`Task type: ${type}\nInput JSON:\n${compactInput}`;
+    const requestPrompt=`${prompt||`Task type: ${type}`}\nInput JSON:\n${compactInput}`;
     const routed=await routeAITask({capability:capabilityForTaskType(type),source:"dexter",signal,execute:async()=>{
       let modelResult=await ollamaStructured({system,prompt:requestPrompt,images,timeoutClass:c.timeoutClass,signal});
       let verdict=validateResult(type,modelResult.data);

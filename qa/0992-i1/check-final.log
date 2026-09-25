@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> gameindex-beta-09915-cinematic-update@0.992.0 check
+> node scripts/check.mjs
+
+Syntax OK: 368 JavaScript/MJS files.

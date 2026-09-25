@@ -34,8 +34,8 @@
     frameRatio(){return this.slot==='LOGO'?3:16/6;}
     outputSize(){return this.slot==='LOGO'?{width:1200,height:400}:{width:1600,height:600};}
     renderShell(){
-      this.mount.innerHTML=`<div class="gi-crop-stage" tabindex="0" aria-label="Editor visual de enquadramento"><div class="gi-crop-grid"></div><div class="gi-crop-image-box" hidden><img class="gi-crop-image" alt=""></div><button type="button" class="gi-crop-handle gi-crop-handle-nw" data-corner="nw" aria-label="Redimensionar pelo canto superior esquerdo"></button><button type="button" class="gi-crop-handle gi-crop-handle-ne" data-corner="ne" aria-label="Redimensionar pelo canto superior direito"></button><button type="button" class="gi-crop-handle gi-crop-handle-sw" data-corner="sw" aria-label="Redimensionar pelo canto inferior esquerdo"></button><button type="button" class="gi-crop-handle gi-crop-handle-se" data-corner="se" aria-label="Redimensionar pelo canto inferior direito"></button><div class="gi-crop-empty">Escolha uma imagem para começar.</div></div>`;
-      this.stage=this.mount.querySelector('.gi-crop-stage');this.box=this.mount.querySelector('.gi-crop-image-box');this.imgEl=this.mount.querySelector('.gi-crop-image');this.empty=this.mount.querySelector('.gi-crop-empty');this.handles=[...this.mount.querySelectorAll('.gi-crop-handle')];
+      this.mount.innerHTML=`<div class="gi-crop-stage" tabindex="0" aria-label="Editor visual de enquadramento"><img class="gi-i1-crop-backdrop" alt="" hidden><div class="gi-crop-grid"></div><div class="gi-crop-image-box" hidden><img class="gi-crop-image" alt=""></div><button type="button" class="gi-crop-handle gi-crop-handle-nw" data-corner="nw" aria-label="Redimensionar pelo canto superior esquerdo"></button><button type="button" class="gi-crop-handle gi-crop-handle-ne" data-corner="ne" aria-label="Redimensionar pelo canto superior direito"></button><button type="button" class="gi-crop-handle gi-crop-handle-sw" data-corner="sw" aria-label="Redimensionar pelo canto inferior esquerdo"></button><button type="button" class="gi-crop-handle gi-crop-handle-se" data-corner="se" aria-label="Redimensionar pelo canto inferior direito"></button><div class="gi-crop-empty">Escolha uma imagem para começar.</div></div>`;
+      this.stage=this.mount.querySelector('.gi-crop-stage');this.backdrop=this.mount.querySelector('.gi-i1-crop-backdrop');this.box=this.mount.querySelector('.gi-crop-image-box');this.imgEl=this.mount.querySelector('.gi-crop-image');this.empty=this.mount.querySelector('.gi-crop-empty');this.handles=[...this.mount.querySelectorAll('.gi-crop-handle')];
       this.setSlot(this.slot);
       if('ResizeObserver' in root){this.resizeObserver=new ResizeObserver(()=>this.scheduleLayout());this.resizeObserver.observe(this.stage);}
     }
@@ -111,7 +111,7 @@
     async setImage(src,{crossOrigin=false,fitMode='fill'}={}){
       const image=new Image();if(crossOrigin)image.crossOrigin='anonymous';
       await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error('A imagem não pôde ser aberta no editor.'));image.src=src;});
-      this.image=image;this.src=src;this.imgEl.src=src;this.fitMode=['fill','fit','center'].includes(String(fitMode).toLowerCase())?String(fitMode).toLowerCase():'fill';this.scale=1;this.txNorm=0;this.tyNorm=0;this.dirty=false;this.empty.hidden=true;this.box.hidden=false;this.scheduleLayout();this.changed();return image;
+      this.image=image;this.backdrop.src=src;this.src=src;this.imgEl.src=src;this.fitMode=['fill','fit','center'].includes(String(fitMode).toLowerCase())?String(fitMode).toLowerCase():'fill';this.scale=1;this.txNorm=0;this.tyNorm=0;this.dirty=false;this.empty.hidden=true;this.box.hidden=false;this.scheduleLayout();this.changed();return image;
     }
     clampTranslation(){
       if(!this.image||this.fitMode!=='fill'||this.scale<1)return;
@@ -122,7 +122,7 @@
     }
     scheduleLayout(){if(this.raf)return;this.raf=(root.requestAnimationFrame||((fn)=>setTimeout(fn,0)))(()=>{this.raf=0;this.layout();});}
     layout(){
-      if(!this.stage)return;this.stage.style.aspectRatio=String(this.frameRatio());
+      if(!this.stage)return;this.backdrop.hidden=!this.image||this.slot==='LOGO'||!['fit','center'].includes(this.fitMode);this.stage.style.aspectRatio=String(this.frameRatio());
       if(!this.image){this.box.hidden=true;this.empty.hidden=false;this.stage.classList.remove('has-image');for(const h of this.handles)h.hidden=true;return;}
       const rect=this.stage.getBoundingClientRect();if(!rect.width||!rect.height)return;
       const base=this.currentBase(rect);this.clampTranslation();const t=denormalizedTranslation(this.txNorm,this.tyNorm,rect.width,rect.height),centerX=rect.width/2+t.x,centerY=rect.height/2+t.y,drawW=base.width*this.scale,drawH=base.height*this.scale;
@@ -136,7 +136,7 @@
       const out=this.outputSize(),w=Math.max(64,Math.min(4096,Number(width)||out.width)),h=Math.max(64,Math.min(4096,Number(height)||out.height));
       const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');
       const stage=this.stage.getBoundingClientRect(),mode=this.fitMode==='fit'||this.fitMode==='center'?'fit':'fill',base=coverBaseSize(this.image.naturalWidth,this.image.naturalHeight,stage.width,stage.height,mode),t=denormalizedTranslation(this.txNorm,this.tyNorm,stage.width,stage.height),dw=base.width*this.scale,dh=base.height*this.scale,dx=(stage.width-dw)/2+t.x,dy=(stage.height-dh)/2+t.y,sx=w/Math.max(1,stage.width),sy=h/Math.max(1,stage.height);
-      ctx.clearRect(0,0,w,h);ctx.drawImage(this.image,dx*sx,dy*sy,dw*sx,dh*sy);return canvas;
+      ctx.clearRect(0,0,w,h);if(mode==='fit'&&this.slot!=='LOGO'){const bg=coverBaseSize(this.image.naturalWidth,this.image.naturalHeight,w,h,'fill');ctx.save();ctx.filter='blur(24px) brightness(0.45)';ctx.drawImage(this.image,(w-bg.width)/2-30,(h-bg.height)/2-30,bg.width+60,bg.height+60);ctx.restore();}ctx.drawImage(this.image,dx*sx,dy*sy,dw*sx,dh*sy);return canvas;
     }
     toDataURL(type='image/webp',quality=.86){return this.toCanvas().toDataURL(type,clamp(quality,.2,1));}
     destroy(){try{this.resizeObserver?.disconnect();}catch{}if(this.raf){try{(root.cancelAnimationFrame||clearTimeout)(this.raf);}catch{}}this.mount.replaceChildren();}

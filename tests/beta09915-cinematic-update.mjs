@@ -21,8 +21,8 @@ const updateLog=read("public/js/update-log.js");
 const pkg=JSON.parse(read("package.json"));
 
 assert.match(release,/PUBLIC_VERSION="0\.992"/);
-assert.match(release,/INTERNAL_RELEASE="0\.992 DELIVERY"/);
-assert.match(release,/BETA_0_992_DELIVERY/);
+assert.match(release,/INTERNAL_RELEASE="0\.992 I1"/);
+assert.match(release,/BETA_0_992_I1_STABILITY_UX_DEXTER_INTELLIGENCE/);
 assert.match(release,/TARGET_SCHEMA=47/);
 assert.match(connection,/045_beta_09915_cinematic_update\.sql/);
 assert.match(connection,/GAMEINDEX_TARGET_SCHEMA\|\|47/);

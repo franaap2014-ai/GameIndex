@@ -67,6 +67,7 @@ export function latestUniverseRevision(entityGameId,{status=null}={}) {
   return mapRevision(row);
 }
 
+function protectedAutomaticUpdate(row,ownership){if(!row||ownership==='MANUAL')return false;if(row.ownership==='MANUAL')return true;if(!hasTable('universe_builder_component_locks'))return false;return Boolean(db.prepare('SELECT 1 FROM universe_builder_component_locks WHERE locked=1 AND component_id IN (?,?,?)').get(row.id,row.page_id||row.id,row.tab_id||row.id));}
 function manualPublishedPage(entityGameId, ck) { return db.prepare(`SELECT * FROM universe_pages WHERE entity_game_id=? AND canonical_key=? AND ownership='MANUAL' AND status='PUBLISHED' ORDER BY updated_at DESC LIMIT 1`).get(String(entityGameId), ck); }
 function pageForRevision(entityGameId, ck, revisionId) {
   if (revisionId) return db.prepare(`SELECT * FROM universe_pages WHERE entity_game_id=? AND canonical_key=? AND revision_id=? LIMIT 1`).get(String(entityGameId), ck, String(revisionId));
@@ -78,6 +79,7 @@ export function upsertUniversePage({entityGameId,canonicalKey:key,title,summary=
   const manual = revisionId ? manualPublishedPage(entityGameId, ck) : null;
   if (manual) return mapPage(manual);
   const now=nowIso(), existing=pageForRevision(entityGameId,ck,revisionId), id=existing?.id||`universe-page-${randomUUID()}`, safeSlug=slugify(slug||Object.values(localizedMap(title,ck))[0]||ck)||ck.toLowerCase();
+  if(protectedAutomaticUpdate(existing,ownership))return mapPage(existing);
   db.prepare(`INSERT INTO universe_pages(id,entity_game_id,canonical_key,slug,title_json,summary_json,layout_variant,identity_variant,ownership,status,display_order,revision_id,created_by,updated_by,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET slug=excluded.slug,title_json=excluded.title_json,summary_json=excluded.summary_json,layout_variant=excluded.layout_variant,identity_variant=excluded.identity_variant,ownership=CASE WHEN universe_pages.ownership='MANUAL' THEN universe_pages.ownership ELSE excluded.ownership END,status=CASE WHEN universe_pages.ownership='MANUAL' THEN universe_pages.status ELSE excluded.status END,display_order=excluded.display_order,updated_by=excluded.updated_by,updated_at=excluded.updated_at`)
     .run(id,String(entityGameId),ck,safeSlug,json(localizedMap(title,ck)),json(localizedMap(summary,"")),clean(layoutVariant,60)||"STANDARD",clean(identityVariant,80),safeOwnership(ownership),safeStatus(status),Number(displayOrder)||0,revisionId||null,userId||existing?.created_by||null,userId||null,existing?.created_at||now,now);
   return mapPage(db.prepare(`SELECT * FROM universe_pages WHERE id=?`).get(id));
@@ -92,6 +94,7 @@ export function upsertUniverseTab({entityGameId,pageId,canonicalKey:key,title,sl
     ? db.prepare(`SELECT * FROM universe_tabs WHERE page_id=? AND canonical_key=? AND revision_id=? LIMIT 1`).get(String(pageId),ck,String(revisionId))
     : db.prepare(`SELECT * FROM universe_tabs WHERE page_id=? AND canonical_key=? AND revision_id IS NULL ORDER BY updated_at DESC LIMIT 1`).get(String(pageId),ck);
   const id=existing?.id||`universe-tab-${randomUUID()}`, safeSlug=slugify(slug||Object.values(localizedMap(title,ck))[0]||ck)||ck.toLowerCase();
+  if(protectedAutomaticUpdate(existing,ownership))return mapTab(existing);
   db.prepare(`INSERT INTO universe_tabs(id,entity_game_id,page_id,canonical_key,slug,title_json,layout_variant,identity_variant,ownership,status,display_order,revision_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET slug=excluded.slug,title_json=excluded.title_json,layout_variant=excluded.layout_variant,identity_variant=excluded.identity_variant,ownership=CASE WHEN universe_tabs.ownership='MANUAL' THEN universe_tabs.ownership ELSE excluded.ownership END,status=CASE WHEN universe_tabs.ownership='MANUAL' THEN universe_tabs.status ELSE excluded.status END,display_order=excluded.display_order,updated_at=excluded.updated_at`)
     .run(id,String(entityGameId),String(pageId),ck,safeSlug,json(localizedMap(title,ck)),clean(layoutVariant,60)||"STANDARD",clean(identityVariant,80),safeOwnership(ownership),safeStatus(status),Number(displayOrder)||0,revisionId||null,existing?.created_at||now,now);
   return mapTab(db.prepare(`SELECT * FROM universe_tabs WHERE id=?`).get(id));
@@ -110,6 +113,7 @@ export function upsertUniverseSection({entityGameId,pageId,tabId=null,parentSect
     ? db.prepare(`SELECT * FROM universe_sections WHERE page_id=? AND tab_id IS ? AND canonical_key=? AND revision_id=? LIMIT 1`).get(String(pageId),tabId||null,ck,String(revisionId))
     : db.prepare(`SELECT * FROM universe_sections WHERE page_id=? AND tab_id IS ? AND canonical_key=? AND revision_id IS NULL ORDER BY updated_at DESC LIMIT 1`).get(String(pageId),tabId||null,ck);
   const id=existing?.id||`universe-section-${randomUUID()}`;
+  if(protectedAutomaticUpdate(existing,ownership))return mapSection(existing);
   db.prepare(`INSERT INTO universe_sections(id,entity_game_id,page_id,tab_id,parent_section_id,canonical_key,title_json,section_type,content_json,layout_variant,identity_variant,ownership,status,display_order,revision_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET parent_section_id=excluded.parent_section_id,title_json=excluded.title_json,section_type=excluded.section_type,content_json=excluded.content_json,layout_variant=excluded.layout_variant,identity_variant=excluded.identity_variant,ownership=CASE WHEN universe_sections.ownership='MANUAL' THEN universe_sections.ownership ELSE excluded.ownership END,status=CASE WHEN universe_sections.ownership='MANUAL' THEN universe_sections.status ELSE excluded.status END,display_order=excluded.display_order,updated_at=excluded.updated_at`)
     .run(id,String(entityGameId),String(pageId),tabId||null,parentSectionId||null,ck,json(localizedMap(title,ck)),type,json(content||{}),clean(layoutVariant,60)||"STANDARD",clean(identityVariant,80),safeOwnership(ownership),safeStatus(status),Number(displayOrder)||0,revisionId||null,existing?.created_at||now,now);
   return mapSection(db.prepare(`SELECT * FROM universe_sections WHERE id=?`).get(id));

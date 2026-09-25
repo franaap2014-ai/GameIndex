@@ -3,7 +3,7 @@
   "version": "0.992.0",
   "private": true,
   "type": "module",
-  "description": "GameIndex Beta 0.992 Delivery Build",
+  "description": "GameIndex Beta 0.992 I1 Stability, UX and Dexter",
   "engines": {
     "node": ">=22.13"
   },
@@ -40,10 +40,14 @@
     "test:audit": "node tests/audit-09915-hf2-regression.mjs && node tests/audit-09915-hf2-persistence.mjs",
     "test:hf3": "node tests/hf3-builder-regression.mjs",
     "test:i2": "node tests/i2-mobile-session-regression.mjs",
-    "test:0992": "node tests/delivery-0992-regression.mjs && node tests/delivery-0992-navigation.mjs"
+    "test:0992": "node tests/delivery-0992-regression.mjs && node tests/delivery-0992-navigation.mjs",
+    "test:i1": "node tests/stability-0992-i1.mjs"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
     "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
   }
 }

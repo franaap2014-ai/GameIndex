@@ -1,3 +1,4 @@
+import {registeredSources,registerResearchSource} from '../research/registered-sources.mjs';
 import { currentAuth } from "../auth/auth-service.mjs";
 import { requireCapability, requireSameOriginMutation } from "../access/capability-service.mjs";
 import { getGameById, getGameBySlug, listGames, listChildGameEntities, parentGameFor } from "../database/repositories/game-repository.mjs";
@@ -34,6 +35,9 @@ function assertPublishedInteractionTarget(game,payload,lang="pt-BR"){
 }
 
 export function registerBeta099Routes(app){
+  app.get('/api/universe-builder-099/games/:game/research-sources',requireCapability('universe_build'),(req,res)=>{const game=gameFrom(req.params.game);if(!game)return fail(res,404,'GAME_NOT_FOUND','Jogo não encontrado.');res.json({ok:true,entries:registeredSources(game.id)});});
+  app.post('/api/universe-builder-099/games/:game/research-sources',requireCapability('universe_build'),requireSameOriginMutation,async(req,res)=>{const game=gameFrom(req.params.game);if(!game)return fail(res,404,'GAME_NOT_FOUND','Jogo não encontrado.');try{res.json({ok:true,entries:await registerResearchSource(game.id,req.body?.url)});}catch{fail(res,400,'SOURCE_INVALID','Não foi possível aceitar esse endereço. Use uma página HTTPS pública da wiki do jogo.');}});
+
   app.get("/api/beta099/foundation",(req,res)=>publicCache(res).json({
     ok:true,
     version:PUBLIC_VERSION,
@@ -57,7 +61,7 @@ export function registerBeta099Routes(app){
   }));
 
   app.get("/api/games/:game/universe-099",(req,res)=>{
-    const game=gameFrom(req.params.game); if(!game) return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");
+    const game=gameFrom(req.params.game); if(!game||game.status!=="PUBLISHED") return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");
     const lang=language(req),universe=publicEntityUniverse(game.id,{language:lang});
     if(universe?.revision?.id){
       try{universe.i5=productionPipelineStateI5(game.id,{revisionId:universe.revision.id,language:lang,structureStatus:"PUBLISHED"});}catch{universe.i5=null;}
@@ -67,15 +71,15 @@ export function registerBeta099Routes(app){
     return publicCache(res).json({ok:true,universe});
   });
   app.get("/api/games/:game/identity-099",(req,res)=>{
-    const game=gameFrom(req.params.game); if(!game) return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");
+    const game=gameFrom(req.params.game); if(!game||game.status!=="PUBLISHED") return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");
     return publicCache(res).json({ok:true,identity:resolveIdentityProfile(game.id)});
   });
   app.get("/api/games/:game/technical-099",(req,res)=>{
-    const game=gameFrom(req.params.game); if(!game) return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");
+    const game=gameFrom(req.params.game); if(!game||game.status!=="PUBLISHED") return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");
     return publicCache(res).json({ok:true,technical:resolveTechnicalProfile(game.id)});
   });
   app.get("/api/games/:game/experiences-099",(req,res)=>{
-    const game=gameFrom(req.params.game); if(!game) return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");
+    const game=gameFrom(req.params.game); if(!game||game.status!=="PUBLISHED") return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");
     const entries=listChildGameEntities(game.id,{includeDrafts:false,limit:100}).map((child)=>({id:child.id,slug:child.slug,name:child.nome,entityType:child.entityType,parentGameId:child.parentGameId,url:`/game/${encodeURIComponent(game.slug)}/${encodeURIComponent(child.slug)}`,identity:resolveIdentityProfile(child.id)}));
     return publicCache(res).json({ok:true,parent:{id:game.id,slug:game.slug,name:game.nome},label:"Experiences",entries});
   });

@@ -1,8 +1,8 @@
 export const PUBLIC_VERSION="0.992";
 export const PUBLIC_VERSION_LABEL=`Beta ${PUBLIC_VERSION}`;
-export const INTERNAL_RELEASE="0.992 DELIVERY";
-export const INTERNAL_RELEASE_LABEL="GameIndex Beta 0.992 DELIVERY Delivery / Presentation Build";
-export const INTERNAL_RELEASE_CODE="BETA_0_992_DELIVERY";
+export const INTERNAL_RELEASE="0.992 I1";
+export const INTERNAL_RELEASE_LABEL="GameIndex Beta 0.992 I1 Stability, UX & Dexter";
+export const INTERNAL_RELEASE_CODE="BETA_0_992_I1_STABILITY_UX_DEXTER_INTELLIGENCE";
 export const TARGET_SCHEMA=47;
 export const ARCHITECTURE="LOCAL_FIRST_NO_API_KEY";
 

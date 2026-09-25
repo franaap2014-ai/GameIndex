@@ -32,3 +32,5 @@ export function pageMedia(html=""){
   const urls=[metaContent(html,"og:image"),metaContent(html,"twitter:image")].filter(Boolean);
   return [...new Set(urls)].map((url,index)=>({url,role:index===0?"CANDIDATE":"THUMBNAIL",subject:""}));
 }
+
+export function articleText(html="",max=60000){const input=String(html);const body=input.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1]||input.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1]||input;return stripHtml(body.replace(/<(nav|footer|header|aside)\b[^>]*>[\s\S]*?<\/\1>/gi,' '),max);}

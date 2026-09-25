@@ -1,0 +1,102 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> gameindex-beta-09915-cinematic-update@0.992.0 test:0992
+> node tests/delivery-0992-regression.mjs && node tests/delivery-0992-navigation.mjs
+
+[GameIndex DB] migration backup ready: gamevault-0.5-before-0.6-beta-0.6-2026-09-25T15-41-16-441Z.sqlite (208896 bytes, retention=5)
+[GameIndex DB] migration backup ready: gamevault-0.6-before-0.65-beta-0.65-2026-09-25T15-41-16-450Z.sqlite (294912 bytes, retention=5)
+[GameIndex DB] migration backup ready: gamevault-0.65-before-0.67-beta-0.67-2026-09-25T15-41-16-457Z.sqlite (430080 bytes, retention=5)
+[GameIndex DB] migration backup ready: gamevault-0.67-before-0.675-beta-0.675-2026-09-25T15-41-16-461Z.sqlite (507904 bytes, retention=5)
+[GameIndex DB] migration backup ready: gamevault-0.675-before-0.7-beta-0.7-2026-09-25T15-41-16-467Z.sqlite (557056 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.5-before-0.6-beta-0.6-2026-09-25T15-41-16-441Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.7-before-0.705-beta-0.705-2026-09-25T15-41-16-488Z.sqlite (638976 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.6-before-0.65-beta-0.65-2026-09-25T15-41-16-450Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.705-before-0.8-beta-0.8-2026-09-25T15-41-16-492Z.sqlite (647168 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.65-before-0.67-beta-0.67-2026-09-25T15-41-16-457Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.8-before-0.85-beta-0.85-2026-09-25T15-41-16-518Z.sqlite (745472 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.67-before-0.675-beta-0.675-2026-09-25T15-41-16-461Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.85-before-0.86-beta-0.86-2026-09-25T15-41-16-524Z.sqlite (872448 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.675-before-0.7-beta-0.7-2026-09-25T15-41-16-467Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.86-before-0.87-beta-0.87-2026-09-25T15-41-16-544Z.sqlite (925696 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.7-before-0.705-beta-0.705-2026-09-25T15-41-16-488Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.87-before-0.88-beta-0.88-2026-09-25T15-41-16-554Z.sqlite (958464 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.705-before-0.8-beta-0.8-2026-09-25T15-41-16-492Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.88-before-0.885-beta-0.885-2026-09-25T15-41-16-559Z.sqlite (1069056 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.8-before-0.85-beta-0.85-2026-09-25T15-41-16-518Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.885-before-0.89-beta-0.89-2026-09-25T15-41-16-566Z.sqlite (1097728 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.85-before-0.86-beta-0.86-2026-09-25T15-41-16-524Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.89-before-0.9-beta-0.9-2026-09-25T15-41-16-571Z.sqlite (1126400 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.86-before-0.87-beta-0.87-2026-09-25T15-41-16-544Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.9-before-0.91-beta-0.91-2026-09-25T15-41-16-582Z.sqlite (1294336 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.87-before-0.88-beta-0.88-2026-09-25T15-41-16-554Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.91-before-0.92-beta-0.92-2026-09-25T15-41-16-588Z.sqlite (1310720 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.88-before-0.885-beta-0.885-2026-09-25T15-41-16-559Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.92-before-0.95-beta-0.95-2026-09-25T15-41-16-593Z.sqlite (1392640 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.885-before-0.89-beta-0.89-2026-09-25T15-41-16-566Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.95-before-0.96-beta-0.96-2026-09-25T15-41-16-602Z.sqlite (1781760 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.89-before-0.9-beta-0.9-2026-09-25T15-41-16-571Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.96-before-0.97-beta-0.97-2026-09-25T15-41-16-614Z.sqlite (2289664 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.9-before-0.91-beta-0.91-2026-09-25T15-41-16-582Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.97-before-0.97-BF-beta-0.97-bf-2026-09-25T15-41-16-623Z.sqlite (2359296 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.91-before-0.92-beta-0.92-2026-09-25T15-41-16-588Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.97-BF-before-0.975-BF-beta-0.975-bf-2026-09-25T15-41-16-632Z.sqlite (2461696 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.92-before-0.95-beta-0.95-2026-09-25T15-41-16-593Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.975-BF-before-0.975-BF-PRE-PUBLIC-beta-0.975-bf-pre-public-2026-09-25T15-41-16-677Z.sqlite (2510848 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.95-before-0.96-beta-0.96-2026-09-25T15-41-16-602Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.975-BF-PRE-PUBLIC-before-0.98-beta-0.98-2026-09-25T15-41-16-714Z.sqlite (2625536 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.96-before-0.97-beta-0.97-2026-09-25T15-41-16-614Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.98-before-0.985-beta-0.985-2026-09-25T15-41-16-724Z.sqlite (2772992 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.97-before-0.97-BF-beta-0.97-bf-2026-09-25T15-41-16-623Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.985-before-0.985-HF2-beta-0.985-hf2-2026-09-25T15-41-16-735Z.sqlite (2899968 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.97-BF-before-0.975-BF-beta-0.975-bf-2026-09-25T15-41-16-632Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.985-HF2-before-0.985-HF3-beta-0.985-hf3-2026-09-25T15-41-16-743Z.sqlite (2899968 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.975-BF-before-0.975-BF-PRE-PUBLIC-beta-0.975-bf-pre-public-2026-09-25T15-41-16-677Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.985-HF3-before-0.985-HF4-beta-0.985-hf4-2026-09-25T15-41-16-753Z.sqlite (2899968 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.975-BF-PRE-PUBLIC-before-0.98-beta-0.98-2026-09-25T15-41-16-714Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.985-HF4-before-0.986-beta-0.986-2026-09-25T15-41-16-785Z.sqlite (2908160 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.98-before-0.985-beta-0.985-2026-09-25T15-41-16-724Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.986-before-0.986-HF2-beta-0.986-hf2-2026-09-25T15-41-16-803Z.sqlite (2994176 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.985-before-0.985-HF2-beta-0.985-hf2-2026-09-25T15-41-16-735Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.986-HF2-before-0.986-HF2-beta-0.986-hf2-experience-media-2026-09-25T15-41-16-815Z.sqlite (3035136 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.985-HF2-before-0.985-HF3-beta-0.985-hf3-2026-09-25T15-41-16-743Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.986-HF2-before-0.987-beta-0.987-final-personalization-2026-09-25T15-41-16-824Z.sqlite (3047424 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.985-HF3-before-0.985-HF4-beta-0.985-hf4-2026-09-25T15-41-16-753Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.987-before-0.9875-beta-0.9875-full-page-personalization-2026-09-25T15-41-16-843Z.sqlite (3076096 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.985-HF4-before-0.986-beta-0.986-2026-09-25T15-41-16-785Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.9875-before-0.99-beta-0.99-final-foundation-2026-09-25T15-41-16-851Z.sqlite (3076096 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.986-before-0.986-HF2-beta-0.986-hf2-2026-09-25T15-41-16-803Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.99-I1-before-0.99-I2-beta-0.99-i2-intelligent-procedural-experience-engine-2026-09-25T15-41-16-879Z.sqlite (3321856 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.986-HF2-before-0.986-HF2-beta-0.986-hf2-experience-media-2026-09-25T15-41-16-815Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.99-I2-before-0.99-I3-beta-0.99-i3-game-sourced-visual-composition-2026-09-25T15-41-16-897Z.sqlite (3346432 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.986-HF2-before-0.987-beta-0.987-final-personalization-2026-09-25T15-41-16-824Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.99-I3-before-0.99-I4-beta-0.99-i4-three-stage-universe-production-pipeline-2026-09-25T15-41-16-910Z.sqlite (3383296 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.987-before-0.9875-beta-0.9875-full-page-personalization-2026-09-25T15-41-16-843Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.99-I4-before-0.99-I5-beta-0.99-i5-production-consolidation-2026-09-25T15-41-16-924Z.sqlite (3465216 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.9875-before-0.99-beta-0.99-final-foundation-2026-09-25T15-41-16-851Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.99-I5-before-0.99-I6-beta-0.99-i6-universe-builder-experience-2026-09-25T15-41-16-943Z.sqlite (3600384 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.99-I1-before-0.99-I2-beta-0.99-i2-intelligent-procedural-experience-engine-2026-09-25T15-41-16-879Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.99-I6-before-0.99-I6-HF1-beta-0.99-i6-hf1-build-reliability-2026-09-25T15-41-16-955Z.sqlite (3719168 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.99-I2-before-0.99-I3-beta-0.99-i3-game-sourced-visual-composition-2026-09-25T15-41-16-897Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.99-I6-HF1-before-0.991-HF1-beta-0.991-hf1-identity-restoration-2026-09-25T15-41-16-967Z.sqlite (3751936 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.99-I3-before-0.99-I4-beta-0.99-i4-three-stage-universe-production-pipeline-2026-09-25T15-41-16-910Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.991-HF1-before-0.991-I1-beta-0.991-i1-reliability-navigation-diagnostics-2026-09-25T15-41-16-979Z.sqlite (3809280 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.99-I4-before-0.99-I5-beta-0.99-i5-production-consolidation-2026-09-25T15-41-16-924Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.991-I1-before-0.991-I1-HF1-beta-0.991-i1-hf1-neon-persistence-2026-09-25T15-41-16-996Z.sqlite (3837952 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.99-I5-before-0.99-I6-beta-0.99-i6-universe-builder-experience-2026-09-25T15-41-16-943Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.991-I1-HF1-before-0.991-I1-HF2-beta-0.991-i1-hf2-creator-animation-editor-2026-09-25T15-41-17-009Z.sqlite (3837952 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.99-I6-before-0.99-I6-HF1-beta-0.99-i6-hf1-build-reliability-2026-09-25T15-41-16-955Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.991-I1-HF2-before-0.9915-beta-0.9915-cinematic-update-2026-09-25T15-41-17-022Z.sqlite (3923968 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.99-I6-HF1-before-0.991-HF1-beta-0.991-hf1-identity-restoration-2026-09-25T15-41-16-967Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.9915-before-0.9915-I1-HF1-beta-0.9915-i1-hf1-full-recovery-2026-09-25T15-41-17-036Z.sqlite (4009984 bytes, retention=5)
+[GameIndex DB] backup retention removed 1 old artifact(s): gamevault-0.991-HF1-before-0.991-I1-beta-0.991-i1-reliability-navigation-diagnostics-2026-09-25T15-41-16-979Z.sqlite
+[GameIndex DB] migration backup ready: gamevault-0.9915-I1-HF1-before-0.9915-I1-HF2-beta-0.9915-i1-hf2-audit-2026-09-25T15-41-17-048Z.sqlite (4009984 bytes, retention=5)
+PASS DEV gains panel/edit tools without privileged administration or publication
+PASS missing original master is never advertised as a real track
+PASS counter-strike-2 uses persisted tabs and builds grounded draft/content/media/interaction/cutscene stages
+PASS blox-fruits uses persisted tabs and builds grounded draft/content/media/interaction/cutscene stages
+PASS minecraft uses persisted tabs and builds grounded draft/content/media/interaction/cutscene stages
+PASS Aprimorar persists new section claims, preserves locked content and rejects parallel/cross-game edits
+PASS HTTP role matrix enforces direct admin URLs and API restrictions
+PASS HTTP login, relogin, welcome identity, logout and public navigation
+{"ok":true,"passed":8}
+PASS sidebar scope, modifiers, duplicate click, Escape, reduced motion, mobile timing, navigation and cleanup

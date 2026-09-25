@@ -7,7 +7,7 @@ function includes(path,text){assert.ok(read(path).includes(text),`${path} missin
 const release=read("src/config/release-099i6.mjs");
 assert.match(release,/PUBLIC_VERSION="0\.992"/);
 assert.match(release,/INTERNAL_RELEASE="0\.992 DELIVERY"/);
-assert.match(release,/INTERNAL_RELEASE_CODE="BETA_0_992_DELIVERY"/);
+assert.match(release,/INTERNAL_RELEASE_CODE="BETA_0_992_I1_STABILITY_UX_DEXTER_INTELLIGENCE"/);
 assert.match(release,/TARGET_SCHEMA=47/);
 
 includes("src/database/repositories/favorite-game-repository.mjs","function favoriteTableReady()");

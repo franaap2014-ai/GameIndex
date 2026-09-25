@@ -1,3 +1,9 @@
+# Atualização vigente: 0.992 I1
+
+Versão pública **0.992**, schema **47**. Leia `UPDATE_ONLY_README_0.992_I1.md` e `BUG_FIX_REPORT_0.992_I1.md`. Estas instruções prevalecem sobre todo o histórico abaixo. Base: GameIndex 0.992. Correções de estabilidade, interface e Dexter; sem migração manual no Neon.
+
+---
+
 # Atualização vigente: 0.9915 I2
 
 Mobile, continuidade de música, boas-vindas por sessão e retomada do Universe Builder. Release interna `BETA_0_9915_I2_MOBILE`, versão pública 0.9915 e schema 47 mantidos. Aplique o UPDATE ONLY sobre **0.9915 I1 HF3**.
