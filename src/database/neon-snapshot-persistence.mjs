@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import {encodeSnapshotChunk,decodeSnapshotChunk} from "./snapshot-codec.mjs";
 
 const SNAPSHOT_KEY=String(process.env.GAMEINDEX_REMOTE_SNAPSHOT_KEY||"production").trim()||"production";
 const RAW_CHUNK_BYTES=Math.max(64*1024,Math.min(1024*1024,Number(process.env.GAMEINDEX_REMOTE_SNAPSHOT_CHUNK_BYTES||512*1024)||512*1024));
@@ -24,6 +25,12 @@ let lastSyncAt="";
 let lastRestoreAt="";
 let latestSnapshotId="";
 let remoteSnapshotCount=0;
+let reusableChunks=[];
+let retryAttempts=0;
+let retryNotBefore=0;
+let scheduledAt=0;
+let lastTransfer={};
+const transferTotals={uploads:0,uploadedChunks:0,reusedChunks:0,payloadBytes:0,rawBytes:0};
 
 function databaseUrl(){return String(process.env.DATABASE_URL||process.env.GAMEINDEX_DATABASE_URL||"").trim();}
 function parsedDatabaseUrl(){
@@ -117,11 +124,12 @@ export async function restoreLatestNeonSnapshot({databasePath,verifyDatabase}={}
       WHERE snapshot_id=$1
       ORDER BY chunk_index ASC`,[row.snapshot_id]);
     if(chunks.rows.length!==chunkCount)throw new Error("REMOTE_SNAPSHOT_CHUNK_COUNT_MISMATCH");
-    const parts=[];
+    const parts=[];let decodedBytes=0;
     for(let i=0;i<chunks.rows.length;i++){
       const item=chunks.rows[i];
       if(toInt(item.chunk_index,-1)!==i)throw new Error("REMOTE_SNAPSHOT_CHUNK_ORDER_INVALID");
-      parts.push(Buffer.from(String(item.payload_base64||""),"base64"));
+      const part=decodeSnapshotChunk(item.payload_base64);parts.push(part);decodedBytes+=part.length;
+      if(decodedBytes>toInt(row.size_bytes))throw new Error("REMOTE_SNAPSHOT_SIZE_MISMATCH");
     }
     const buffer=Buffer.concat(parts);
     if(buffer.length!==toInt(row.size_bytes))throw new Error("REMOTE_SNAPSHOT_SIZE_MISMATCH");
@@ -136,6 +144,7 @@ export async function restoreLatestNeonSnapshot({databasePath,verifyDatabase}={}
       renameSync(temp,databasePath);
     }finally{rmSync(temp,{force:true});}
     lastUploadedSha=String(row.sha256||"");
+    reusableChunks=parts.map(part=>({sha:hash(part),bytes:part.length}));
     latestSnapshotId=String(row.snapshot_id||"");
     lastRestoreAt=new Date().toISOString();
     lastError="";
@@ -192,24 +201,40 @@ async function performUpload({force=false,reason="runtime"}={}){
     const buffer=readFileSync(databasePath);
     if(buffer.length>MAX_SNAPSHOT_BYTES)throw new Error(`REMOTE_SNAPSHOT_TOO_LARGE:${buffer.length}`);
     const sha=hash(buffer);
-    if(!force&&sha&&sha===lastUploadedSha)return {ok:true,skipped:true,reason:"UNCHANGED",sha256:sha};
+    if(sha&&sha===lastUploadedSha)return {ok:true,skipped:true,reason:"UNCHANGED",sha256:sha};
     await ensureNeonSnapshotSchema();
-    if(!force&&!lastUploadedSha)lastUploadedSha=await remoteLatestSha();
-    if(!force&&sha===lastUploadedSha)return {ok:true,skipped:true,reason:"UNCHANGED_REMOTE",sha256:sha};
+    if(!lastUploadedSha)lastUploadedSha=await remoteLatestSha();
+    if(sha===lastUploadedSha)return {ok:true,skipped:true,reason:"UNCHANGED_REMOTE",sha256:sha};
     const snapshotId=`gi-${Date.now()}-${randomUUID()}`;
-    const chunks=[];for(let offset=0;offset<buffer.length;offset+=RAW_CHUNK_BYTES)chunks.push(buffer.subarray(offset,Math.min(buffer.length,offset+RAW_CHUNK_BYTES)).toString("base64"));
+    const chunks=[],chunkHashes=[],reuse=[],previousSnapshotId=latestSnapshotId;
+    for(let offset=0;offset<buffer.length;offset+=RAW_CHUNK_BYTES){
+      const part=buffer.subarray(offset,Math.min(buffer.length,offset+RAW_CHUNK_BYTES)),index=chunks.length,sha=hash(part);
+      chunkHashes.push({sha,bytes:part.length});
+      if(previousSnapshotId&&reusableChunks[index]?.sha===sha&&reusableChunks[index]?.bytes===part.length){reuse.push(index);chunks.push(null);}
+      else chunks.push(encodeSnapshotChunk(part));
+    }
     await neonHttpQuery(`INSERT INTO gameindex_runtime_snapshots(snapshot_id,snapshot_key,schema_version,release,sha256,size_bytes,chunk_count,complete,created_at)
       VALUES($1,$2,$3,$4,$5,$6,$7,FALSE,NOW())`,[
       snapshotId,SNAPSHOT_KEY,Number(getSchemaVersion?.()||0),String(release||""),sha,buffer.length,chunks.length
     ]);
+    if(reuse.length){
+      const copied=await neonHttpQuery(`INSERT INTO gameindex_runtime_snapshot_chunks(snapshot_id,chunk_index,payload_base64)
+        SELECT $1,chunk_index,payload_base64 FROM gameindex_runtime_snapshot_chunks
+        WHERE snapshot_id=$2 AND chunk_index=ANY($3::int[])`,[snapshotId,previousSnapshotId,`{${reuse.join(",")}}`]);
+      if(copied.rowCount!==reuse.length){reusableChunks=[];throw new Error("REMOTE_SNAPSHOT_REUSE_INCOMPLETE");}
+    }
     for(let i=0;i<chunks.length;i++){
+      if(chunks[i]===null)continue;
       await neonHttpQuery(`INSERT INTO gameindex_runtime_snapshot_chunks(snapshot_id,chunk_index,payload_base64) VALUES($1,$2,$3)`,[snapshotId,i,chunks[i]]);
     }
     await neonHttpQuery(`UPDATE gameindex_runtime_snapshots SET complete=TRUE,completed_at=NOW() WHERE snapshot_id=$1`,[snapshotId]);
     lastUploadedSha=sha;latestSnapshotId=snapshotId;lastSyncAt=new Date().toISOString();lastError="";
+    reusableChunks=chunkHashes;
+    lastTransfer={rawBytes:buffer.length,payloadBytes:chunks.reduce((n,p)=>n+(p===null?0:Buffer.byteLength(p)),0),uploadedChunks:chunks.length-reuse.length,reusedChunks:reuse.length};
+    transferTotals.uploads++;for(const key of ['rawBytes','payloadBytes','uploadedChunks','reusedChunks'])transferTotals[key]+=lastTransfer[key];
     await pruneRemoteSnapshots();await countRemoteSnapshots();
     lastObservedSignature=capturedSignature;
-    return {ok:true,snapshotId,sha256:sha,sizeBytes:buffer.length,chunks:chunks.length,reason};
+    return {ok:true,snapshotId,sha256:sha,sizeBytes:buffer.length,chunks:chunks.length,reason,transfer:lastTransfer};
   }catch(error){
     lastError=safeMessage(error);return {ok:false,error:lastError,reason};
   }
@@ -217,9 +242,12 @@ async function performUpload({force=false,reason="runtime"}={}){
 
 export function markNeonSnapshotDirty({critical=false,reason="database-write"}={}){
   if(!runtimeConfig||!neonRemotePersistenceConfigured()||stopping)return;
+  // Never postpone an already scheduled critical write, and never let writes bypass retry backoff.
+  const at=Math.max(Date.now()+(critical?0:SYNC_DELAY_MS),retryNotBefore);
+  if(scheduledTimer&&scheduledAt<=at)return;
   if(scheduledTimer)clearTimeout(scheduledTimer);
-  const delay=critical?0:SYNC_DELAY_MS;
-  scheduledTimer=setTimeout(()=>{scheduledTimer=null;void flushNeonSnapshot({reason});},delay);
+  scheduledAt=at;
+  scheduledTimer=setTimeout(()=>{scheduledTimer=null;scheduledAt=0;void flushNeonSnapshot({reason});},Math.max(0,at-Date.now()));
   scheduledTimer.unref?.();
 }
 
@@ -236,11 +264,14 @@ export async function flushNeonSnapshot(options={}){
       if(!result.ok){
         if(!stopping){
           if(scheduledTimer)clearTimeout(scheduledTimer);
-          scheduledTimer=setTimeout(()=>{scheduledTimer=null;void flushNeonSnapshot({reason:"retry-after-failure"});},WATCH_INTERVAL_MS);
-          scheduledTimer.unref?.();
+          retryAttempts++;
+          retryNotBefore=Date.now()+Math.min(300000,5000*2**Math.min(retryAttempts-1,6));
+          scheduledTimer=null;scheduledAt=0;
+          markNeonSnapshotDirty({reason:"retry-after-failure"});
         }
         break;
       }
+      retryAttempts=0;retryNotBefore=0;
     }while(uploadRequested);
     return result;
   })().finally(()=>{activeUpload=null;});
@@ -289,6 +320,11 @@ export function neonRemotePersistenceState(){
     snapshotCount:remoteSnapshotCount,
     lastError,
     chunkBytes:RAW_CHUNK_BYTES,
-    maxSnapshotBytes:MAX_SNAPSHOT_BYTES
+    maxSnapshotBytes:MAX_SNAPSHOT_BYTES,
+    format:"CHUNK_GZIP_V1",
+    retryAttempts,
+    retryNotBefore:retryNotBefore?new Date(retryNotBefore).toISOString():null,
+    lastTransfer:{...lastTransfer},
+    transferTotals:{...transferTotals}
   };
 }

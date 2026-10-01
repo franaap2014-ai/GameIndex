@@ -1,0 +1,21 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> gameindex-beta-09915-cinematic-update@0.992.0 smoke
+> node tests/http-smoke-09915-i1-hf1.mjs
+
+{
+  "ok": true,
+  "publicVersion": "0.992",
+  "schema": 47,
+  "health": true,
+  "release": true,
+  "profileProtected": true,
+  "creatorToolsProtected": true,
+  "robloxExperiences": [
+    "blox-fruits",
+    "doors",
+    "fisch",
+    "prison-life",
+    "work-at-a-pizza-place"
+  ]
+}

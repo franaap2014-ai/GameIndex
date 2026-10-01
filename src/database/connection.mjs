@@ -117,7 +117,7 @@ function criticalSql(sql=""){return /\b(?:users|sessions|subscriptions|staff_rol
 function wrapStatement(statement,sql){
   if(!mutatingSql(sql))return statement;
   return new Proxy(statement,{get(target,prop){
-    if(prop==="run")return (...args)=>{const result=target.run(...args);markNeonSnapshotDirty({critical:criticalSql(sql),reason:"sqlite-write"});return result;};
+    if(prop==="run")return (...args)=>{const result=target.run(...args);if(Number(result.changes)>0)markNeonSnapshotDirty({critical:criticalSql(sql),reason:"sqlite-write"});return result;};
     const value=target[prop];return typeof value==="function"?value.bind(target):value;
   }});
 }
@@ -431,7 +431,7 @@ export function latestBackup() {
   } catch { return null; }
 }
 
-export async function startDurablePersistence({release="BETA_0_992_I1_STABILITY_UX_DEXTER_INTELLIGENCE"}={}){
+export async function startDurablePersistence({release="BETA_0_992_I2_BANDWIDTH"}={}){
   if(!neonRemotePersistenceConfigured())return {enabled:false,provider:"NONE",safety:productionStorageSafety()};
   return startNeonSnapshotRuntime({
     databasePath,

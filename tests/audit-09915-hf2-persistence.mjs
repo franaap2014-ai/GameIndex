@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {decodeSnapshotChunk} from '../src/database/snapshot-codec.mjs';
 import {mkdtempSync,writeFileSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
@@ -28,7 +29,7 @@ try{
  writeFileSync(file,Buffer.alloc(4096,3));
  const second=persistence.flushNeonSnapshot({force:true,reason:'write-during-upload'});releasePaused();await Promise.all([first,second]);
  const last=[...snapshots.values()].filter(x=>x.complete).at(-1);
- assert.deepEqual(Buffer.concat(last.parts.map(p=>Buffer.from(p,'base64'))),readFileSync(file));
+ assert.deepEqual(Buffer.concat(last.parts.map(decodeSnapshotChunk)),readFileSync(file));
  assert.equal(snapshots.size,3);
  console.log(JSON.stringify({ok:true,tests:['concurrent flush preserves latest write','caller waits for queued upload','Neon HTTP timeout present'],snapshots:snapshots.size}));
 }finally{globalThis.fetch=oldFetch;rmSync(dir,{recursive:true,force:true});}

@@ -1,0 +1,10 @@
+PASS codec restores legacy, compressed and incompressible chunks and rejects malformed/oversized payloads
+PASS legacy snapshot restores byte-for-byte without upload
+PASS one changed block in 16 MiB reuses 31 blocks remotely, independently of the old snapshot
+PASS unchanged forced and normal flushes send zero additional payload
+PASS new process restores mixed compressed/raw snapshot and validates the full hash
+PASS failed upload preserves last complete snapshot and backs off despite new critical writes
+PASS missing reuse source fails closed then recovers with full compressed transfer
+PASS shorter and longer databases restore complete without stale chunks
+PASS incompressible data still benefits from block reuse
+{"ok":true,"passed":9,"syntheticBenchmark":{"rawSnapshotBytes":16777216,"legacyBase64Bytes":22369624,"transmittedPayloadBytes":758,"reusedChunks":31},"counters":{"uploads":7,"uploadedChunks":76,"reusedChunks":71,"payloadBytes":6339304,"rawBytes":76021902}}

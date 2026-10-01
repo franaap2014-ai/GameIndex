@@ -1,3 +1,15 @@
+# Atualização vigente: 0.992 I2
+
+Pacote cumulativo sobre **0.992 I1**: inclui todos os arquivos do UPDATE ONLY I1, com as versões atualizadas, e as correções de tráfego e persistência. Versão pública **0.992**, release interna **0.992 I2**, schema **47**. Leia `UPDATE_ONLY_README_0.992_I2.md` e `BUG_FIX_REPORT_0.992_I2.md`; estas instruções prevalecem sobre todos os READMEs históricos abaixo. O hotfix I1 HF1 já está incorporado; não é necessário aplicá-lo separadamente.
+
+---
+
+# Atualização vigente: 0.992 I1 HF1
+
+Hotfix de tráfego: snapshots compactados com reaproveitamento de blocos e compressão HTTP de arquivos estáticos. Versão pública **0.992**, schema **47**. Leia `UPDATE_ONLY_README_0.992_I1_HF1.md` e `BANDWIDTH_REPORT_0.992_I1_HF1.md`; estas instruções prevalecem sobre o histórico abaixo. A suspensão por limite já consumido no Render requer resolução no painel.
+
+---
+
 # Atualização vigente: 0.992 I1
 
 Versão pública **0.992**, schema **47**. Leia `UPDATE_ONLY_README_0.992_I1.md` e `BUG_FIX_REPORT_0.992_I1.md`. Estas instruções prevalecem sobre todo o histórico abaixo. Base: GameIndex 0.992. Correções de estabilidade, interface e Dexter; sem migração manual no Neon.

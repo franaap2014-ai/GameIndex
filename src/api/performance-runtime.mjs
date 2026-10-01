@@ -1,4 +1,5 @@
-import { brotliCompress, gzip } from "node:zlib";
+import compression from "compression";
+import {constants} from "node:zlib";
 import { performanceConfig, PERFORMANCE_MODE } from "../config/performance-config.mjs";
 import { listGamesPage } from "../database/repositories/game-repository.mjs";
 import { gamePublicVisual } from "../images/public-visual.mjs";
@@ -7,30 +8,17 @@ function clamp(n,min,max,fallback){n=Number(n);return Number.isFinite(n)?Math.mi
 function publicCache(res){res.setHeader("Cache-Control",`public, max-age=${performanceConfig.publicCacheSeconds}, stale-while-revalidate=${performanceConfig.staleWhileRevalidateSeconds}`);return res;}
 
 export function installPerformanceMiddleware(app){
-  app.use((req,res,next)=>{
-    res.setHeader("X-GameIndex-Performance-Mode",PERFORMANCE_MODE?"1":"0");
-    if(req.method!=="GET"&&req.method!=="HEAD")return next();
-    const accepted=req.acceptsEncodings("br","gzip");
-    if(!accepted)return next();
-    const originalSend=res.send.bind(res);
-    res.send=function compressedSend(body){
-      if(res.getHeader("Content-Encoding")||res.statusCode===204||res.statusCode===304)return originalSend(body);
-      const type=String(res.getHeader("Content-Type")||"");
-      if(!/(json|javascript|text|xml|svg|css|html)/i.test(type))return originalSend(body);
-      const source=Buffer.isBuffer(body)?body:typeof body==="string"?Buffer.from(body):null;
-      if(!source||source.length<1024)return originalSend(body);
-      const done=encoding=>(error,compressed)=>{
-        if(error)return originalSend(body);
-        res.setHeader("Content-Encoding",encoding);
-        res.vary("Accept-Encoding");
-        res.removeHeader("Content-Length");
-        return originalSend(compressed);
-      };
-      if(accepted==="br"){brotliCompress(source,done("br"));return res;}
-      gzip(source,done("gzip"));return res;
-    };
-    next();
-  });
+  app.use((req,res,next)=>{res.setHeader("X-GameIndex-Performance-Mode",PERFORMANCE_MODE?"1":"0");next();});
+  // Stream compression covers express.static and sendFile as well as JSON responses.
+  app.use(compression({
+    threshold:1024,
+    brotli:{params:{[constants.BROTLI_PARAM_QUALITY]:4}},
+    filter(req,res){
+      if(!['GET','HEAD'].includes(req.method)||req.headers.range||res.statusCode===206)return false;
+      if(/text\/event-stream/i.test(String(res.getHeader('Content-Type')||'')))return false;
+      return compression.filter(req,res);
+    }
+  }));
 }
 
 export function paginatedPublicGames(req,res){

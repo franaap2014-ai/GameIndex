@@ -1,0 +1,15 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> gameindex-beta-09915-cinematic-update@0.992.0 test
+> node tests/beta09915-cinematic-update.mjs
+
+{
+  "ok": true,
+  "release": "0.9915",
+  "schema": 47,
+  "avatars": 50,
+  "favorites": true,
+  "cinematicTestLab": true,
+  "gameEntryCutscenes": true,
+  "migrationIdempotent": true
+}
