@@ -3,9 +3,9 @@
 // Legacy route shape: /experience/${encodeURIComponent(scope.experienceKey)}/media
 const state={entries:[],selected:null,game:null,gameCache:new Map(),expanded:new Set(),query:'',editor:null,editorSlot:'LOGO',editorSourceMode:'',editorSourceTab:'upload',editorObjectUrl:'',editorDirty:false,loadToken:0,treeInitialized:false};
 const $=s=>document.querySelector(s),tree=$('#imageTree'),workspace=$('#imageWorkspace'),treeSearch=$('#imageTreeSearch'),dialog=$('#imageEditorDialog');
-const SIMPLE_SLOTS=[['LOGO','Logo'],['BANNER','Banner']];
+const SIMPLE_SLOTS=[['CARD','Capa'],['LOGO','Logo'],['BANNER','Banner']];
 const LEGACY_SOURCE_MARKERS=['OWN IMAGE','INHERITED FROM GAME','LEGACY FALLBACK','GAME INDEX DEFAULT'];
-const SLOT_META={LOGO:{label:'Logo',hint:'Identidade principal da página.'},BANNER:{label:'Banner',hint:'Imagem ampla principal da página.'}};
+const SLOT_META={CARD:{label:'Capa',hint:'Imagem do catálogo, independente da logo.'},LOGO:{label:'Logo',hint:'Identidade principal da página.'},BANNER:{label:'Banner',hint:'Imagem ampla principal da página.'}};
 
 async function json(url,options={}){
   const response=await fetch(url,{credentials:'same-origin',headers:{'Content-Type':'application/json',Accept:'application/json',...(options.headers||{})},...options});
@@ -14,7 +14,7 @@ async function json(url,options={}){
   return data;
 }
 function esc(v){return GV.safe(v??'');}
-function globalStoredSlot(simpleSlot){return simpleSlot==='LOGO'?'COVER':'HERO';}
+function globalStoredSlot(simpleSlot){return simpleSlot==='BANNER'?'HERO':'COVER';}
 function globalMedia(game,slot){return(game?.media||[]).find(x=>x.slot===slot)||null;}
 function expMedia(game,key,slot){return(game?.experienceMedia||[]).find(x=>x.experienceKey===key&&x.slot===slot)||null;}
 function eraMedia(game,key,era,slot){return(game?.eraMedia||[]).find(x=>x.experienceKey===key&&x.eraKey===era&&x.slot===slot)||null;}
@@ -32,6 +32,7 @@ function simpleSource(code){
 }
 function previewResolution(game,slot,target){
   const isBanner=slot==='BANNER',globalSlot=globalStoredSlot(slot),scope=target?.type||'game',expKey=target?.experienceKey||'main',eraKey=target?.eraKey||'';
+  if(slot==='CARD'&&expKey==='main'){const cover=globalMedia(game,'COVER');return{url:cover?.imageUrl||game?.visual?.cover||'',source:cover?'OWN GAME':'GAME INDEX DEFAULT',own:Boolean(cover),profile:cover||null};}
   if(scope==='era'){
     const ownEra=eraMedia(game,expKey,eraKey,slot);if(ownEra?.imageUrl)return{url:ownEra.imageUrl,source:'OWN ERA',own:true,profile:ownEra};
     const ownExp=expMedia(game,expKey,slot);if(ownExp?.imageUrl)return{url:ownExp.imageUrl,source:'INHERITED EXPERIENCE',own:false,profile:ownExp};
@@ -41,6 +42,7 @@ function previewResolution(game,slot,target){
     const own=expMedia(game,expKey,slot);if(own?.imageUrl)return{url:own.imageUrl,source:'OWN EXPERIENCE',own:true,profile:own};
     if(isBanner){const legacy=expMedia(game,expKey,'HERO');if(legacy?.imageUrl)return{url:legacy.imageUrl,source:'LEGACY EXPERIENCE HERO',own:false,profile:legacy};}
   }
+  if(slot==='LOGO'){const logo=expMedia(game,'main','LOGO');if(logo?.imageUrl)return{url:logo.imageUrl,source:'OWN GAME',own:scope==='game',profile:logo};}
   const ownGame=globalMedia(game,globalSlot);if(ownGame?.imageUrl)return{url:ownGame.imageUrl,source:scope==='game'?'OWN GAME':'INHERITED GAME',own:scope==='game',profile:ownGame};
   if(isBanner){const bg=globalMedia(game,'PAGE_BACKGROUND');if(bg?.imageUrl)return{url:bg.imageUrl,source:'LEGACY GAME BACKGROUND',own:false,profile:bg};}
   if(game?.parent){
@@ -52,12 +54,16 @@ function previewResolution(game,slot,target){
   return{url:'',source:'GAME INDEX DEFAULT',own:false,profile:null};
 }
 function ownMedia(game,slot,target){
+  if(slot==='CARD'&&(!target.experienceKey||target.experienceKey==='main'))return globalMedia(game,'COVER');
+  if(target.type==='game'&&slot==='LOGO')return expMedia(game,'main','LOGO');
   if(target.type==='era')return eraMedia(game,target.experienceKey,target.eraKey,slot);
   if(target.type==='experience')return expMedia(game,target.experienceKey,slot);
   return globalMedia(game,globalStoredSlot(slot));
 }
 function targetRoute(target,slot){
   const slug=encodeURIComponent(target.gameSlug);
+  if(slot==='CARD'&&(!target.experienceKey||target.experienceKey==='main'))return`/api/games/${slug}/media/COVER`;
+  if(target.type==='game'&&slot==='LOGO')return`/api/games/${slug}/experience/main/media/LOGO`;
   if(target.type==='era')return`/api/games/${slug}/experience/${encodeURIComponent(target.experienceKey)}/era/${encodeURIComponent(target.eraKey)}/media/${slot}`;
   if(target.type==='experience')return`/api/games/${slug}/experience/${encodeURIComponent(target.experienceKey)}/media/${slot}`;
   return`/api/games/${slug}/media/${globalStoredSlot(slot)}`;
@@ -113,7 +119,7 @@ function assetCard(slot){
 function renderWorkspace(message=''){
   if(!state.game||!state.selected)return;
   const t=state.selected,parent=state.game.parent?.name?` · ${state.game.parent.name}`:'';
-  workspace.innerHTML=`<header class="image-target-head"><div><p class="section-eyebrow">EDITANDO</p><h2>${esc(t.label)}</h2><p>${esc(state.game.name)}${esc(parent)} · Logo e Banner</p></div><span class="image-target-badge">${esc(t.type==='era'?'Perfil visual':t.type==='experience'?'Experiência':'Jogo')}</span></header><div class="image-assets-grid">${assetCard('LOGO')}${assetCard('BANNER')}</div><details class="image-manager-advanced"><summary>Opções avançadas</summary><pre>${esc(JSON.stringify({game:state.game.slug,target:t.technical,type:t.type,experience:t.experienceKey||null,era:t.eraKey||null},null,2))}</pre></details><div class="image-manager-status" id="imageManagerStatus">${esc(message)}</div>`;
+  workspace.innerHTML=`<header class="image-target-head"><div><p class="section-eyebrow">EDITANDO</p><h2>${esc(t.label)}</h2><p>${esc(state.game.name)}${esc(parent)} · Capa, Logo e Banner</p></div><span class="image-target-badge">${esc(t.type==='era'?'Perfil visual':t.type==='experience'?'Experiência':'Jogo')}</span></header><div class="image-assets-grid">${SIMPLE_SLOTS.map(([slot])=>assetCard(slot)).join('')}</div><details class="image-manager-advanced"><summary>Opções avançadas</summary><pre>${esc(JSON.stringify({game:state.game.slug,target:t.technical,type:t.type,experience:t.experienceKey||null,era:t.eraKey||null},null,2))}</pre></details><div class="image-manager-status" id="imageManagerStatus">${esc(message)}</div>`;
 }
 function managerStatus(text){const el=$('#imageManagerStatus');if(el)el.textContent=text||'';}
 function pushLocal(profile,slot){
@@ -162,9 +168,9 @@ async function saveEditor(){
   const t=state.selected,slot=state.editorSlot,route=targetRoute(t,slot),alt=$('#imageEditorAlt').value.trim();
   if(!state.editor?.image){
     const url=$('#imageEditorUrl').value.trim();if(!url)throw new Error('Escolha uma imagem antes de salvar.');
-    editorMessage('Importando URL com segurança...');const data=await json(route,{method:'PUT',body:JSON.stringify({imageUrl:url,altText:alt,fitMode:'COVER',quality:88})});pushLocal(data.profile,slot);state.gameCache.set(state.game.slug,state.game);renderWorkspace('Imagem salva.');dialog.close();return;
+    editorMessage('Importando URL com segurança...');const data=await json(route,{method:'PUT',body:JSON.stringify({imageUrl:url,altText:alt,fitMode:'COVER',quality:88})});pushLocal(data.profile,slot);state.gameCache.delete(state.game.slug);state.game=(await json('/api/image-manager/game/'+encodeURIComponent(state.game.slug))).game;renderWorkspace('Imagem salva.');dialog.close();return;
   }
-  editorMessage('Processando e salvando...');const imageDataUrl=state.editor.toDataURL('image/webp',.88),data=await json(route,{method:'PUT',body:JSON.stringify({imageDataUrl,altText:alt,fitMode:'COVER',quality:88,transform:state.editor.getState()})});pushLocal(data.profile,slot);state.gameCache.set(state.game.slug,state.game);state.editorDirty=false;renderWorkspace(`Imagem salva em ${state.selected.label}.`);dialog.close();
+  editorMessage('Processando e salvando...');const imageDataUrl=state.editor.toDataURL('image/webp',.88),data=await json(route,{method:'PUT',body:JSON.stringify({imageDataUrl,altText:alt,fitMode:'COVER',quality:88,transform:state.editor.getState()})});pushLocal(data.profile,slot);state.gameCache.delete(state.game.slug);state.game=(await json('/api/image-manager/game/'+encodeURIComponent(state.game.slug))).game;state.editorDirty=false;renderWorkspace(`Imagem salva em ${state.selected.label}.`);dialog.close();
 }
 function closeEditor(force=false){if(!force&&state.editorDirty&&!confirm('Descartar as alterações de enquadramento?'))return;state.editorDirty=false;clearObjectUrl();dialog.close();}
 
@@ -176,11 +182,11 @@ workspace.addEventListener('click',async e=>{
     if(act==='inherit'){
       const own=ownMedia(state.game,slot,state.selected);if(!own)return;
       if(!confirm(`Voltar a herdar o ${SLOT_META[slot].label} em ${state.selected.label}? A imagem personalizada deste alvo será removida.`))return;
-      managerStatus('Voltando para a imagem herdada...');await json(targetRoute(state.selected,slot),{method:'DELETE'});removeLocal(slot);renderWorkspace('Modo herdado ativado.');return;
+      managerStatus('Voltando para a imagem herdada...');await json(targetRoute(state.selected,slot),{method:'DELETE'});state.gameCache.delete(state.game.slug);state.game=(await json('/api/image-manager/game/'+encodeURIComponent(state.game.slug))).game;renderWorkspace('Modo herdado ativado.');return;
     }
     if(act==='remove'){
       if(!confirm(`Remover o ${SLOT_META[slot].label} personalizado de ${state.selected.label}?`))return;
-      managerStatus('Removendo imagem...');await json(targetRoute(state.selected,slot),{method:'DELETE'});removeLocal(slot);renderWorkspace('Imagem removida. O próximo fallback voltou a ser usado.');return;
+      managerStatus('Removendo imagem...');await json(targetRoute(state.selected,slot),{method:'DELETE'});state.gameCache.delete(state.game.slug);state.game=(await json('/api/image-manager/game/'+encodeURIComponent(state.game.slug))).game;renderWorkspace('Imagem removida. O próximo fallback voltou a ser usado.');return;
     }
   }catch(error){managerStatus(error.message);}
 });

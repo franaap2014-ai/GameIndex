@@ -3,7 +3,7 @@
   "version": "0.992.0",
   "private": true,
   "type": "module",
-  "description": "GameIndex Beta 0.992 I2 Stability, UX, Dexter and Bandwidth",
+  "description": "GameIndex Beta 0.992 I3 Product Quality",
   "engines": {
     "node": ">=22.13"
   },
@@ -43,7 +43,8 @@
     "test:0992": "node tests/delivery-0992-regression.mjs && node tests/delivery-0992-navigation.mjs",
     "test:i1": "node tests/stability-0992-i1.mjs",
     "test:bandwidth": "node tests/bandwidth-0992-i1-hf1.mjs && node tests/bandwidth-http-0992-i1-hf1.mjs",
-    "test:0992i2": "node tests/release-0992-i2.mjs && npm run test:bandwidth"
+    "test:0992i2": "node tests/release-0992-i2.mjs && npm run test:bandwidth",
+    "test:0992i3": "node tests/quality-0992-i3.mjs"
   },
   "dependencies": {
     "compression": "^1.8.1",

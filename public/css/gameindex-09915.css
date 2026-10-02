@@ -335,4 +335,4 @@ select option{background:#0b1118;color:#f4f6f8}
 .gi-brand-mark b{font:800 15px/1 system-ui,sans-serif!important;letter-spacing:-1px;color:var(--gi-classification-accent)}
 .gi-brand-mark{display:grid!important;place-items:center!important;flex:0 0 34px!important}
 #globalUiLayer [hidden]{display:none!important}
-#giContextCompass{display:none!important}
+/* I3: contextual actions restored by the shared navigation runtime. */

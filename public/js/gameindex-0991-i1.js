@@ -65,8 +65,22 @@
   }
 
   function upgradeCompass(){
-    // The shell owns navigation. Do not replace its controls after binding.
-    document.getElementById("giContextCompass")?.remove();
+    const main=document.querySelector('main');if(!main)return;
+    let bar=document.getElementById('giContextCompass');
+    if(!bar){bar=document.createElement('nav');bar.id='giContextCompass';bar.className='gi-context-compass';bar.setAttribute('aria-label','Ações desta página');main.before(bar);}
+    const ctx=context(),caps=new Set(window.GV?.access?.capabilities||[]),p=location.pathname;
+    let actions=ctx.actions.map(([href,label])=>({href,label}));
+    if(p.includes('universe-builder'))actions=[{id:'foundationPreview',label:'Prévia',cap:'universe_build'},{id:'saveBlueprint',label:'Salvar',cap:'universe_build'},{id:'enhanceI6',label:'Aprimorar',cap:'universe_build'}];
+    else if(p.includes('cinematic-test-lab'))actions=[{id:'ctlPlay',label:'Reproduzir',cap:'cinematic_test'},{id:'ctlPause',label:'Pausar',cap:'cinematic_test'},{id:'ctlReplay',label:'Reiniciar',cap:'cinematic_test'}];
+    else if(document.body.dataset.page==='game')actions=[{id:'gameTabs',label:'Visão geral',scroll:true},{id:'followGame',label:'Seguir'},{id:'askAboutGame',label:'Dexter'}];
+    const guards={'/admin.html':'admin_panel','/deployment-monitor.html':'deployment_monitor','/bug-tracker.html':'bug_triage','/universe-builder.html':'universe_build'};
+    const filtered=actions.filter(x=>{const cap=x.cap||guards[x.href?.split('#')[0]];return(!cap||caps.has(cap))&&(!x.id||document.getElementById(x.id));});
+    const signature=JSON.stringify([ctx.area,filtered.map(x=>({...x,disabled:x.id?document.getElementById(x.id)?.disabled:false})),window.GV?.lang]);
+    if(bar.dataset.signature===signature)return;bar.dataset.signature=signature;bar.replaceChildren();
+    const title=document.createElement('span');title.textContent=ctx.area;bar.append(title);
+    const links=document.createElement('div');links.className='gi-context-actions';bar.append(links);
+    for(const action of filtered){const el=document.createElement(action.href?'a':'button');el.textContent=action.label;if(action.href)el.href=action.href;else{el.type='button';el.disabled=Boolean(document.getElementById(action.id)?.disabled);el.addEventListener('click',()=>{const target=document.getElementById(action.id);if(!target||target.disabled)return;if(action.scroll){target.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});target.querySelector('button')?.focus();}else target.click();});}links.append(el);}
+    window.GII18n?.apply(bar);
   }
 
   function updateReportLink(){document.querySelectorAll('a[href^="/report-bug.html"]').forEach(a=>{if(location.pathname!=="/report-bug.html")a.href="/report-bug.html?from="+encodeURIComponent(location.pathname);});}
@@ -90,8 +104,13 @@
   }
 
   window.GameIndexDiagnostics=Object.freeze({snapshot});
-  function boot(){upgradeBrand();upgradeCompass();updateReportLink();}
+  let watching=false;
+  function watchContext(){const main=document.querySelector('main');if(watching||!main)return;watching=true;let queued=false;new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;upgradeCompass();});}).observe(main,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled']});}
+  function boot(){upgradeBrand();upgradeCompass();updateReportLink();watchContext();}
   addEventListener("hashchange",upgradeCompass);
+  addEventListener("gv:language-changed",upgradeCompass);
+  addEventListener("gameindex:context",upgradeCompass);
+  addEventListener("DOMContentLoaded",()=>{let queued=false;const main=document.querySelector("main");if(main)new MutationObserver(()=>{if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;upgradeCompass();});}).observe(main,{childList:true,subtree:true,attributes:true,attributeFilter:["disabled"]});upgradeCompass();},{once:true});
   addEventListener("gv:shell-ready",boot,{once:true});
   if(document.querySelector(".site-header"))boot();
   else if(document.readyState==="loading")addEventListener("DOMContentLoaded",()=>setTimeout(boot,0),{once:true});

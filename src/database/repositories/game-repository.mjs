@@ -82,7 +82,7 @@ export function listGamesPage({ includeDrafts = false, q = "", limit = 24, offse
 export function listGames({ includeDrafts = true } = {}) {
   const rows = includeDrafts
     ? db.prepare(`SELECT * FROM games ORDER BY name`).all()
-    : db.prepare(`SELECT * FROM games WHERE status='PUBLISHED' ORDER BY name`).all();
+    : db.prepare(`SELECT * FROM games WHERE status='PUBLISHED' AND visibility='PUBLIC' ORDER BY name`).all();
   return rows.map(row => mapGame(row));
 }
 
@@ -114,7 +114,7 @@ export function relatedByFranchise(game, limit = 6, { includeDrafts = false, inc
   const franchise = game.franchise || game.franquia, entityFilter=hasGameEntityColumns()&&!includeExperiences?" AND entity_type='GAME'":"";
   const sql = includeDrafts
     ? `SELECT id,slug,name,description,release_date FROM games WHERE franchise=? AND id<>?${entityFilter} ORDER BY release_date,name LIMIT ?`
-    : `SELECT id,slug,name,description,release_date FROM games WHERE franchise=? AND id<>? AND status='PUBLISHED'${entityFilter} ORDER BY release_date,name LIMIT ?`;
+    : `SELECT id,slug,name,description,release_date FROM games WHERE franchise=? AND id<>? AND status='PUBLISHED' AND visibility='PUBLIC'${entityFilter} ORDER BY release_date,name LIMIT ?`;
   return db.prepare(sql).all(franchise, game.id, limit).map(row => ({
     id: row.id, slug: row.slug, nome: row.name, name: row.name, descricao: row.description, releaseDate: row.release_date
   }));

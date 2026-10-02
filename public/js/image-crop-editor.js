@@ -26,20 +26,20 @@
   class GameIndexCropEditor{
     constructor(mount,{slot='BANNER',onChange=null}={}){
       if(!mount)throw new Error('CROP_EDITOR_MOUNT_REQUIRED');
-      this.mount=mount;this.slot=slot==='LOGO'?'LOGO':'BANNER';this.onChange=typeof onChange==='function'?onChange:null;
+      this.mount=mount;this.slot=['LOGO','CARD'].includes(slot)?slot:'BANNER';this.onChange=typeof onChange==='function'?onChange:null;
       this.image=null;this.src='';this.fitMode='fill';this.scale=1;this.txNorm=0;this.tyNorm=0;this.dirty=false;
       this.interaction=null;this.resizeObserver=null;this.raf=0;
       this.renderShell();this.bind();
     }
-    frameRatio(){return this.slot==='LOGO'?3:16/6;}
-    outputSize(){return this.slot==='LOGO'?{width:1200,height:400}:{width:1600,height:600};}
+    frameRatio(){return this.slot==='LOGO'?3:this.slot==='CARD'?16/9:16/6;}
+    outputSize(){return this.slot==='LOGO'?{width:1200,height:400}:this.slot==='CARD'?{width:1280,height:720}:{width:1600,height:600};}
     renderShell(){
       this.mount.innerHTML=`<div class="gi-crop-stage" tabindex="0" aria-label="Editor visual de enquadramento"><img class="gi-i1-crop-backdrop" alt="" hidden><div class="gi-crop-grid"></div><div class="gi-crop-image-box" hidden><img class="gi-crop-image" alt=""></div><button type="button" class="gi-crop-handle gi-crop-handle-nw" data-corner="nw" aria-label="Redimensionar pelo canto superior esquerdo"></button><button type="button" class="gi-crop-handle gi-crop-handle-ne" data-corner="ne" aria-label="Redimensionar pelo canto superior direito"></button><button type="button" class="gi-crop-handle gi-crop-handle-sw" data-corner="sw" aria-label="Redimensionar pelo canto inferior esquerdo"></button><button type="button" class="gi-crop-handle gi-crop-handle-se" data-corner="se" aria-label="Redimensionar pelo canto inferior direito"></button><div class="gi-crop-empty">Escolha uma imagem para começar.</div></div>`;
       this.stage=this.mount.querySelector('.gi-crop-stage');this.backdrop=this.mount.querySelector('.gi-i1-crop-backdrop');this.box=this.mount.querySelector('.gi-crop-image-box');this.imgEl=this.mount.querySelector('.gi-crop-image');this.empty=this.mount.querySelector('.gi-crop-empty');this.handles=[...this.mount.querySelectorAll('.gi-crop-handle')];
       this.setSlot(this.slot);
       if('ResizeObserver' in root){this.resizeObserver=new ResizeObserver(()=>this.scheduleLayout());this.resizeObserver.observe(this.stage);}
     }
-    setSlot(slot){this.slot=slot==='LOGO'?'LOGO':'BANNER';if(this.stage)this.stage.style.setProperty('--gi-crop-ratio',String(this.frameRatio()));this.scheduleLayout();}
+    setSlot(slot){this.slot=['LOGO','CARD'].includes(slot)?slot:'BANNER';if(this.stage)this.stage.style.setProperty('--gi-crop-ratio',String(this.frameRatio()));this.scheduleLayout();}
     bind(){
       this.stage.addEventListener('pointerdown',e=>this.startMove(e));
       this.stage.addEventListener('pointermove',e=>this.pointerMove(e));

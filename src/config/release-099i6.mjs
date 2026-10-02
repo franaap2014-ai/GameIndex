@@ -1,8 +1,8 @@
 export const PUBLIC_VERSION="0.992";
 export const PUBLIC_VERSION_LABEL=`Beta ${PUBLIC_VERSION}`;
-export const INTERNAL_RELEASE="0.992 I2";
-export const INTERNAL_RELEASE_LABEL="GameIndex Beta 0.992 I2 Bandwidth";
-export const INTERNAL_RELEASE_CODE="BETA_0_992_I2_BANDWIDTH";
+export const INTERNAL_RELEASE="0.992 I3";
+export const INTERNAL_RELEASE_LABEL="GameIndex Beta 0.992 I3 Product Quality";
+export const INTERNAL_RELEASE_CODE="BETA_0_992_I3_PRODUCT_QUALITY";
 export const TARGET_SCHEMA=47;
 export const ARCHITECTURE="LOCAL_FIRST_NO_API_KEY";
 

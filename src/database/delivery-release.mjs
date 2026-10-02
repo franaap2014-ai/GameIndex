@@ -1,3 +1,4 @@
+import {installQualityContent} from './quality-content-0992-i3.mjs';
 import {installIdentityCatalog} from '../users/avatar-catalog-0992-i1.mjs';
 import {db,json,nowIso,schemaVersion,transaction} from './connection.mjs';
 import {PUBLIC_VERSION,INTERNAL_RELEASE_CODE} from '../config/release-099i6.mjs';
@@ -10,12 +11,14 @@ function appendNotes(sections,key,notes){
 export function registerDeliveryRelease(){
  if(schemaVersion()<47)return;
  installIdentityCatalog();
+ installQualityContent();
  const value=key=>db.prepare('SELECT value FROM meta WHERE key=?').get(key)?.value;
  const entry=db.prepare('SELECT sections_json FROM update_log_entries WHERE version=?').get(PUBLIC_VERSION);
  const needsI1=!value('release_notes_0992_i1')||!entry;
  const needsI2=!value('release_notes_0992_i2')||!entry;
+ const needsI3=!value('release_notes_0992_i3')||!entry;
  // Repeated startup must not rewrite identical metadata or schedule another snapshot.
- if(!needsI1&&!needsI2&&value('runtime_version')===PUBLIC_VERSION&&value('runtime_release')===INTERNAL_RELEASE_CODE)return;
+ if(!needsI1&&!needsI2&&!needsI3&&value('runtime_version')===PUBLIC_VERSION&&value('runtime_release')===INTERNAL_RELEASE_CODE)return;
 
  // Notes and their installation markers commit together; a failed startup can retry safely.
  transaction(()=>{
@@ -23,7 +26,7 @@ export function registerDeliveryRelease(){
   setMeta.run('runtime_version',PUBLIC_VERSION);
   setMeta.run('runtime_release',INTERNAL_RELEASE_CODE);
   db.prepare(`INSERT INTO update_log_entries(version,title,codename,release_date,sections_json,tags_json,public,created_at) VALUES(?,?,?,'2026-09-24',?,?,1,?) ON CONFLICT(version) DO NOTHING`).run(PUBLIC_VERSION,'GameIndex Beta '+PUBLIC_VERSION,'Delivery Build',json({RESUMO:['Navegação e apresentação consolidadas','Universe Builder orientado pelas abas de cada jogo'],MELHORADO:['Ferramentas de desenvolvimento com acesso restrito','Música com retomada e recuperação','Mobile e transições temáticas'],CORRIGIDO:['Aprimorar incorpora novos fatos às seções editáveis','Cabo usa as cores dos temas de origem e destino']}),json(['DELIVERY','MOBILE','BUILDER']),nowIso());
-  if(needsI1||needsI2){
+  if(needsI1||needsI2||needsI3){
    const current=db.prepare('SELECT sections_json FROM update_log_entries WHERE version=?').get(PUBLIC_VERSION);
    let sections;
    try{sections=JSON.parse(current.sections_json);}catch{}
@@ -39,7 +42,12 @@ export function registerDeliveryRelease(){
     appendNotes(sections,'CORRIGIDO',['Sincronização com espera progressiva após falhas','Inicialização sem regravar metadados e notas de versão idênticos']);
     setMeta.run('release_notes_0992_i2','1');
    }
-   db.prepare("UPDATE update_log_entries SET sections_json=?,codename='I2 · Estabilidade e tráfego',release_date='2026-10-01' WHERE version=?").run(json(sections),PUBLIC_VERSION);
+   if(needsI3){
+    appendNotes(sections,'MELHORADO',['Identidade visual unificada e avatares com desenhos próprios','Idiomas com troca imediata e transição visual','Barra de ações contextual restaurada','Dexter consulta o catálogo e orienta o uso do GameIndex','Red Dead Redemption 2 no catálogo']);
+    appendNotes(sections,'CORRIGIDO',['Cabeçalho, perfil e Social adaptados à tela','Capa, logo e banner com destinos independentes','Enquadramento salvo respeitado na exibição','Prévia e controles reunidos no Cinematic Lab']);
+    setMeta.run('release_notes_0992_i3','1');
+   }
+   db.prepare("UPDATE update_log_entries SET sections_json=?,codename='I3 · Identidade e experiência',release_date='2026-10-02' WHERE version=?").run(json(sections),PUBLIC_VERSION);
   }
  });
 }

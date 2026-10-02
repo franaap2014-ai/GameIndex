@@ -1,3 +1,4 @@
+import {installPublicBoundary,publicErrorBoundary} from "./src/api/public-boundary.mjs";
 import {randomBytes,createHash} from 'node:crypto';
 import { readDurableGameMedia, preserveExistingGameMedia } from "./src/images/game-media-service.mjs";
 import { readDurableAvatar, preserveExistingAvatars } from "./src/uploads/avatar-service.mjs";
@@ -96,6 +97,7 @@ app.disable("x-powered-by");
 app.set("trust proxy",1);
 app.use(express.json({limit:"12mb"}));
 installPerformanceMiddleware(app);
+installPublicBoundary(app);
 app.get("/user-content/avatars/:filename",(req,res,next)=>{const asset=readDurableAvatar(req.params.filename);if(!asset)return next();res.setHeader("Cache-Control","public, max-age=86400");res.setHeader("X-Content-Type-Options","nosniff");return res.type(asset.mimeType).send(asset.bytes);});
 app.use("/user-content/avatars",express.static(avatarsDir,{maxAge:"1d",immutable:false,index:false,fallthrough:false}));
 app.get("/user-content/game-media/:filename",(req,res,next)=>{const asset=readDurableGameMedia(req.params.filename);if(!asset)return next();res.setHeader("Cache-Control","public, max-age=604800");res.setHeader("X-Content-Type-Options","nosniff");return res.type(asset.mimeType).send(asset.bytes);});
@@ -150,7 +152,7 @@ function cleanPublicError(res,status,message){return res.status(status).json({er
 function relatedForGame(game,includeDrafts=false){if(!game)return [];if(game.entityType==="EXPERIENCE"&&game.parentGameId){return listChildGameEntities(game.parentGameId,{includeDrafts,limit:8}).filter(entry=>entry.id!==game.id).slice(0,6);}const children=listChildGameEntities(game.id,{includeDrafts,limit:12});if(children.length)return children.slice(0,8);return relatedByFranchise(game,6,{includeDrafts});}
 
 app.get("/api/health",(req,res)=>{try{const health=publicHealthSnapshot();res.status(health.status==="unhealthy"?503:200).json({status:health.status,product:"GameIndex",version:PUBLIC_VERSION,label:`Beta ${PUBLIC_VERSION}`,timestamp:new Date().toISOString()});}catch(error){res.status(503).json({status:"unhealthy",product:"GameIndex",version:PUBLIC_VERSION,label:`Beta ${PUBLIC_VERSION}`,timestamp:new Date().toISOString(),error:"HEALTH_CHECK_UNAVAILABLE"});}});
-app.get("/api/stats",(req,res)=>{const media=imageEngine3Summary();res.json({games:gameCount(),knowledge:knowledgeCount(),claims:claimCount(),sources:sourceCount(),images:media.ready,imageAssetsStored:media.stored,research:researchCount(),articles:articleCount(),pages:pageCount(),imageEngine:"3.0_NATIVE"});});
+app.get("/api/stats",(req,res)=>{const media=imageEngine3Summary();res.json({games:gameCount(),knowledge:knowledgeCount(),claims:claimCount(),sources:sourceCount(),images:media.ready,imageAssetsStored:media.stored,research:researchCount(),articles:articleCount(),pages:pageCount()});});
 app.get("/api/templates",(req,res)=>res.json(availableTemplates.map(id=>({id,tabs:templateTabs(id)}))));
 
 app.get("/api/games",paginatedPublicGames);
@@ -175,7 +177,7 @@ async function brainHandler(req,res){
   const controller=new AbortController();res.on('close',()=>{if(!res.writableEnded)controller.abort();});
   let guest=String(req.headers.cookie||'').match(/(?:^|;\s*)gi_dexter_guest=([a-f0-9]{48})(?:;|$)/)?.[1];if(!session?.user?.id&&!guest){guest=randomBytes(24).toString('hex');res.cookie('gi_dexter_guest',guest,{httpOnly:true,sameSite:'lax',secure:req.secure,path:'/',maxAge:86400000});}
   const contextScope=createHash('sha256').update(session?.user?.id||guest).digest('hex');
-  try{const result=await publicDexterConsult({...req.body,language:selectedLanguage,userId:session?.user?.id||null,contextScope,saveHistory:auth.preferences?.saveDexterHistory!==false,responseLength:auth.preferences?.responseLength||'BALANCED',signal:controller.signal});delete result.diagnostics;if(session?.user?.id&&auth.preferences?.saveDexterHistory!==false)recordActivity({userId:session.user.id,eventType:"BRAIN_QUERY",gameId:result?.answer?.game?.id||null,metadata:{language:selectedLanguage,dexter:"gemma3:4b"}});recordBrainRequest({userId:session?.user?.id||null,language:selectedLanguage,status:"SUCCESS",durationMs:Date.now()-started,usedMemory:Boolean(result?.memory?.count),usedResearch:Boolean(result?.answer?.researched)});return res.json(result);}catch(error){console.error("[Dexter request failure]",error?.message);try{recordBrainRequest({userId:session?.user?.id||null,language:selectedLanguage,status:"FAILED",durationMs:Date.now()-started,usedResearch:false,errorCode:"DEXTER_PUBLIC_FAILED"});}catch{}return res.status(error.status===400?400:503).json({ok:false,erro:error.status===400?error.message:"Não foi possível concluir a consulta agora. Tente novamente."});}
+  try{const result=await publicDexterConsult({...req.body,capabilities:accessSnapshot(req).capabilities||[],allowResearch:auth.preferences?.externalResearch!==false,language:selectedLanguage,userId:session?.user?.id||null,contextScope,saveHistory:auth.preferences?.saveDexterHistory!==false,responseLength:auth.preferences?.responseLength||'BALANCED',signal:controller.signal});delete result.diagnostics;if(session?.user?.id&&auth.preferences?.saveDexterHistory!==false)recordActivity({userId:session.user.id,eventType:"BRAIN_QUERY",gameId:result?.answer?.game?.id||null,metadata:{language:selectedLanguage,dexter:"gemma3:4b"}});recordBrainRequest({userId:session?.user?.id||null,language:selectedLanguage,status:"SUCCESS",durationMs:Date.now()-started,usedMemory:Boolean(result?.memory?.count),usedResearch:Boolean(result?.answer?.researched)});return res.json(result);}catch(error){console.error("[Dexter request failure]",error?.message);try{recordBrainRequest({userId:session?.user?.id||null,language:selectedLanguage,status:"FAILED",durationMs:Date.now()-started,usedResearch:false,errorCode:"DEXTER_PUBLIC_FAILED"});}catch{}return res.status(error.status===400?400:503).json({ok:false,erro:error.status===400?error.message:"Não foi possível concluir a consulta agora. Tente novamente."});}
 }
 app.post("/api/ai/consult",brainLimiter,brainHandler);
 app.post("/api/brain/consult",brainLimiter,brainHandler);
@@ -239,6 +241,8 @@ registerBeta09915Routes(app);
 
 app.get("/",(req,res)=>res.sendFile(path.join(publicDir,"index.html")));
 app.use((req,res,next)=>{if(req.path.startsWith("/api/"))return res.status(404).json({erro:"Rota da API não encontrada."});next();});
+
+app.use(publicErrorBoundary);
 
 app.listen(PORT,()=>{
   let autogen={enabled:false};try{if(!PERFORMANCE_MODE||String(process.env.GAMEINDEX_BACKGROUND_WORKERS||"false").toLowerCase()==="true")autogen=startAutonomousGenerationWorker();else autogen={enabled:false,deferred:true};}catch(error){runtimeLog("autogen_start_failed",{error:String(error.message||error)});}

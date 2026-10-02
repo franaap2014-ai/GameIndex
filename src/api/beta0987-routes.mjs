@@ -23,7 +23,7 @@ function personalizationInput(req,game){return {
 export function registerBeta0987Routes(app){
   app.get("/api/games/:game/personalization",(req,res)=>{
     const game=gameFrom(req.params.game);if(!game)return fail(res,404,"GAME_NOT_FOUND","Jogo não encontrado.");
-    try{return publicCache(res).json({ok:true,state:resolvePersonalization(personalizationInput(req,game))});}
+    try{const state=resolvePersonalization(personalizationInput(req,game));delete state.inspector;delete state.version;return publicCache(res).json({ok:true,state});}
     catch(error){return fail(res,400,String(error.message||"PERSONALIZATION_FAILED"),"Não foi possível resolver a personalização.");}
   });
 

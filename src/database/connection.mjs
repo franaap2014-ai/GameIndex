@@ -447,4 +447,11 @@ export function durablePersistenceState(){return neonRemotePersistenceState();}
 export function nowIso(){return new Date().toISOString();}
 export function parseJson(value,fallback=null){try{return JSON.parse(value);}catch{return fallback;}}
 export function json(value){return JSON.stringify(value??null);}
-export function transaction(fn){db.exec("BEGIN IMMEDIATE");try{const result=fn();db.exec("COMMIT");markNeonSnapshotDirty({critical:true,reason:"sqlite-transaction-commit"});return result;}catch(error){try{db.exec("ROLLBACK");}catch{}throw error;}}
+let transactionDepth=0,savepointSequence=0;
+export function transaction(fn){
+ const nested=transactionDepth>0,name=`gi_nested_${++savepointSequence}`;
+ db.exec(nested?`SAVEPOINT ${name}`:'BEGIN IMMEDIATE');transactionDepth++;
+ try{const result=fn();db.exec(nested?`RELEASE SAVEPOINT ${name}`:'COMMIT');if(!nested)markNeonSnapshotDirty({critical:true,reason:'sqlite-transaction-commit'});return result;}
+ catch(error){try{if(nested){db.exec(`ROLLBACK TO SAVEPOINT ${name}`);db.exec(`RELEASE SAVEPOINT ${name}`);}else db.exec('ROLLBACK');}catch{}throw error;}
+ finally{transactionDepth--;}
+}

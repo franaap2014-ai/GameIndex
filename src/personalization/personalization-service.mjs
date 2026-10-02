@@ -30,6 +30,7 @@ function safeMotion(...layers){const merged=merge(...layers),duration=Math.max(0
 function mediaRecord(profile,source){return profile?.imageUrl?{...profile,source}:null;}
 function resolveSlot({game,parentGame,experience,parentExperience,era,parentEra,slot}){
   const candidates=[];
+  if(slot==="LOGO"&&!experience)candidates.push(mediaRecord(experienceMediaProfile(game.id,"main","LOGO"),"GAME_LOGO"));
   // 0.9875 primary media: LOGO + BANNER. BANNER is canonical for experience/era,
   // while game-level BANNER maps to the existing HERO slot to preserve the production schema.
   if(slot==="BANNER"){
@@ -60,12 +61,12 @@ function resolveSlot({game,parentGame,experience,parentExperience,era,parentEra,
   const hit=candidates.find(Boolean);
   if(hit)return hit;
   if(["LOGO","CARD"].includes(slot)){
-    const cover=gamePublicVisual(game)?.cover;
-    if(cover)return {imageUrl:cover,url:cover,source:"GAMEINDEX_VISUAL_FALLBACK",slot};
+    const visual=gamePublicVisual(game),cover=visual?.cover;
+    if(cover)return {imageUrl:cover,url:cover,source:"GAMEINDEX_VISUAL_FALLBACK",slot:slot==="LOGO"?"COVER":slot,fitMode:visual.presentation?.fitMode||"CONTAIN"};
   }
   if(slot==="BANNER"){
-    const cover=gamePublicVisual(game)?.cover;
-    if(cover)return {imageUrl:cover,url:cover,source:"GAMEINDEX_VISUAL_FALLBACK",slot};
+    const visual=gamePublicVisual(game),cover=visual?.cover;
+    if(cover)return {imageUrl:cover,url:cover,source:"GAMEINDEX_VISUAL_FALLBACK",slot:slot==="LOGO"?"COVER":slot,fitMode:visual.presentation?.fitMode||"CONTAIN"};
   }
   return null;
 }

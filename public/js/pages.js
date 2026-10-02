@@ -9,13 +9,7 @@ async function initLanguages(){
     button.classList.toggle("active",button.dataset.lang===GV.lang);
     button.addEventListener("click",async()=>{
       const lang=button.dataset.lang;
-      localStorage.setItem("gv_lang",lang);
-      try{
-        const auth=await GV.api("/api/auth/me");
-        if(auth.authenticated)await GV.api("/api/preferences",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({language:lang})});
-      }catch{}
-      msg.textContent="Idioma salvo. Recarregando a interface...";
-      setTimeout(()=>location.reload(),250);
+      try{await GV.setLanguage(lang,{animate:true,saveAccount:true});msg.textContent=GII18n.text('Idioma salvo.');}catch{msg.textContent=GII18n.text('Não foi possível salvar o idioma na conta. Tente novamente.');}
     });
   });
 }

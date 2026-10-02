@@ -21,7 +21,8 @@ try{
  test('fresh installation registers I1 and I2 on schema 47',()=>{
   assert.equal(meta('runtime_version'),'0.992');
   assert.equal(meta('runtime_release'),INTERNAL_RELEASE_CODE);
-  assert.equal(INTERNAL_RELEASE_CODE,'BETA_0_992_I2_BANDWIDTH');
+  // I2 compatibility invariants also apply when upgraded to I3.
+  assert.match(INTERNAL_RELEASE_CODE,/^BETA_0_992_(?:I2_BANDWIDTH|I3_PRODUCT_QUALITY)$/);
   assert.equal(meta('release_notes_0992_i1'),'1');assert.equal(meta('release_notes_0992_i2'),'1');
   assert.match(entry().sections_json,/Dexter/);assert.match(entry().sections_json,/compactados/);
  });

@@ -34,7 +34,9 @@ function taskRow(id){const r=db.prepare(`SELECT * FROM dexter_tasks WHERE id=?`)
 
 export async function runDexterTask({taskType,schemaVersion="1",gameId=null,entityId=null,input={},system="",prompt="",images=[],signal=null}={}){
   const type=String(taskType||"SEMANTIC_REVIEW").toUpperCase(),c=contract(type),cfg=ollamaConfig(),id=`dexter-${randomUUID()}`,now=nowIso();
-  const compactInput=JSON.stringify(input??{}).slice(0,c.maxInputChars);
+  const compactInput=JSON.stringify(input??{});
+  if(compactInput.length>c.maxInputChars)return {ok:false,degraded:true,reasonCode:"INPUT_TOO_LARGE"};
+  if(signal?.aborted)return {ok:false,degraded:true,reasonCode:"CANCELLED"};
   db.prepare(`INSERT INTO dexter_tasks(id,task_type,schema_version,game_id,entity_id,provider,model,status,timeout_class,input_digest,result_json,reason_code,duration_ms,created_at,started_at,completed_at) VALUES(?,?,?,?,?,?,?,'QUEUED',?,?, '{}','',0,?,'','')`).run(id,type,schemaVersion,gameId,entityId,cfg.provider,cfg.model,c.timeoutClass,digest(input),now);
   if(!canRun()){
     db.prepare(`UPDATE dexter_tasks SET status='WAITING_PROVIDER',reason_code='CIRCUIT_OPEN',completed_at=?,duration_ms=0 WHERE id=?`).run(nowIso(),id);
@@ -42,6 +44,7 @@ export async function runDexterTask({taskType,schemaVersion="1",gameId=null,enti
   }
   await acquire();const started=Date.now();
   try{
+    if(signal?.aborted)throw Object.assign(new Error("CANCELLED"),{code:"CANCELLED"});
     db.prepare(`UPDATE dexter_tasks SET status='RUNNING',started_at=? WHERE id=?`).run(nowIso(),id);
     const requestPrompt=`${prompt||`Task type: ${type}`}\nInput JSON:\n${compactInput}`;
     const routed=await routeAITask({capability:capabilityForTaskType(type),source:"dexter",signal,execute:async()=>{

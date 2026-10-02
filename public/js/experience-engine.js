@@ -69,7 +69,7 @@
     const logo=mediaUrl(media.logo)||state.game?.visual?.cover||'';
     if(cover){
       cover.dataset.asset='LOGO';cover.dataset.mediaSource=media.logo?.source||'GAME_INDEX_DEFAULT';
-      if(logo){cover.innerHTML=GV.imageMarkup(logo,{alt:media.logo?.altText||state.game?.nome||state.game?.name||'Game',fallback:(state.game?.nome||'GI').slice(0,2),loading:'eager'});cover.classList.add('gie-logo-frame');}
+      if(logo){cover.innerHTML=GV.imageMarkup(logo,{alt:media.logo?.altText||state.game?.nome||state.game?.name||'Game',fallback:(state.game?.nome||'GI').slice(0,2),loading:'eager',presentation:media.logo||state.game?.visual?.presentation});cover.classList.toggle('gie-logo-frame',Boolean(media.logo?.imageUrl && media.logo?.slot==='LOGO'));}
       else{cover.innerHTML=`<div class="cover-placeholder">${safe((state.game?.nome||state.game?.name||'GI').slice(0,2).toUpperCase())}</div>`;cover.classList.remove('gie-logo-frame');}
     }
   }
@@ -87,7 +87,7 @@
     const host=document.getElementById('gameExperienceBar');if(!host)return;const profile=resolved.experience;if(!profile){host.hidden=true;return;}host.hidden=false;
     const parent=state.parent,menu=localizedMenu(profile),source=resolved.inspector?.identitySource||'GAME';
     const parentLink=parent?`<a class="gie-parent-link" href="/game/roblox">← ${safe(parent.name||'Roblox')}</a>`:'';
-    host.innerHTML=`<div class="gie-bar-main"><div>${parentLink}<span class="gie-label">${safe(profile.label||state.game?.nome||state.game?.name||'')}</span><small>${safe(profile.subtitle||'')} · ${safe(source.replaceAll('_',' '))}</small></div><div class="gie-switch-stack">${variantSwitch()}${eraSwitch(resolved)}</div></div>${menu.length?`<nav class="gie-menu" aria-label="${safe(t('experience.menu','Menu da experiência'))}">${menu.map(item=>`<button type="button" data-gie-tab="${safe(item.id)}">${safe(item.label)}</button>`).join('')}</nav>`:''}`;
+    host.innerHTML=`<div class="gie-bar-main"><div>${parentLink}<span class="gie-label">${safe(profile.label||state.game?.nome||state.game?.name||'')}</span><small>${safe(profile.subtitle||'')}</small></div><div class="gie-switch-stack">${variantSwitch()}${eraSwitch(resolved)}</div></div>${menu.length?`<nav class="gie-menu" aria-label="${safe(t('experience.menu','Menu da experiência'))}">${menu.map(item=>`<button type="button" data-gie-tab="${safe(item.id)}">${safe(item.label)}</button>`).join('')}</nav>`:''}`;
     host.querySelectorAll('[data-gie-variant]').forEach(button=>button.addEventListener('click',()=>applyVariant(button.dataset.gieVariant)));
     host.querySelector('[data-gie-era]')?.addEventListener('change',e=>applyEra(e.target.value));
     host.querySelectorAll('[data-gie-tab]').forEach(button=>button.addEventListener('click',()=>{const id=button.dataset.gieTab,existing=document.querySelector(`[data-tab="${CSS.escape(id)}"]`);if(existing){existing.click();existing.scrollIntoView({behavior:reduced()?'auto':'smooth',block:'center'});return;}if(id==='experiences')document.getElementById('robloxExperienceHub')?.scrollIntoView({behavior:reduced()?'auto':'smooth'});}));

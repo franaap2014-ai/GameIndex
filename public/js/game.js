@@ -108,7 +108,7 @@ async function playGameEntryCutscene(){
 
 function setVisual(visual={}){
   const cover=$("gameCover"),backdrop=$("gameBackdrop"),url=cleanPublicText(visual?.cover||"");
-  if(cover){cover.innerHTML=url?GV.imageMarkup(url,{alt:`Capa de ${game?.nome||"jogo"}`,fallback:initials(game?.nome||"GI"),loading:"eager"}):`<div class="cover-placeholder" id="gameInitials">${esc(initials(game?.nome||"GI"))}</div>`;}
+  if(cover){cover.innerHTML=url?GV.imageMarkup(url,{alt:`Capa de ${game?.nome||"jogo"}`,fallback:initials(game?.nome||"GI"),loading:"eager",presentation:visual?.presentation}):`<div class="cover-placeholder" id="gameInitials">${esc(initials(game?.nome||"GI"))}</div>`;}
   if(backdrop&&url){backdrop.style.backgroundImage=`linear-gradient(90deg,rgba(5,8,12,.90),rgba(5,8,12,.50),rgba(5,8,12,.85)),url("${String(url).replaceAll('"','%22')}")`;backdrop.style.backgroundSize="cover";backdrop.style.backgroundPosition="center";}
 }
 
@@ -152,7 +152,7 @@ function overviewMarkup(data,knowledge=[]){
 }
 
 function canonLabel(value){
-  return ({OFFICIAL:"Oficial",COMMUNITY:"Comunidade",THEORY:"Teoria",RUMOR:"Rumor",MIXED:"Misto",UNKNOWN:"Não confirmado",NOT_APPLICABLE:""})[value]||value||"";
+  return ({CANON:"Oficial",OFFICIAL:"Oficial",COMMUNITY:"Comunidade",THEORY:"Teoria",RUMOR:"Rumor",MIXED:"Misto",UNKNOWN:"Não confirmado",NOT_APPLICABLE:""})[value]||value||"";
 }
 
 function entryCard(entry){
@@ -160,12 +160,12 @@ function entryCard(entry){
   const glyph=typeGlyph(entry.entityType);
   const typeClass=String(entry.entityType||"generic").toLowerCase().replace(/[^a-z0-9_-]/g,"");
   return `<a class="knowledge-card" href="/knowledge.html?id=${encodeURIComponent(entry.id)}" data-entity-id="${esc(entry.entityId||"")}">
-    <div class="knowledge-thumb type-${esc(typeClass)}" data-visual-state="placeholder"><span>${esc(glyph==="GV"?(entry.entityName?initials(entry.entityName):"GV"):glyph)}</span></div>
+    <div class="knowledge-thumb type-${esc(typeClass)}" data-visual-state="placeholder"><span>${esc(glyph==="GV"?(entry.entityName?initials(entry.entityName):"GI"):glyph)}</span></div>
     <div class="knowledge-card-content">
       <div class="knowledge-card-top">${canon?`<span>${esc(canon)}</span>`:""}</div>
       <h3>${esc(entry.title)}</h3>
       <p>${esc(entry.summary||"")}</p>
-      <div class="knowledge-card-footer"><span>${esc(entry.entityType||entry.status||"")}</span><span>${esc(entry.status||"")}</span></div>
+      <div class="knowledge-card-footer"><span>${esc(entry.entityName||"")}</span><span>${esc(["VALIDATED","CURRENT"].includes(entry.status)?"Verificado":"Em revisão")}</span></div>
     </div>
   </a>`;
 }
