@@ -73,8 +73,8 @@
   }
   function opening(){
     if(reduced())return;
-    const el=document.createElement('div');el.className='gi-rm-reveal';el.setAttribute('aria-hidden','true');
-    const content=document.createElement('span');content.className='gi-rm-reveal-inner';content.textContent=title();el.append(content);document.body.append(el);
+    const el=document.createElement('div');el.className='gi-rm-reveal';el.dataset.scene=String(document.body?.dataset.page||'home').toLowerCase();el.setAttribute('aria-hidden','true');
+    const content=document.createElement('span');content.className='gi-rm-reveal-inner';content.textContent=title();const sceneIcon=document.createElement('span');sceneIcon.className='gi-rm-scene-symbol';const symbols={settings:'⚙',admin:'⌘','update-log':'↑',ai:'✧',games:'▦',creator:'✦',social:'◎'};sceneIcon.textContent=symbols[el.dataset.scene]||'◇';sceneIcon.setAttribute('aria-hidden','true');el.append(sceneIcon,content);document.body.append(el);
     setTimeout(()=>el.remove(),900);
   }
   function routes(){
@@ -94,6 +94,7 @@
     const badge=document.querySelector('#siteHeader .brand-badge');if(badge){badge.textContent='REMASTER 0.93';badge.title='GameIndex Remaster 0.93';}
     for(const icon of document.querySelectorAll('link[rel="icon"]'))icon.href='/assets/brand/index-emblem.svg?v=remaster093';
     const home=document.querySelector('body[data-page="home"] .hero-kicker');if(home){home.textContent='GAMEINDEX · REMASTER 0.93';}
+    document.querySelectorAll('.site-footer span').forEach(el=>{if(/GameIndex Beta 0\.992/.test(el.textContent||''))el.textContent=el.textContent.replace(/GameIndex Beta 0\.992/,'GameIndex Remaster 0.93');});
   }
   function boot(){
     if(ready||!byId('siteHeader'))return;ready=true;document.documentElement.dataset.remaster='093';
