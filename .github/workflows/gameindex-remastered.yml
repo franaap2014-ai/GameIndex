@@ -19,3 +19,24 @@ jobs:
       - run: npm run test:remastered
       - run: npm run test:remaster093
       - run: npm run test:0992i3
+      - name: Build the Remastered update-only archive
+        run: |
+          zip -q GameIndex_Remastered_UPDATE_ONLY.zip \
+            public/index.html \
+            public/games.html \
+            public/ai.html \
+            public/css/remastered-13.css \
+            public/js/remastered-13.js \
+            public/js/remastered-soundtrack.js \
+            public/js/remaster-093.js \
+            public/js/shell-0986.js \
+            public/assets/brand/remastered-gateway.svg \
+            src/dexter/public-consult.mjs \
+            REMASTERED_13_SCOPE.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GameIndex-Remastered-13P-Update-Only
+          path: GameIndex_Remastered_UPDATE_ONLY.zip
+          if-no-files-found: error
+          retention-days: 14
+
