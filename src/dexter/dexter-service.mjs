@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { db, json, nowIso, parseJson } from "../database/connection.mjs";
-import { ollamaConfig, ollamaHealth, ollamaStructured } from "./ollama-provider.mjs";
+import { dexterModelConfig, dexterModelHealth, dexterModelStructured } from "./model-provider-093.mjs";
 import { capabilityForTaskType } from "../ai/runtime/ai-capabilities.mjs";
 import { routeAITask } from "../ai/runtime/task-router.mjs";
 import { localAIRuntimeStatus } from "../ai/runtime/local-ai-runtime.mjs";
@@ -33,7 +33,7 @@ function validateResult(type,result){
 function taskRow(id){const r=db.prepare(`SELECT * FROM dexter_tasks WHERE id=?`).get(id);return r?{id:r.id,taskType:r.task_type,schemaVersion:r.schema_version,gameId:r.game_id,entityId:r.entity_id,provider:r.provider,model:r.model,status:r.status,timeoutClass:r.timeout_class,inputDigest:r.input_digest,result:parseJson(r.result_json,{}),reasonCode:r.reason_code,durationMs:Number(r.duration_ms||0),createdAt:r.created_at,startedAt:r.started_at,completedAt:r.completed_at}:null;}
 
 export async function runDexterTask({taskType,schemaVersion="1",gameId=null,entityId=null,input={},system="",prompt="",images=[],signal=null}={}){
-  const type=String(taskType||"SEMANTIC_REVIEW").toUpperCase(),c=contract(type),cfg=ollamaConfig(),id=`dexter-${randomUUID()}`,now=nowIso();
+  const type=String(taskType||"SEMANTIC_REVIEW").toUpperCase(),c=contract(type),cfg=dexterModelConfig(),id=`dexter-${randomUUID()}`,now=nowIso();
   const compactInput=JSON.stringify(input??{});
   if(compactInput.length>c.maxInputChars)return {ok:false,degraded:true,reasonCode:"INPUT_TOO_LARGE"};
   if(signal?.aborted)return {ok:false,degraded:true,reasonCode:"CANCELLED"};
@@ -48,10 +48,10 @@ export async function runDexterTask({taskType,schemaVersion="1",gameId=null,enti
     db.prepare(`UPDATE dexter_tasks SET status='RUNNING',started_at=? WHERE id=?`).run(nowIso(),id);
     const requestPrompt=`${prompt||`Task type: ${type}`}\nInput JSON:\n${compactInput}`;
     const routed=await routeAITask({capability:capabilityForTaskType(type),source:"dexter",signal,execute:async()=>{
-      let modelResult=await ollamaStructured({system,prompt:requestPrompt,images,timeoutClass:c.timeoutClass,signal});
+      let modelResult=await dexterModelStructured({system,prompt:requestPrompt,images,timeoutClass:c.timeoutClass,signal});
       let verdict=validateResult(type,modelResult.data);
       if(!verdict.ok){
-        modelResult=await ollamaStructured({system:"Repair the previous output. Return only a JSON object matching the required contract.",prompt:`Task: ${type}\nValidation error: ${verdict.reason}\nOriginal input: ${compactInput}\nPrevious output: ${JSON.stringify(modelResult.data).slice(0,6000)}`,images:[],timeoutClass:"FAST",temperature:0.1,signal});
+        modelResult=await dexterModelStructured({system:"Repair the previous output. Return only a JSON object matching the required contract.",prompt:`Task: ${type}\nValidation error: ${verdict.reason}\nOriginal input: ${compactInput}\nPrevious output: ${JSON.stringify(modelResult.data).slice(0,6000)}`,images:[],timeoutClass:"FAST",temperature:0.1,signal});
         verdict=validateResult(type,modelResult.data);
       }
       if(!verdict.ok)throw Object.assign(new Error("DEXTER_SCHEMA_REJECTED"),{code:"DEXTER_SCHEMA_REJECTED",reason:verdict.reason});
@@ -70,10 +70,10 @@ export async function runDexterTask({taskType,schemaVersion="1",gameId=null,enti
 }
 
 export async function dexterStatus({probe=true}={}){
-  const cfg=ollamaConfig(),provider=probe?await ollamaHealth():null;
+  const cfg=dexterModelConfig(),provider=probe?await dexterModelHealth():null;
   const summary={};for(const r of db.prepare(`SELECT status,COUNT(*) count FROM dexter_tasks GROUP BY status`).all())summary[r.status]=Number(r.count);
   const perf=db.prepare(`SELECT COUNT(*) count,COALESCE(AVG(duration_ms),0) avg_ms,COALESCE(MAX(duration_ms),0) max_ms FROM dexter_tasks WHERE created_at>=? AND duration_ms>0`).get(new Date(Date.now()-24*60*60*1000).toISOString());
-  return {provider:"ollama",model:cfg.model,apiKeyRequired:false,runtime:"LOCAL_SHARED_LAZY",reachable:provider?.reachable??null,modelInstalled:provider?.modelInstalled??null,providerHealth:provider,active,concurrency:MAX_CONCURRENCY,sharedRuntime:localAIRuntimeStatus(),queue:summary,recent:{count:Number(perf?.count||0),avgLatencyMs:Math.round(Number(perf?.avg_ms||0)),maxLatencyMs:Math.round(Number(perf?.max_ms||0))},circuit:{open:!canRun(),failures:circuit.failures,lastError:circuit.lastError,lastSuccess:circuit.lastSuccess}};
+  return {provider:cfg.provider,model:cfg.model,apiKeyRequired:cfg.apiKeyRequired===true,runtime:cfg.provider==="ollama"?"LOCAL_SHARED_LAZY":"REMOTE_CONFIGURED",reachable:provider?.reachable??null,modelInstalled:provider?.modelInstalled??null,providerHealth:provider,active,concurrency:MAX_CONCURRENCY,sharedRuntime:localAIRuntimeStatus(),queue:summary,recent:{count:Number(perf?.count||0),avgLatencyMs:Math.round(Number(perf?.avg_ms||0)),maxLatencyMs:Math.round(Number(perf?.max_ms||0))},circuit:{open:!canRun(),failures:circuit.failures,lastError:circuit.lastError,lastSuccess:circuit.lastSuccess}};
 }
 
 export function recentDexterTasks({limit=50}={}){return db.prepare(`SELECT id FROM dexter_tasks ORDER BY created_at DESC LIMIT ?`).all(Math.min(200,Math.max(1,Number(limit)||50))).map(r=>taskRow(r.id));}
