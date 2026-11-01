@@ -256,3 +256,19 @@
 @media(prefers-reduced-motion:reduce){
  :root[data-remaster="13"] *, :root[data-remaster="13"] *::before,:root[data-remaster="13"] *::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
 }
+
+/* A single mobile search action: old I2 toggle stays mounted for compatibility but is hidden. */
+:root[data-remaster="13"] .gi-i2-search-toggle{display:none!important;}
+:root[data-remaster="13"] #gi13SearchDialog{
+ width:min(560px,calc(100% - 32px));max-width:560px;max-height:90vh;border:1px solid var(--gi13-line);
+ border-radius:27px;padding:0;background:var(--gi13-surface);color:var(--gi13-ink);box-shadow:0 35px 110px #000a;
+}
+:root[data-remaster="13"] #gi13SearchDialog::backdrop{background:rgba(4,6,16,.76);backdrop-filter:blur(9px);}
+:root[data-remaster="13"] .gi13-search-sheet{display:grid;gap:15px;padding:clamp(20px,5vw,37px);}
+:root[data-remaster="13"] .gi13-search-sheet>span{color:var(--gi13-a);font-size:10px;letter-spacing:.18em;font-weight:800;}
+:root[data-remaster="13"] .gi13-search-sheet h2{font-size:clamp(28px,5vw,44px);letter-spacing:-.04em;font-weight:900;}
+:root[data-remaster="13"] .gi13-search-sheet label{font-size:11px;color:var(--gi13-muted);}
+:root[data-remaster="13"] .gi13-search-sheet input{width:100%;background:var(--gi13-surface2);border:1px solid var(--gi13-line);border-radius:15px;padding:16px;color:var(--gi13-ink);font-size:16px;}
+:root[data-remaster="13"] .gi13-search-sheet :is(input,button):focus-visible{outline:2px solid var(--gi13-a);outline-offset:2px;}
+:root[data-remaster="13"] .gi13-sheet-close{justify-self:end;background:transparent;border:0;font-size:28px;color:var(--gi13-ink);}
+:root[data-remaster="13"] .gi13-sheet-submit{justify-self:start;background:var(--gi13-a);color:var(--gi13-space);padding:13px 20px;border-radius:14px;border:0;font-weight:800;}
