@@ -102,8 +102,24 @@ function attachMobileSearch(){
   b.textContent="⌕";b.setAttribute("aria-label","Pesquisar jogos");
   b.style.cssText="border:1px solid var(--gi13-line);border-radius:12px;background:var(--gi13-surface);color:var(--gi13-ink);width:36px;height:39px;font-size:23px;display:none;flex-shrink:0";
   b.addEventListener("click",()=>{
-    const search=prompt("Pesquisar no GameIndex");
-    if(search?.trim())location.href="/results.html?q="+encodeURIComponent(search.trim());
+    let dialog=document.getElementById("gi13SearchDialog");
+    if(!dialog){
+      dialog=document.createElement("dialog");dialog.id="gi13SearchDialog";
+      dialog.setAttribute("aria-label","Pesquisa de jogos");
+      dialog.innerHTML='<form method="dialog" class="gi13-search-sheet"><button type="submit" class="gi13-sheet-close" aria-label="Fechar">×</button><span>GAMEINDEX / SEARCH</span><h2>O que você procura?</h2><label for="gi13SearchQuery">Jogo, universo ou assunto</label><input id="gi13SearchQuery" type="search" maxlength="120" placeholder="Pesquise no GameIndex..." autocomplete="off" required><button class="gi13-sheet-submit" type="button" id="gi13SearchSend">Pesquisar ↗</button></form>';
+      document.body.appendChild(dialog);
+      const input=dialog.querySelector("input");
+      const search=()=>{
+        const q=input.value.trim();
+        if(!q)return;
+        dialog.close();
+        location.href="/results.html?q="+encodeURIComponent(q);
+      };
+      dialog.querySelector("#gi13SearchSend").addEventListener("click",search);
+      input.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();search();}});
+      dialog.addEventListener("click",e=>{if(e.target===dialog)dialog.close();});
+    }
+    dialog.showModal?.();dialog.querySelector("input")?.focus();
   });
   top.prepend(b);
   const stylesheet=document.createElement("style");
