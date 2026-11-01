@@ -56,14 +56,13 @@ function remasterText(){
   document.title=document.title.replace(/GameIndex Beta 0\.992/g,"GameIndex Remastered").replace(/Remaster 0\.93/g,"Remastered");
   const badge=document.querySelector("#siteHeader .brand-badge");txt(badge,"REMASTERED");
   const footer=document.querySelector(".site-footer span");if(footer&&/Remaster 0\.93/.test(footer.textContent||""))txt(footer,"GameIndex Remastered · Uma identidade. Infinitos universos.");
-  if(document.body?.dataset.page==="games"){
-    const h=document.querySelector(".simple-hero h1");txt(h,"Explore os universos.");
-    const lead=document.querySelector(".simple-hero > p:nth-of-type(2)");txt(lead,"Uma biblioteca conectada, feita para encontrar sua próxima grande experiência.");
-    const eyebrow=document.querySelector(".simple-hero .section-eyebrow");txt(eyebrow,"GAMEINDEX · LIBRARY");
+  // Preserve the dedicated Remastered HTML headings; adapt only older page variants.
+  if(document.body?.dataset.page==="games"&&!document.querySelector(".gi13-library-stage")){
+    txt(document.querySelector(".simple-hero h1"),"Explore os universos.");
   }
-  if(document.body?.dataset.page==="ai"){
-    const h=document.querySelector(".brain-hero h1");if(h)h.innerHTML="Conheça o universo.<br><span class=\"gi-rm-hero-accent\">Pergunte ao Dexter.</span>";
-    const p=document.querySelector(".brain-hero > p");txt(p,"Estratégias, histórias e descobertas com contexto dos jogos. O Dexter consulta a base de conhecimento do GameIndex e utiliza um modelo quando disponível.");
+  if(document.body?.dataset.page==="ai"&&!document.querySelector(".gi13-dexter-hero")){
+    const h=document.querySelector(".brain-hero h1");
+    if(h)h.textContent="Pergunte ao Dexter.";
   }
   for(const icon of document.querySelectorAll('link[rel="icon"]'))icon.href="/assets/brand/index-emblem.svg?v=remastered13";
 }
