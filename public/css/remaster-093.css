@@ -1,0 +1,63 @@
+/* GameIndex Remaster 0.93 — isolated UI layer, no changes to authorization. */
+:root{--gi-rm-bg:#080a10;--gi-rm-panel:#111720;--gi-rm-line:rgba(175,190,215,.13);--gi-rm-ink:#eff1f7;--gi-rm-muted:#9aa7b9;--gi-rm-accent:var(--brand-logo-primary,#f4f4f2);--gi-rm-radius:16px}
+html{scroll-behavior:smooth}html[data-animations="off"],html[data-reduced-motion="1"]{scroll-behavior:auto}
+body{background:radial-gradient(ellipse 68% 26% at 50% 4%,color-mix(in srgb,var(--gi-rm-accent) 5%,transparent),transparent 74%),var(--gi-rm-bg)!important}
+body::before{pointer-events:none}
+html body #siteHeader{box-shadow:0 8px 38px rgba(0,0,0,.22);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--gi-rm-line)!important}
+html body #siteHeader .site-header-inner{min-height:68px;gap:clamp(10px,1.15vw,22px)!important}
+html body #siteHeader .header-search{border-radius:14px!important;border:1px solid var(--gi-rm-line)!important;background:rgba(255,255,255,.035)!important;min-width:145px;transition:border-color .22s,background .22s,box-shadow .22s}
+html body #siteHeader .header-search:focus-within{border-color:color-mix(in srgb,var(--gi-rm-accent) 60%,transparent)!important;background:rgba(255,255,255,.052)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--gi-rm-accent) 12%,transparent)}
+html body #siteHeader .brand-mark,html body #siteHeader .gi-search-mark,html body .drawer-head .brand-mark,html body .hero-search .gi-search-mark{background:var(--gi-rm-accent)!important;mask:url('/assets/brand/index-emblem.svg?v=remaster093') center/contain no-repeat!important;-webkit-mask:url('/assets/brand/index-emblem.svg?v=remaster093') center/contain no-repeat!important}
+html body #siteHeader .brand-mark{height:34px!important;width:34px!important;min-width:34px!important;flex-basis:34px!important}
+html body #siteHeader .brand-name{font-weight:800;letter-spacing:.08em}
+html body #siteHeader .brand-badge{font-size:9px;white-space:nowrap;color:var(--gi-rm-accent);border:1px solid color-mix(in srgb,var(--gi-rm-accent) 25%,transparent);border-radius:6px;padding:4px 6px}
+html body #siteHeader .header-nav{gap:clamp(5px,.8vw,14px)}
+html body #siteHeader .nav-link{border-radius:10px;padding:10px 8px;transition:background .2s,color .2s}
+html body #siteHeader .nav-link:hover,html body #siteHeader .nav-link.active{background:color-mix(in srgb,var(--gi-rm-accent) 10%,transparent)}
+html body #siteHeader .top-profile-link{border:1px solid var(--gi-rm-line)!important;background:rgba(255,255,255,.035)!important}
+html body #siteHeader .gi-social-link{border-radius:12px}
+html body #siteHeader .gi-brand-copy{min-width:0}
+html body .side-drawer{max-width:min(410px,92vw)}
+html body .side-drawer .drawer-panel{background:linear-gradient(152deg,#151b27 0%,#090c13 82%)!important}
+html body .drawer-nav{display:flex;flex-direction:column;gap:9px}
+html body .drawer-nav .gi-rm-menu-group{display:block;border:1px solid var(--gi-rm-line);border-radius:13px;background:rgba(255,255,255,.025);overflow:hidden}
+html body .drawer-nav .gi-rm-menu-group>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:46px;cursor:pointer;padding:12px 14px;color:var(--gi-rm-ink);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+html body .drawer-nav .gi-rm-menu-group>summary::-webkit-details-marker{display:none}
+html body .drawer-nav .gi-rm-menu-group>summary:after{content:'+';font-size:17px;color:var(--gi-rm-accent);line-height:1}
+html body .drawer-nav .gi-rm-menu-group[open]>summary:after{content:'−'}
+html body .drawer-nav .gi-rm-menu-items{display:grid;gap:2px;padding:0 8px 8px}
+html body .drawer-nav .gi-rm-menu-items>a{min-height:42px;display:flex;align-items:center;gap:12px;border-radius:9px;padding:9px 10px}
+html body .drawer-nav .gi-rm-menu-items>a:hover,html body .drawer-nav .gi-rm-menu-items>a:focus-visible{background:color-mix(in srgb,var(--gi-rm-accent) 11%,transparent)}
+html body .drawer-nav .gi-rm-menu-items>a>span:first-child{flex:0 0 18px;text-align:center;color:var(--gi-rm-accent)}
+html body .drawer-nav .admin-panel-menu{margin:0}
+html body .drawer-nav [hidden],html body .gi-rm-menu-items [hidden]{display:none!important}
+html body .gi-context-compass{border-radius:12px;background:rgba(18,24,34,.96);border-color:var(--gi-rm-line);backdrop-filter:blur(14px)}
+html body .game-card{border-radius:var(--gi-rm-radius)!important;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s}
+html body .game-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--gi-rm-accent) 43%,transparent)!important;box-shadow:0 17px 40px #0006}
+html body .game-card-visual{background:linear-gradient(120deg,#0d121b,#161d28)}
+html body .hero-home{padding-top:clamp(76px,9vh,132px)}
+html body .hero-home h1{letter-spacing:-.055em}
+html body .brain-console,html body .brain-answer-card{border-radius:var(--gi-rm-radius)}
+html body .brain-console{box-shadow:0 15px 55px rgba(0,0,0,.25)}
+html body .gi-rm-palette{position:fixed;inset:0;z-index:20030;display:grid;place-items:start center;padding:clamp(75px,16vh,160px) 18px 24px;background:rgba(2,5,9,.76);backdrop-filter:blur(9px)}
+html body .gi-rm-palette[hidden]{display:none!important}
+html body .gi-rm-palette-panel{width:min(620px,100%);max-height:min(70vh,680px);display:flex;flex-direction:column;gap:12px;overflow:hidden;border:1px solid color-mix(in srgb,var(--gi-rm-accent) 40%,transparent);border-radius:18px;padding:16px;background:linear-gradient(140deg,#151b27,#080b11);box-shadow:0 28px 90px rgba(0,0,0,.65);color:var(--gi-rm-ink)}
+html body .gi-rm-palette-head{display:flex;align-items:center;gap:12px}.gi-rm-palette-head strong{font-size:14px}.gi-rm-palette-head span{margin-left:auto;font-size:11px;color:var(--gi-rm-muted)}
+html body #giRmCommandInput{width:100%;border:1px solid var(--gi-rm-line);border-radius:12px;background:#0b1019;color:#fff;font:500 15px system-ui;padding:15px;outline:none}
+html body #giRmCommandInput:focus{border-color:var(--gi-rm-accent)}
+html body .gi-rm-palette-results{overflow-y:auto;display:grid;gap:5px}
+html body .gi-rm-palette-results a{display:flex;align-items:center;justify-content:space-between;color:var(--gi-rm-ink);text-decoration:none;border-radius:10px;padding:13px 12px;min-height:45px}
+html body .gi-rm-palette-results a:hover,html body .gi-rm-palette-results a:focus-visible{background:color-mix(in srgb,var(--gi-rm-accent) 14%,transparent);outline:1px solid color-mix(in srgb,var(--gi-rm-accent) 42%,transparent)}
+html body .gi-rm-palette-results a:after{content:'↗';color:var(--gi-rm-accent)}
+html body .gi-rm-command-trigger{background:transparent;border:1px solid var(--gi-rm-line);color:var(--gi-rm-muted);font-size:12px;border-radius:9px;padding:8px 10px;cursor:pointer}
+html body .gi-rm-command-trigger:hover{border-color:var(--gi-rm-accent);color:var(--gi-rm-ink)}
+html body .gi-rm-reveal{position:fixed;inset:0;z-index:20020;pointer-events:none;display:grid;place-items:center;background:#080b12;animation:gi-rm-reveal .64s cubic-bezier(.25,.8,.35,1) both}
+html body .gi-rm-reveal-inner{display:flex;align-items:center;gap:17px;color:#f4f4f2;font:800 clamp(17px,3vw,25px)/1.15 system-ui;letter-spacing:.09em;text-transform:uppercase}
+html body .gi-rm-reveal-inner:before{content:'';width:44px;height:44px;display:block;background:var(--gi-rm-accent);mask:url('/assets/brand/index-emblem.svg?v=remaster093') center/contain no-repeat;-webkit-mask:url('/assets/brand/index-emblem.svg?v=remaster093') center/contain no-repeat}
+html body .gi-rm-reveal-inner:after{content:'';position:absolute;width:min(410px,70vw);height:1px;background:linear-gradient(90deg,transparent,var(--gi-rm-accent),transparent);transform:translateY(54px);opacity:.6}
+@keyframes gi-rm-reveal{0%{opacity:1}55%{opacity:1}100%{opacity:0;visibility:hidden}}
+html body .gi-rm-nav-out{position:fixed;inset:0;z-index:20025;pointer-events:none;background:var(--gi-rm-bg);opacity:0;animation:gi-rm-out .22s ease-out forwards}
+@keyframes gi-rm-out{to{opacity:.9}}
+@media(max-width:1120px){html body #siteHeader .header-nav .nav-link{display:none!important}html body #siteHeader .brand-badge{display:none}}
+@media(max-width:760px){html body #siteHeader .site-header-inner{min-height:58px}html body #siteHeader .header-search{border-radius:10px!important}html body .hero-home{padding-top:62px}html body .gi-rm-command-trigger{display:none}html body .gi-rm-reveal-inner:before{width:32px;height:32px}html body .gi-rm-reveal{animation-duration:.4s}}
+@media(prefers-reduced-motion:reduce){html body .gi-rm-reveal,html body .gi-rm-nav-out{display:none!important}html body .game-card{transition:none!important;transform:none!important}}
