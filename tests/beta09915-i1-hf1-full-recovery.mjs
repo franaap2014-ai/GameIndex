@@ -36,6 +36,6 @@ assert.ok(connection.includes('version===45?"0.9915"'));
 
 const shell=read("public/js/shell-0986.js");
 for(const group of ["OVERVIEW","CONTENT & GAMES","CINEMATICS","SYSTEM & DIAGNOSTICS"]) assert.ok(shell.includes(group),`Admin group missing: ${group}`);
-assert.ok(shell.includes("/css/gameindex-09915.css?v=09915hf3"));
+assert.ok(shell.includes("/css/remastered-13.css?v=13.1"),"Remastered integration should preserve the established shell");
 
 console.log("Beta 0.9915 I2 recovery source regression checks passed.");
