@@ -23,7 +23,7 @@ assert(soundtrack.includes("AudioContext"),"web audio composition exists");
 assert(!/youtube\.com|youtu\.be|spotify\.com/.test(soundtrack),"music isn't a remote copyrighted track");
 assert(!/\.play\(\)/.test(soundtrack),"audio must be user initiated");
 
-const dom=new JSDOM(\`<!doctype html><html><head></head><body data-page="home">
+const dom=new JSDOM(`<!doctype html><html><head></head><body data-page="home">
 <header id="siteHeader"><div class="header-nav"></div><button id="menuTrigger"></button><span class="brand-badge">BETA</span></header>
 <aside id="sideDrawer"><nav class="drawer-nav">
 <p>Explorar</p><a href="/">Home</a><a href="/games.html">Games</a><a href="/ai.html">Dexter</a>
@@ -32,7 +32,7 @@ const dom=new JSDOM(\`<!doctype html><html><head></head><body data-page="home">
 <main class="page-wrap">
 <section class="hero-home"><div class="hero-kicker">GAMEINDEX</div><h1>Old site</h1><p class="hero-copy">Old</p><div class="hero-actions"></div></section>
 <section id="recommended"><p id="recommendationEyebrow">Old</p><span id="recommendationMode"></span></section>
-</main></body></html>\`,{url:"https://gameindex.example/",runScripts:"outside-only"});
+</main></body></html>`,{url:"https://gameindex.example/",runScripts:"outside-only"});
 dom.window.eval(script);
 dom.window.GameIndexRemastered13.boot();
 assert.equal(dom.window.document.documentElement.dataset.remaster,"13");
@@ -45,7 +45,7 @@ assert.equal(dom.window.document.querySelector(".hero-home h1").textContent.incl
 assert.equal(dom.window.document.querySelector(".gi13-portal[href='/ai.html']")?.textContent.includes("Dexter IA"),true);
 
 // Audio script mounts into existing player without automatically starting playback.
-const audio=new JSDOM(\`<!doctype html><body><div id="giMusicPopover"></div></body>\`,{url:"https://gameindex.example/",runScripts:"outside-only"});
+const audio=new JSDOM(`<!doctype html><body><div id="giMusicPopover"></div></body>`,{url:"https://gameindex.example/",runScripts:"outside-only"});
 audio.window.eval(soundtrack);
 audio.window.document.dispatchEvent(new audio.window.Event("DOMContentLoaded"));
 assert(audio.window.document.getElementById("gi13TrackToggle"),"original soundtrack control mounted");
