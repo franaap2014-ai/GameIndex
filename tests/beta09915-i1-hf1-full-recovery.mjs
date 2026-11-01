@@ -24,7 +24,7 @@ assert.ok(!css.includes(".header-search{grid-column:1/3;grid-row:2}.header-nav")
 assert.ok(css.includes("--gi9915-control-bg"),"semantic readable control tokens missing");
 
 const lab=read("public/cinematic-test-lab.html");
-for(const marker of ["1 · CINEMATIC","2 · CONTEXTO","3 · PREVIEW","Teste avançado em sequência"]) assert.ok(lab.includes(marker),`Cinematic Test Lab missing ${marker}`);
+for(const marker of ["1 · CINEMATIC","2 · CONTEXTO","gi9915-testlab-preview-head","Teste avançado em sequência"]) assert.ok(lab.includes(marker),`Cinematic Test Lab missing ${marker}`);
 
 const migration=read("src/database/migrations/046_beta_09915_i1_hf1_full_recovery.sql");
 for(const slug of ["blox-fruits","doors","fisch","work-at-a-pizza-place","prison-life"]) assert.ok(migration.includes(slug),`missing Roblox experience ${slug}`);
