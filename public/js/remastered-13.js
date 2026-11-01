@@ -42,7 +42,7 @@ function buildPortals(){
   section.before(portals);
   const hero=home.querySelector(".hero-home");
   const tag=hero?.querySelector(".hero-kicker");
-  if(tag)tag.classList.add("gi13-stage-tag");
+  if(tag){tag.classList.add("gi13-stage-tag");tag.textContent="GAMEINDEX · REMASTERED";}
   const title=hero?.querySelector("h1");
   if(title)title.innerHTML="Entre em uma nova<br>dimensão dos <span class=\"gi-rm-hero-accent\">games.</span>";
   const copy=hero?.querySelector(".hero-copy");
