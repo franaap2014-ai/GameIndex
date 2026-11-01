@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {dexterModelConfig,dexterModelHealth} from '../src/dexter/model-provider-093.mjs';
+import {dexterModelConfig,dexterModelHealth,dexterModelStructured} from '../src/dexter/model-provider-093.mjs';
 
 const root=new URL('../',import.meta.url);
 const read=path=>fs.readFileSync(new URL(path,root),'utf8');
@@ -18,6 +18,23 @@ try{
  ok('non-HTTPS remote endpoint rejected',()=>assert.equal(dexterModelConfig().valid,false));
  const insecure=await dexterModelHealth();
  ok('invalid remote URL is rejected without network access',()=>assert.equal(insecure.errorCode,'DEXTER_INVALID_PROVIDER_URL'));
+
+ const nativeFetch=globalThis.fetch;
+ try{
+   process.env.DEXTER_API_BASE_URL='https://provider.example.test/v1';
+   process.env.DEXTER_API_KEY='test-only-example';
+   process.env.DEXTER_MODEL='test-model';
+   const calls=[];
+   globalThis.fetch=async (url,options={})=>{
+     calls.push({url:String(url),options});
+     if(String(url).endsWith('/models'))return new Response(JSON.stringify({data:[{id:'test-model'}]}),{status:200,headers:{'Content-Type':'application/json'}});
+     return new Response(JSON.stringify({model:'test-model',choices:[{message:{content:JSON.stringify({directAnswer:'Resposta de teste',details:[],confidence:1,evidenceIds:[0]})}}],usage:{prompt_tokens:4,completion_tokens:8}}),{status:200,headers:{'Content-Type':'application/json'}});
+   };
+   const healthy=await dexterModelHealth();
+   ok('configured HTTPS provider is detected',()=>{assert.equal(healthy.reachable,true);assert.equal(healthy.modelInstalled,true);});
+   const answer=await dexterModelStructured({system:'Answer from evidence',prompt:'Use source 0'});
+   ok('model generates parsed JSON using private backend auth',()=>{assert.equal(answer.data.directAnswer,'Resposta de teste');assert.equal(answer.model,'test-model');assert.equal(calls.length,2);assert.equal(calls[1].options.headers.Authorization,'Bearer test-only-example');});
+ }finally{globalThis.fetch=nativeFetch;delete process.env.DEXTER_API_KEY;}
  ok('theme-aware GI mark contains no role text',()=>{const logo=read('public/assets/brand/index-emblem.svg');assert.match(logo,/viewBox="0 0 64 64"/);assert.match(logo,/currentColor/);assert.doesNotMatch(logo,/>\s*(?:BASE|PRO|DEV|TESTER|CREATOR)\s*</);});
  ok('global shell loads remaster layer',()=>{const shell=read('public/js/shell-0986.js');assert.match(shell,/remaster-093\.css/);assert.match(shell,/remaster-093\.js/);});
  ok('command palette filters links based on capabilities',()=>{const src=read('public/js/remaster-093.js');assert.match(src,/closest\('\[hidden\]'\)/);assert.match(src,/!caps\.has\(cap\)/);});
