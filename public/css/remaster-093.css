@@ -61,3 +61,17 @@ html body .gi-rm-nav-out{position:fixed;inset:0;z-index:20025;pointer-events:non
 @media(max-width:1120px){html body #siteHeader .header-nav .nav-link{display:none!important}html body #siteHeader .brand-badge{display:none}}
 @media(max-width:760px){html body #siteHeader .site-header-inner{min-height:58px}html body #siteHeader .header-search{border-radius:10px!important}html body .hero-home{padding-top:62px}html body .gi-rm-command-trigger{display:none}html body .gi-rm-reveal-inner:before{width:32px;height:32px}html body .gi-rm-reveal{animation-duration:.4s}}
 @media(prefers-reduced-motion:reduce){html body .gi-rm-reveal,html body .gi-rm-nav-out{display:none!important}html body .game-card{transition:none!important;transform:none!important}}
+
+/* Context-specific, decorative page reveal language. */
+html body .gi-rm-scene-symbol{font:800 clamp(36px,6vw,64px)/1 system-ui;color:var(--gi-rm-accent);filter:drop-shadow(0 0 24px color-mix(in srgb,var(--gi-rm-accent) 30%,transparent));animation:gi-rm-scene-in .5s ease-out both}
+html body .gi-rm-reveal[data-scene="settings"] .gi-rm-scene-symbol{animation:gi-rm-gear .62s ease-out both}
+html body .gi-rm-reveal[data-scene="ai"] .gi-rm-scene-symbol{animation:gi-rm-ai .52s ease-in-out both}
+html body .gi-rm-reveal[data-scene="update-log"] .gi-rm-scene-symbol{animation:gi-rm-update .52s cubic-bezier(.2,1,.4,1) both}
+html body .gi-rm-reveal[data-scene="admin"] .gi-rm-scene-symbol{font-family:monospace;letter-spacing:-.12em}
+html body .gi-rm-reveal[data-scene="creator"] .gi-rm-scene-symbol{animation:gi-rm-build .52s ease-out both}
+@keyframes gi-rm-scene-in{from{opacity:0;transform:scale(.8) rotate(-5deg)}to{opacity:1;transform:none}}
+@keyframes gi-rm-gear{from{opacity:.4;transform:rotate(-130deg) scale(.65)}to{opacity:1;transform:rotate(0) scale(1)}}
+@keyframes gi-rm-ai{0%{opacity:0;transform:scale(.5)}65%{opacity:1;transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes gi-rm-update{from{opacity:0;transform:translateY(35px)}to{opacity:1;transform:none}}
+@keyframes gi-rm-build{from{opacity:0;transform:rotate(-24deg) scale(.65)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){html body .gi-rm-scene-symbol{animation:none!important}}
