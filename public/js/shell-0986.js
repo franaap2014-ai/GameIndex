@@ -8,6 +8,10 @@
   const mobileScript=document.createElement('script');mobileScript.src='/js/mobile-i2.js?v=09915i2';mobileScript.defer=true;document.head.appendChild(mobileScript);
    const rmStyle=document.createElement('link');rmStyle.rel='stylesheet';rmStyle.href='/css/remaster-093.css?v=remaster093';rmStyle.dataset.remaster='093';document.head.appendChild(rmStyle);
    const rmScript=document.createElement('script');rmScript.src='/js/remaster-093.js?v=remaster093';rmScript.defer=true;document.head.appendChild(rmScript);
+   // New experience system loads after the existing app without replacing its API surface.
+   const gi13Style=document.createElement('link');gi13Style.rel='stylesheet';gi13Style.href='/css/remastered-13.css?v=13.1';gi13Style.dataset.gi13='style';document.head.appendChild(gi13Style);
+   for(const url of ['/js/remastered-13.js?v=13.1','/js/remastered-soundtrack.js?v=13.1']){const script=document.createElement('script');script.src=url;script.async=false;script.dataset.gi13='runtime';document.head.appendChild(script);}
+
 })();
 const GV={
   lang:(window.GIStorage?.local||localStorage).getItem("gv_lang")||"pt-BR",translations:{},auth:null,
