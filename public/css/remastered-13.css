@@ -169,7 +169,7 @@
 }
 :root[data-remaster="13"] .game-card .game-card-visual img{
  display:block!important;width:100%!important;height:100%!important;position:absolute!important;inset:0!important;
- object-fit:cover!important;object-position:50% 38%;max-height:none!important;border-radius:0!important;
+ object-fit:cover;object-position:50% 38%;max-height:none!important;border-radius:0!important;
 }
 :root[data-remaster="13"] .game-card .game-card-visual :is(.gv-image-fallback,.game-card-placeholder){height:100%;min-height:180px;display:grid;place-items:center;color:var(--gi13-a);font-size:30px;letter-spacing:.2em;font-weight:800;}
 :root[data-remaster="13"] .game-card .game-card-body{padding:20px 21px 24px!important;flex:1;display:flex;flex-direction:column;gap:6px;}
@@ -212,7 +212,7 @@
 :root[data-remaster="13"] #giRmPalette input{background:var(--gi13-surface2)!important;color:var(--gi13-ink)!important;}
 /* Intentional cinematic system: only user-requested key events remain. */
 :root[data-remaster="13"] .gi-rm-reveal,:root[data-remaster="13"] .gi-rm-nav-out{display:none!important;}
-:root[data-remaster="13"] body:not(.gi13-allow-cinematic) .gi-cinematic-overlay[data-preview="0"]{display:none!important;}
+/* Welcome and theme cutscenes remain functional by explicit cinematic runtime; automatic page reveals are suppressed above. */
 /* One original soundtrack entrypoint, accessible from existing MUSIC popover */
 .gi13-track{margin-top:13px;padding:15px;border:1px solid var(--gi13-line,rgba(255,255,255,.12));border-radius:16px;background:color-mix(in srgb,var(--gi13-a,#cbb7f7) 7%,transparent);}
 .gi13-track-head{display:flex;align-items:center;gap:10px;justify-content:space-between;color:var(--gi13-ink,#f6f6fa);font-size:12px;font-weight:800;}
