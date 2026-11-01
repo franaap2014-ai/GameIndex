@@ -6,8 +6,9 @@ function includes(path,text){assert.ok(read(path).includes(text),`${path} missin
 
 const release=read("src/config/release-099i6.mjs");
 assert.match(release,/PUBLIC_VERSION="0\.992"/);
-assert.match(release,/INTERNAL_RELEASE="0\.992 DELIVERY"/);
-assert.match(release,/INTERNAL_RELEASE_CODE="BETA_0_992_I2_BANDWIDTH"/);
+// Historical HF1 behavior remains valid with the current I3 release metadata.
+assert.match(release,/INTERNAL_RELEASE="0\.992 I3"/);
+assert.match(release,/INTERNAL_RELEASE_CODE="BETA_0_992_I3_PRODUCT_QUALITY"/);
 assert.match(release,/TARGET_SCHEMA=47/);
 
 includes("src/database/repositories/favorite-game-repository.mjs","function favoriteTableReady()");
