@@ -272,3 +272,11 @@
 :root[data-remaster="13"] .gi13-search-sheet :is(input,button):focus-visible{outline:2px solid var(--gi13-a);outline-offset:2px;}
 :root[data-remaster="13"] .gi13-sheet-close{justify-self:end;background:transparent;border:0;font-size:28px;color:var(--gi13-ink);}
 :root[data-remaster="13"] .gi13-sheet-submit{justify-self:start;background:var(--gi13-a);color:var(--gi13-space);padding:13px 20px;border-radius:14px;border:0;font-weight:800;}
+
+/* Proprietary GameIndex Remastered gateway illustration. Not a reused stock hero. */
+:root[data-remaster="13"] body[data-page="home"] .hero-home::after{
+  inset:-8% -6% -12% 53%;border:0;border-radius:0;box-shadow:none;opacity:.82;
+  background:url('/assets/brand/remastered-gateway.svg?v=13.1') center right/contain no-repeat;
+}
+@media(max-width:950px){:root[data-remaster="13"] body[data-page="home"] .hero-home::after{opacity:.25;inset:0 -29% 0 38%;}}
+@media(max-width:600px){:root[data-remaster="13"] body[data-page="home"] .hero-home::after{opacity:.14;inset:20% -48% -10% 2%;}}
