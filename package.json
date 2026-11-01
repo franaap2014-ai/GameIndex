@@ -3,7 +3,7 @@
   "version": "0.992.0",
   "private": true,
   "type": "module",
-  "description": "GameIndex Beta 0.992 I3 Product Quality",
+  "description": "GameIndex Remastered — 13 Pillars preview on GameIndex 0.992 core",
   "engines": {
     "node": ">=22.13"
   },
@@ -45,7 +45,8 @@
     "test:bandwidth": "node tests/bandwidth-0992-i1-hf1.mjs && node tests/bandwidth-http-0992-i1-hf1.mjs",
     "test:0992i2": "node tests/release-0992-i2.mjs && npm run test:bandwidth",
     "test:0992i3": "node tests/quality-0992-i3.mjs",
-    "test:remaster093": "node tests/remaster-093.mjs"
+    "test:remaster093": "node tests/remaster-093.mjs",
+    "test:remastered": "node tests/remastered-13.mjs"
   },
   "dependencies": {
     "compression": "^1.8.1",
