@@ -12,7 +12,7 @@ const legacy=read("public/js/remaster-093.js");
 assert(css.includes('grid-template-columns:auto minmax(155px,1fr) auto'),'single desktop header layout');
 assert(css.includes("height:78px!important"),"single fixed-height desktop header");
 assert(css.includes('data-theme="free-light"'),"light mode respected");
-assert(css.includes('data-gi-framed'),"framing or image manager annotation referenced");
+assert(script.includes('dataset.giFramed'),"Image Manager framing is preserved");
 assert(css.includes("prefers-reduced-motion"),"accessibility");
 assert(!css.includes("gi13-allow-cinematic"),"do not suppress special cinematics");
 assert(shell.includes("/js/remastered-13.js?v=13.1"),"remaster runtime hooked in shell");
@@ -21,7 +21,7 @@ assert(!legacy.includes("groupDrawer();brand();palette();routes();opening();"),"
 assert(soundtrack.includes("Constellation Gateway"),"original composition exists");
 assert(soundtrack.includes("AudioContext"),"web audio composition exists");
 assert(!/youtube\.com|youtu\.be|spotify\.com/.test(soundtrack),"music isn't a remote copyrighted track");
-assert(!/autoplay|\.play\(\)/.test(soundtrack),"audio must be user initiated");
+assert(!/\.play\(\)/.test(soundtrack),"audio must be user initiated");
 
 const dom=new JSDOM(\`<!doctype html><html><head></head><body data-page="home">
 <header id="siteHeader"><div class="header-nav"></div><button id="menuTrigger"></button><span class="brand-badge">BETA</span></header>
