@@ -97,9 +97,9 @@
     document.querySelectorAll('.site-footer span').forEach(el=>{if(/GameIndex Beta 0\.992/.test(el.textContent||''))el.textContent=el.textContent.replace(/GameIndex Beta 0\.992/,'GameIndex Remaster 0.93');});
   }
   function boot(){
-    if(ready||!byId('siteHeader'))return;ready=true;document.documentElement.dataset.remaster='093';
-    groupDrawer();brand();palette();routes();opening();
+    if(ready||!byId('siteHeader'))return;ready=true;document.documentElement.dataset.remaster='13';
+    palette(); // Remastered: no automatic page blocking or legacy accordion wrapping.
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-  window.addEventListener('gv:shell-ready',()=>{boot();groupDrawer();});
+  window.addEventListener('gv:shell-ready',()=>{boot();});
 })();
