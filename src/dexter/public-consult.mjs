@@ -36,11 +36,39 @@ const copy={
  'en-US':{choose:'Which game would you like to ask about? Select a game or include its name.',ambiguous:'Which game in this franchise do you mean?',missing:'I could not find enough verified information. Try a more specific question.',failed:'New sources are unavailable right now. Please try again later.',stale:'This information may have changed. I could not verify a current answer.',research:'Based on source research.',memory:'Based on verified GameIndex content.'},
  'es-ES':{choose:'¿Sobre qué juego quieres preguntar? Selecciona un juego o escribe su nombre.',ambiguous:'¿Qué juego de esta franquicia quieres consultar?',missing:'No encontré información verificada suficiente. Prueba una pregunta más específica.',failed:'No pude consultar nuevas fuentes. Inténtalo más tarde.',stale:'Esta información puede haber cambiado. No pude verificarla.',research:'Basado en investigación de fuentes.',memory:'Basado en contenido verificado de GameIndex.'}
 };
+/** Source-grounded discovery remains usable when no external LLM has been configured. */
+export function dexterCatalogDiscovery(question,language='pt-BR'){
+ const q=norm(question);
+ if(!/(recomend|recomendacion|recommend|indiqu|sugest|suggest|jogo para jogar|jogos de |games like|game to play|que jogo|qual jogo jogar)/.test(q))return null;
+ const all=listGames({includeDrafts:false}).filter(g=>g.status==='PUBLISHED'&&g.visibility==='PUBLIC');
+ if(!all.length)return null;
+ const genreWords=['aventura','acao','action','rpg','simulacao','simulation','survival','sobrevivencia','estrategia','strategy','sandbox','terror','horror','corrida','racing','esporte','sports','puzzle','construcao','building','plataforma','platform'];
+ const genres=genreWords.filter(g=>q.includes(g));
+ let entries=all.filter(g=>{
+  if(!genres.length)return true;
+  const tags=[...(g.generos||g.genres||[]),String(g.descricao||g.description||'').slice(0,150)];
+  const normalized=norm(tags.join(' '));
+  return genres.some(word=>normalized.includes(word));
+ }).slice(0,6);
+ if(!entries.length)return null;
+ const chosen=entries.map(g=>({name:g.nome,slug:g.slug})).filter(g=>g.name&&g.slug);
+ if(!chosen.length)return null;
+ const lang=copy[language]?language:'pt-BR';
+ const lead=lang==='en-US'?'Here are games from the GameIndex catalog:':lang==='es-ES'?'Estos juegos aparecen en el catálogo de GameIndex:':'Estes jogos estão no catálogo do GameIndex:';
+ const notice=lang==='en-US'?'These are catalog suggestions, not personalized recommendations or live rankings.':lang==='es-ES'?'Son sugerencias del catálogo, no clasificaciones actuales ni recomendaciones personalizadas.':'Sugestões baseadas no catálogo, não em um ranking atualizado nem em preferências pessoais.';
+ return {ok:true,answer:{
+  directAnswer:lead,details:chosen.map(g=>'• '+g.name),sources:chosen.map(g=>({title:g.name,url:'/game.html?slug='+encodeURIComponent(g.slug)})),
+  actions:chosen.slice(0,4).map(g=>({label:g.name,href:'/game.html?slug='+encodeURIComponent(g.slug)})),
+  notice,confidence:.85,canRetry:false,suggestions:chosen.map(g=>g.name),researched:false
+ },memory:{count:0},diagnostics:{intent:'CATALOG_DISCOVERY',modelUsed:false}};
+}
+
 export async function publicDexterConsult({question,selectedGame='AUTOMATIC',currentGame='',language='pt-BR',forceResearch=false,conversationId='',userId=null,contextScope='',saveHistory=true,responseLength='BALANCED',signal=null,capabilities=[],allowResearch=true}={}){
  const q=String(question||'').trim();if(!q||q.length>3000)throw Object.assign(new Error('Escreva uma pergunta com até 3.000 caracteres.'),{status:400});
  const lang=copy[language]?language:'pt-BR',c=copy[lang];
  const explicitGame=resolveDexterGame(q).game;
  const help=explicitGame&&!/gameindex|image manager|cinematic lab|universe builder/.test(norm(q))?null:productAnswer(q,lang,capabilities);if(help)return {ok:true,answer:help,memory:{count:0},diagnostics:{intent:'PRODUCT_HELP'}};
+ if(!explicitGame&&!forceResearch){const found=dexterCatalogDiscovery(q,lang);if(found)return found;}
  const conversation=/^[a-zA-Z0-9_-]{8,100}$/.test(conversationId)&&contextScope?contextScope+':'+conversationId:'';
  const stored=conversation&&saveHistory?getAI3Context({userId,conversationId:conversation}):null,previous=stored&&Date.now()-Date.parse(stored.updatedAt)<86400000?stored:null;
  const {game,ambiguous}=resolveDexterGame(q,currentGame||selectedGame,previous?.gameId),intent=resolveIntent(q,'overview').intent;

@@ -6,8 +6,9 @@ function includes(path,text){assert.ok(read(path).includes(text),`${path} missin
 
 const release=read("src/config/release-099i6.mjs");
 assert.match(release,/PUBLIC_VERSION="0\.992"/);
-assert.match(release,/INTERNAL_RELEASE="0\.992 DELIVERY"/);
-assert.match(release,/INTERNAL_RELEASE_CODE="BETA_0_992_I2_BANDWIDTH"/);
+// Historical HF1 behavior remains valid with the current I3 release metadata.
+assert.match(release,/INTERNAL_RELEASE="0\.992 I3"/);
+assert.match(release,/INTERNAL_RELEASE_CODE="BETA_0_992_I3_PRODUCT_QUALITY"/);
 assert.match(release,/TARGET_SCHEMA=47/);
 
 includes("src/database/repositories/favorite-game-repository.mjs","function favoriteTableReady()");
@@ -23,7 +24,7 @@ assert.ok(!css.includes(".header-search{grid-column:1/3;grid-row:2}.header-nav")
 assert.ok(css.includes("--gi9915-control-bg"),"semantic readable control tokens missing");
 
 const lab=read("public/cinematic-test-lab.html");
-for(const marker of ["1 · CINEMATIC","2 · CONTEXTO","3 · PREVIEW","Teste avançado em sequência"]) assert.ok(lab.includes(marker),`Cinematic Test Lab missing ${marker}`);
+for(const marker of ["1 · CINEMATIC","2 · CONTEXTO","gi9915-testlab-preview-head","Teste avançado em sequência"]) assert.ok(lab.includes(marker),`Cinematic Test Lab missing ${marker}`);
 
 const migration=read("src/database/migrations/046_beta_09915_i1_hf1_full_recovery.sql");
 for(const slug of ["blox-fruits","doors","fisch","work-at-a-pizza-place","prison-life"]) assert.ok(migration.includes(slug),`missing Roblox experience ${slug}`);
@@ -35,6 +36,6 @@ assert.ok(connection.includes('version===45?"0.9915"'));
 
 const shell=read("public/js/shell-0986.js");
 for(const group of ["OVERVIEW","CONTENT & GAMES","CINEMATICS","SYSTEM & DIAGNOSTICS"]) assert.ok(shell.includes(group),`Admin group missing: ${group}`);
-assert.ok(shell.includes("/css/gameindex-09915.css?v=09915hf3"));
+assert.ok(shell.includes("/css/remastered-13.css?v=13.1"),"Remastered integration should preserve the established shell");
 
 console.log("Beta 0.9915 I2 recovery source regression checks passed.");
