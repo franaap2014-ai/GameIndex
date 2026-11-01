@@ -1,0 +1,21 @@
+name: GameIndex Remastered — 13 Pillars
+on:
+  push:
+    branches: [feature/gameindex-remastered-13-pillars, main]
+  pull_request:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run test:remastered
+      - run: npm run test:remaster093
+      - run: npm run test:0992i3
