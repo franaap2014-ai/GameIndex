@@ -76,7 +76,7 @@ function pump(){
 async function start(){
   if(!A)throw new Error("Seu navegador não oferece áudio WebAudio.");
   if(!ctx){ctx=new A();volume=ctx.createGain();volume.connect(ctx.destination);
-    const stored=Number(STORE.getItem("gi13_track_volume"));volume.gain.value=Number.isFinite(stored)&&stored>=0&&stored<=100?stored/100*.36:.095;
+    const storedRaw=STORE.getItem("gi13_track_volume");const stored=storedRaw===null?NaN:Number(storedRaw);volume.gain.value=Number.isFinite(stored)&&stored>=0&&stored<=100?stored/100*.36:.095;
   }
   if(ctx.state==="suspended")await ctx.resume();
   if(playing)return;
@@ -116,7 +116,7 @@ function mount(){
     catch(error){document.getElementById("gi13TrackStatus").textContent=error?.message||"Áudio indisponível";}
   });
   const range=document.getElementById("gi13TrackVolume");
-  const stored=Number(STORE.getItem("gi13_track_volume"));
+  const storedRaw=STORE.getItem("gi13_track_volume");const stored=storedRaw===null?NaN:Number(storedRaw);
   if(Number.isFinite(stored)&&stored>=0&&stored<=100)range.value=String(stored);
   range.addEventListener("input",()=>setVolume(range.value));
   document.addEventListener("visibilitychange",()=>{if(document.hidden&&playing)stop();});
