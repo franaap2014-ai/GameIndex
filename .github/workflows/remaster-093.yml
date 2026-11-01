@@ -1,0 +1,25 @@
+name: GameIndex Remaster 0.93 checks
+on:
+  push:
+    branches:
+      - feature/remaster-0.93
+  pull_request:
+    branches:
+      - main
+jobs:
+  remaster-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Syntax and source integrity
+        run: npm run check
+      - name: Remaster-specific tests
+        run: npm run test:remaster093
+      - name: Preserve I3 regression
+        run: npm run test:0992i3

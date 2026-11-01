@@ -44,7 +44,8 @@
     "test:i1": "node tests/stability-0992-i1.mjs",
     "test:bandwidth": "node tests/bandwidth-0992-i1-hf1.mjs && node tests/bandwidth-http-0992-i1-hf1.mjs",
     "test:0992i2": "node tests/release-0992-i2.mjs && npm run test:bandwidth",
-    "test:0992i3": "node tests/quality-0992-i3.mjs"
+    "test:0992i3": "node tests/quality-0992-i3.mjs",
+    "test:remaster093": "node tests/remaster-093.mjs"
   },
   "dependencies": {
     "compression": "^1.8.1",

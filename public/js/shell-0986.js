@@ -6,6 +6,8 @@
   const i3Style=document.createElement('link');i3Style.rel='stylesheet';i3Style.href='/css/quality-0992-i3.css?v=0992i3';document.head.appendChild(i3Style);
   const mobileStyle=document.createElement('link');mobileStyle.rel='stylesheet';mobileStyle.href='/css/gameindex-mobile-i2.css?v=09915i2';document.head.appendChild(mobileStyle);
   const mobileScript=document.createElement('script');mobileScript.src='/js/mobile-i2.js?v=09915i2';mobileScript.defer=true;document.head.appendChild(mobileScript);
+   const rmStyle=document.createElement('link');rmStyle.rel='stylesheet';rmStyle.href='/css/remaster-093.css?v=remaster093';rmStyle.dataset.remaster='093';document.head.appendChild(rmStyle);
+   const rmScript=document.createElement('script');rmScript.src='/js/remaster-093.js?v=remaster093';rmScript.defer=true;document.head.appendChild(rmScript);
 })();
 const GV={
   lang:(window.GIStorage?.local||localStorage).getItem("gv_lang")||"pt-BR",translations:{},auth:null,
